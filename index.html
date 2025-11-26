@@ -1,0 +1,1738 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PromptPhoto 提示词生成器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+      :root { --bg:#faf9fb; --panel:#ffffff; --text:#3a3a40; --muted:#7a7f86; --accent:#ff8aa0; --accent-2:#ff6f91; --accent-soft: rgba(255,111,145,.12); --accent-hover: rgba(255,111,145,.16); --border:#eceff3; --chip-bg:#fff3f5; --chip-hover:#ffe9ee; --shadow-soft: 0 8px 20px rgba(58,58,64,.06); }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body { margin:0; background:var(--bg); color:var(--text); font-family: Inter, "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial; line-height: 1.6; }
+      .wrap { max-width: 1200px; margin: 0 auto; padding: 28px 28px 150px; }
+      .header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; }
+      .title { font-size: 22px; font-weight: 700; letter-spacing: .15px; }
+      .controls { display:flex; gap:10px; flex-wrap:wrap; }
+      button { background:var(--accent); color:#3a0d17; border:none; padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer; transition:transform .08s ease; box-shadow: none; }
+      button:active { transform: scale(.98); }
+      .btn-cta { padding:12px 18px; font-weight:700; border-radius:14px; }
+      .btn-secondary { background:var(--panel); color:var(--text); border:1px solid var(--border); }
+      .grid { display:grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap:22px; align-items:start; }
+      @media (max-width: 1200px) {
+        .grid { grid-template-columns: 1fr; }
+        .left-panel, .right-sticky { position:relative; height:auto; max-height:none; }
+        .right-sticky { top:auto; }
+      }
+      .card { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:20px; box-shadow: var(--shadow-soft); }
+      .left-panel { height: calc(100vh - 220px); display:flex; flex-direction:column; }
+      .dimension-header { flex-shrink:0; display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; margin-bottom:12px; border-bottom:1px solid var(--border); }
+      .dimension-header h3 { margin:0; }
+      .dimension-body { flex:1; overflow-y:auto; padding-right:4px; }
+      .right-sticky { position: sticky; top: 96px; max-height: calc(100vh - 220px); height: calc(100vh - 220px); display:flex; flex-direction:column; overflow:hidden; }
+      .right-sticky .output { flex:1; overflow:auto; }
+      .card h3 { margin:0 0 12px 0; font-size:16px; font-weight:600; color:var(--accent-2); }
+      .group { margin-bottom:18px; padding:12px; border-radius:14px; transition: background .2s ease; position:relative; }
+      .group-content { padding-top:8px; }
+      .group.group-disabled { background:#f4f5f8; }
+      .group.group-disabled .group-content { display:none; }
+      .group-title-row { display:flex; align-items:center; justify-content:flex-start; gap:8px; margin-bottom:8px; flex-wrap:wrap; position:relative; padding-left:24px; }
+      .group.collapsed > :not(.group-title-row) { display:none; }
+      .group-title { font-size:13px; color:var(--muted); letter-spacing:.1px; }
+      .options { display:flex; flex-wrap:wrap; gap:8px; }
+      .option { background:#ffffff; color:var(--text); border:1px solid var(--border); border-radius:999px; padding:7px 12px; cursor:pointer; font-weight:400; letter-spacing:.1px; transition: background .2s ease, border-color .2s ease, color .2s ease; box-shadow:none; }
+      .option:hover { background:var(--chip-hover); }
+      .option.active { border-color: var(--accent); background: var(--accent-soft); color:#3a0d17; }
+      .option:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+      .option.disabled { opacity:.5; pointer-events:none; }
+      .option .caret { display:inline-flex; align-items:center; justify-content:center; width:12px; height:12px; margin-left:6px; }
+      .option .caret svg { width:12px; height:12px; stroke: var(--muted); fill:none; }
+      .option.active .caret svg { stroke: var(--accent-2); }
+      .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+      .toggle { display:flex; align-items:center; gap:8px; padding:6px 6px; background:transparent; border:0; border-radius:10px; color:var(--muted); }
+      .toggle input[type="checkbox"] { accent-color: var(--accent); width:16px; height:16px; }
+      .toggle input:checked + label { color: var(--accent-2); }
+      .group-disabled .group-title { color:#b0b4ba; }
+      .group-disabled .option { background:#f8f8fb; border-color:#e3e5ec; color:#a5aab4; }
+      .output { width:100%; min-height:260px; white-space:pre-wrap; background:#ffffff; border:1px solid var(--border); border-radius:12px; padding:14px; color:var(--text); }
+      .scroll-soft { scrollbar-width: thin; scrollbar-color: rgba(122,127,134,.25) transparent; }
+      .scroll-soft::-webkit-scrollbar { width:6px; }
+      .scroll-soft::-webkit-scrollbar-track { background: transparent; }
+      .scroll-soft::-webkit-scrollbar-thumb { background: rgba(122,127,134,.3); border-radius:999px; border:1px solid rgba(255,255,255,.4); }
+      .scroll-soft:hover::-webkit-scrollbar-thumb { background: rgba(122,127,134,.45); }
+      .custom-section { border-top:1px solid var(--border); margin-top:20px; padding-top:16px; }
+      .custom-section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+      .custom-section-header h4 { margin:0; font-size:14px; color:var(--accent-2); }
+      .custom-form { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+      .custom-form .row { display:flex; gap:8px; flex-wrap:wrap; }
+      .custom-form input, .custom-form textarea { width:100%; border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-family:inherit; font-size:13px; color:var(--text); background:#fff; }
+      .custom-form textarea { min-height:80px; resize:vertical; }
+      .custom-form-actions { display:flex; gap:8px; }
+      .custom-hint { font-size:12px; color:var(--muted); margin:0; }
+      .custom-status { font-size:12px; color:var(--accent-2); margin:0; min-height:16px; }
+      .custom-dimensions-list { display:flex; flex-direction:column; gap:14px; }
+      .custom-dimension-card { border:1px solid var(--border); border-radius:14px; padding:12px; }
+      .custom-dimension-header { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; }
+      .custom-dimension-name { font-weight:600; font-size:13px; color:var(--muted); }
+      .custom-actions { display:flex; gap:6px; }
+      .custom-text-btn { background:transparent; border:none; color:var(--accent-2); font-size:12px; cursor:pointer; padding:4px 6px; border-radius:8px; }
+      .custom-text-btn:hover { background:var(--accent-soft); }
+      .custom-empty { font-size:12px; color:var(--muted); margin:0; }
+      .hidden { display:none !important; }
+      
+      .pill { display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; background:var(--chip-bg); border:1px solid var(--border); color:var(--muted); }
+      .footer { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:16px; }
+      .small { font-size:12px; color:var(--muted); }
+      .lang-toggle { display:flex; gap:6px; }
+      .lang-btn { background:var(--chip-bg); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:400; box-shadow:none; }
+      .lang-btn.active { border-color: var(--accent); color:#3a0d17; background: var(--accent-soft); }
+      .lang-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+      .btn-cta { padding:12px 18px; font-weight:700; border-radius:14px; box-shadow: 0 6px 14px rgba(255,111,145,.12); }
+      .sub-title { font-size:12px; color:var(--muted); margin:8px 0 4px; cursor:pointer; }
+      .sub-title-row { display:flex; align-items:center; justify-content:flex-start; gap:6px; flex-wrap:wrap; position:relative; padding-left:24px; }
+      .sub-title-row .lock-btn { margin-left:0; }
+      .sub-disabled .sub-title { color:#b0b4ba; }
+      .sub-disabled .options-block { opacity:.5; }
+      .options-block { margin-bottom:8px; }
+      .options-block.collapsed { display:none; }
+      select { width:100%; appearance:none; -webkit-appearance:none; -moz-appearance:none; background-color:#fff; border:1px solid var(--border); color:var(--text); border-radius:10px; padding:8px 34px 8px 10px; line-height:1.4; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='%237a7f86' stroke-width='2' d='M7 10l5 5 5-5'/></svg>"); background-repeat:no-repeat; background-position: calc(100% - 10px) 50%; background-size:12px; }
+      .lock-btn { background:transparent; border:none; color:var(--muted); padding:4px; border-radius:50%; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; width:auto; }
+      .lock-btn svg { width:16px; height:16px; stroke: currentColor; fill:none; }
+      .lock-btn:hover { color:var(--accent-2); }
+      .lock-btn.locked { color:var(--accent-2); }
+      .lock-btn:focus-visible { outline:2px solid var(--accent-soft); outline-offset:2px; }
+      .group.group-disabled .lock-btn,
+      .group.group-disabled .collapse-btn,
+      .group.group-disabled .visibility-btn { color:#c0c4cf; }
+      .collapse-btn { background:transparent; border:none; padding:4px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted); position:absolute; left:0; top:50%; transform: translateY(-50%); }
+      .collapse-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; transition: transform .2s ease; }
+      .collapse-btn:focus-visible { outline:2px solid var(--accent-soft); outline-offset:2px; }
+      .collapse-btn.collapsed svg { transform: rotate(-90deg); }
+      .visibility-btn { background:transparent; border:none; color:var(--muted); padding:4px; border-radius:50%; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+      .visibility-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; }
+      .visibility-btn:focus-visible { outline:2px solid var(--accent-soft); outline-offset:2px; }
+      .global-bar { position: fixed; bottom: 16px; left:50%; transform: translateX(-50%); background: #fff; border:1px solid var(--border); box-shadow: var(--shadow-soft); border-radius:14px; padding:8px 12px; display:flex; gap:8px; z-index:50; }
+      .btn-with-icon { display:inline-flex; align-items:center; gap:6px; }
+      .btn-with-icon svg { width:16px; height:16px; stroke:currentColor; fill:none; }
+      .btn-icon { display:inline-flex; align-items:center; justify-content:center; }
+      .v-subtitle { font-size:12px; color:var(--muted); margin:6px 0; }
+      .v-subitems { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+      .popover { position:absolute; z-index:1000; background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow: var(--shadow-soft); padding:6px; }
+      .popover ul { list-style:none; margin:0; padding:0; max-height:220px; overflow:auto; }
+      .popover li { padding:6px 8px; border-radius:8px; cursor:pointer; }
+      .popover li:hover { background:var(--chip-hover); }
+      .saved-floating { position:fixed; left:24px; top:110px; width:260px; max-height:calc(100vh - 160px); display:flex; flex-direction:column; gap:12px; z-index:90; }
+      .saved-floating.hidden { display:none; }
+      .saved-header { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+      .saved-header h3 { margin:0; font-size:16px; color:var(--accent-2); }
+      .saved-close { border:none; background:transparent; color:var(--muted); cursor:pointer; padding:4px; border-radius:8px; }
+      .saved-close:hover { color:var(--accent-2); background:var(--chip-hover); }
+      .saved-form { display:flex; gap:8px; }
+      .saved-form input { flex:1; border:1px solid var(--border); border-radius:12px; padding:8px 10px; font-size:13px; font-family:inherit; }
+      .saved-form button { white-space:nowrap; }
+      .saved-hint { font-size:12px; color:var(--muted); margin:0; }
+      .saved-status { min-height:16px; font-size:12px; color:var(--accent-2); margin:0; }
+      .saved-list { flex:1; overflow:auto; display:flex; flex-direction:column; gap:10px; padding-right:4px; }
+      .saved-item { border:1px solid var(--border); border-radius:12px; padding:10px 12px; display:flex; justify-content:space-between; gap:10px; align-items:center; cursor:pointer; transition: background .15s ease, border-color .15s ease; }
+      .saved-item:hover { background:var(--chip-hover); }
+      .saved-item.active { border-color: var(--accent); background: var(--accent-soft); }
+      .saved-item-info { display:flex; flex-direction:column; gap:4px; flex:1; min-width:0; }
+      .saved-item-name { font-weight:600; font-size:13px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .saved-item-meta { font-size:12px; color:var(--muted); }
+      .saved-item-delete { border:none; background:transparent; color:var(--accent-2); font-weight:600; cursor:pointer; padding:6px 8px; border-radius:8px; }
+      .saved-item-delete:hover { background:var(--chip-hover); }
+      .saved-empty { font-size:12px; color:var(--muted); text-align:center; margin:16px 0; }
+      @media (max-width: 768px) {
+        .saved-floating { left:12px; right:12px; width:auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <div class="title" id="appTitle">PromptPhoto 提示词生成器</div>
+        <div class="controls">
+          <div class="lang-toggle">
+            <button id="lang-zh" class="lang-btn active">中文</button>
+            <button id="lang-en" class="lang-btn">EN</button>
+          </div>
+          <button id="savedPanelToggle" class="btn-secondary" type="button">保存配置</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card left-panel">
+          <div class="row dimension-header">
+            <h3 id="dimensionHeading">维度选择</h3>
+            <button id="modeToggle" class="btn-secondary" title="切换视图模式">下拉模式</button>
+          </div>
+          <div class="dimension-body scroll-soft">
+          <div class="group" id="group-hair-style">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="hairStyle" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="hairStyle">头发造型</div>
+              <div class="row">
+                <button class="visibility-btn" data-group="hairStyle" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="hairStyle" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+              <div class="options" id="hairStyle"></div>
+            </div>
+          </div>
+          <div class="group" id="group-hair-color">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="hairColor" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="hairColor">发色</div>
+              <div class="row">
+                <button class="visibility-btn" data-group="hairColor" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="hairColor" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+              <div class="options" id="hairColor"></div>
+            </div>
+          </div>
+          <div class="group" id="group-clothing">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="clothing" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="clothing">服饰与饰品</div>
+              <div class="row">
+                <button class="visibility-btn" data-group="clothing" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="clothing" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="top" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="top">上衣</div>
+              <button class="lock-btn" data-sub="top" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="top"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="earrings" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="earrings">耳饰</div>
+              <button class="lock-btn" data-sub="earrings" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="earrings"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="rings" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="rings">戒指</div>
+              <button class="lock-btn" data-sub="rings" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="rings"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="nails" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="nails">指甲</div>
+              <button class="lock-btn" data-sub="nails" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="nails"></div>
+            </div>
+          </div>
+          <div class="group" id="group-makeup">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="makeup" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="makeup">妆容</div>
+              <div class="row">
+                <button class="visibility-btn" data-group="makeup" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="makeup" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="makeupStyle" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="makeupStyle">妆容风格</div>
+              <button class="lock-btn" data-sub="makeupStyle" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="makeupStyle"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="eyebrows" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="eyebrows">眉毛</div>
+              <button class="lock-btn" data-sub="eyebrows" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="eyebrows"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="eyeliner" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="eyeliner">眼线</div>
+              <button class="lock-btn" data-sub="eyeliner" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="eyeliner"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="eyelashes" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="eyelashes">睫毛</div>
+              <button class="lock-btn" data-sub="eyelashes" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="eyelashes"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="blush" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="blush">腮红</div>
+              <button class="lock-btn" data-sub="blush" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="blush"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="lips" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="lips">唇妆</div>
+              <button class="lock-btn" data-sub="lips" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="lips"></div>
+            </div>
+          </div>
+          <div class="group" id="group-pose">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="pose" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="pose">姿态与机位</div>
+              <div class="row">
+                <button class="visibility-btn" data-group="pose" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="pose" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="hands" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="hands">手部动作</div>
+              <button class="lock-btn" data-sub="hands" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="hands"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="expression" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="expression">表情</div>
+              <button class="lock-btn" data-sub="expression" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="expression"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="cameraAngle" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="cameraAngle">机位角度</div>
+              <button class="lock-btn" data-sub="cameraAngle" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="cameraAngle"></div>
+            </div>
+          </div>
+          <div class="group" id="group-composition">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="composition" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="composition">构图比例</div>
+              <div class="row">
+                <button class="visibility-btn" data-group="composition" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="composition" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="aspectRatio" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="aspectRatio">画面比例</div>
+              <button class="lock-btn" data-sub="aspectRatio" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="aspectRatio"></div>
+            </div>
+          </div>
+          <div class="group" id="group-background">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="background" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="background">背景与光线</div>
+              <div class="row">
+                <button class="visibility-btn" data-group="background" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="background" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="bgColor" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="bgColor">背景色/墙体</div>
+              <button class="lock-btn" data-sub="bgColor" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="bgColor"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="bgEffect" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="bgEffect">背景效果</div>
+              <button class="lock-btn" data-sub="bgEffect" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="bgEffect"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="lighting" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="lighting">光线条件</div>
+              <button class="lock-btn" data-sub="lighting" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="lighting"></div>
+            </div>
+          </div>
+          <div class="group" id="group-style">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="style" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="style">风格</div>
+              <div class="row">
+                <button class="visibility-btn" data-group="style" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="style" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="mood" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="mood">风格氛围</div>
+              <button class="lock-btn" data-sub="mood" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="mood"></div>
+            </div>
+          </div>
+          <div class="group" id="group-camera">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="camera" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="camera">相机</div>
+              <div class="row">
+                <button class="visibility-btn" data-group="camera" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="camera" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="cameraType" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="cameraType">相机类型</div>
+              <button class="lock-btn" data-sub="cameraType" aria-label="锁定">🔓</button>
+            </div>
+            <div class="options options-block" id="cameraType"></div>
+            </div>
+          </div>
+          <div class="custom-section">
+            <div class="custom-section-header">
+              <h4 id="customSectionTitle">自定义维度</h4>
+            </div>
+            <div class="custom-form" id="customForm">
+              <div class="row">
+                <input id="customNameZh" type="text" placeholder="维度名称（中文）"/>
+                <input id="customNameEn" type="text" placeholder="Dimension name (EN)"/>
+              </div>
+              <textarea id="customOptionsInput" placeholder="每行：柔和光线 | Soft lighting"></textarea>
+              <p class="custom-hint" id="customOptionsHint">使用“中文 | English”格式，一行一个选项。</p>
+              <div class="custom-form-actions">
+                <button id="customSaveBtn" class="btn-cta" type="button">添加维度</button>
+                <button id="customCancelBtn" class="btn-secondary hidden" type="button">取消编辑</button>
+              </div>
+              <p class="custom-status" id="customFormStatus"></p>
+            </div>
+            <div id="customDimensionsContainer" class="custom-dimensions-list"></div>
+          </div>
+        </div>
+        </div>
+        <div class="card right-sticky">
+          <h3 id="outputHeading">JSON 输出</h3>
+          <div id="promptOutput" class="output scroll-soft"></div>
+        </div>
+      </div>
+
+      <div id="savedFloatingPanel" class="card saved-floating hidden">
+        <div class="saved-header">
+          <h3 id="savedConfigsTitle">配置缓存</h3>
+          <button id="closeSavedPanelBtn" class="saved-close" type="button" aria-label="关闭">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="saved-form">
+          <input id="presetNameInput" type="text" placeholder="配置名称"/>
+          <button id="savePresetBtn" class="btn-cta" type="button">保存配置</button>
+        </div>
+        <p class="saved-hint" id="savedConfigsHint">给当前配置命名，并在下方列表里快速切换。</p>
+        <p class="saved-status" id="savedConfigsStatus"></p>
+        <div id="savedConfigsList" class="saved-list scroll-soft"></div>
+      </div>
+
+      <div class="global-bar">
+        <button id="randomAll" class="btn-cta btn-with-icon">
+          <span class="btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 3 21 3 21 8"></polyline>
+              <line x1="4" y1="20" x2="9" y2="15"></line>
+              <line x1="4" y1="4" x2="15" y2="15"></line>
+              <polyline points="16 16 21 16 21 21"></polyline>
+              <line x1="15" y1="9" x2="21" y2="15"></line>
+            </svg>
+          </span>
+          <span id="randomLabel">随机</span>
+        </button>
+        <button id="copyPrompt" class="btn-secondary btn-with-icon">
+          <span class="btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+            </svg>
+          </span>
+          <span id="copyLabel">复制提示词</span>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const STORAGE_KEY = 'promptPhotoSelections_v1';
+      function loadPersistedState() {
+        if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return null;
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+          return null;
+        }
+      }
+      function saveToStorage(data) {
+        if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return;
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {}
+      }
+      const savedData = loadPersistedState();
+      const defaults = {
+        subject: "Baby ꕤ Blue",
+        description: "Create a realistic close-up selfie of a young woman (face must be 100% unchanged). The photo is taken with a digital camera in a dimly lit room using a powerful camera flash, creating sharp contrast between the illuminated face and the dark background. The color tones combine a cozy feeling with modern simplicity, featuring cool tones and soft textures of the knitted clothing.",
+        hair: {
+          style: "Long dark brown hair, side part on the left, Korean-style loose curls at the ends, small front strands, hair blowing slightly across the face",
+          color: "Dark brown"
+        },
+        clothing: {
+          top: "Oversized blue striped knit sweater with white stripes",
+          accessories: {
+            earrings: "Small simple silver hoops",
+            rings: "Delicate silver rings"
+          },
+          nails: "Almond-shaped, blue with subtle sparkling crystals"
+        },
+        makeup: {
+          style: "Korean-style makeup",
+          details: {
+            skin: "Smooth and clear",
+            eyebrows: "Light natural and tidy",
+            eyeliner: "Soft, blurred Korean-style",
+            eyelashes: "Thin false eyelashes",
+            blush: "Light nude on cheeks, soft red on nose",
+            lips: "Nude with a hint of red"
+          }
+        },
+        pose: {
+          hands: "Both hands gently touching cheeks",
+          expression: "Dreamy and slightly cheerful",
+          camera_angle: "High-angle selfie, approx 30 degrees above the face"
+        },
+        background: {
+          color: "Dark wall with shallow depth, contrasting with flash lighting",
+          lighting: "Cool dim light with flash highlighting the face, hair, skin, and clothing texture",
+          effect: "Minimalist, modern, friendly, with slight reflective highlights"
+        },
+        style: {
+          mood: "Film noir elegance",
+          effects: "Prominent light and shadow, cinematic allure, high-detail, ultra-realistic"
+        },
+        camera: {
+          type: "Analog 35mm camera flash",
+          lighting_condition: "Dark room"
+        },
+        composition: {
+          aspect_ratio: "3:4"
+        },
+        model_version: "SDXL1.0"
+      };
+      const descriptions = {
+        en: defaults.description,
+        zh: "生成一张年轻女性的真实感特写自拍（面部必须保持 100% 不变）。在昏暗房间使用数码相机强力闪光拍摄，形成面部高光与深色背景的鲜明对比。整体色调将温暖舒适与现代简约结合，体现冷色调与针织服饰的柔软质感。"
+      };
+
+      let customDimensions = Array.isArray(savedData?.customDimensions) ? savedData.customDimensions : [];
+      const normalizedSaved = Array.isArray(savedData?.savedConfigs) ? savedData.savedConfigs : [];
+      let savedConfigs = normalizeSavedConfigs(normalizedSaved);
+      let activeSavedConfigId = savedData?.activeSavedConfigId || null;
+      if (activeSavedConfigId && !savedConfigs.some(cfg => cfg.id === activeSavedConfigId)) {
+        activeSavedConfigId = null;
+      }
+      let editingCustomId = null;
+      const current = { lang: savedData?.currentLang || 'zh' };
+      document.documentElement.lang = current.lang;
+      let uiMode = savedData?.uiMode || 'dropdown';
+      let savedPanelVisible = false;
+      const options = {
+        hairStyle: [
+          { en: "Long dark brown hair, side part on the left, Korean-style loose curls at the ends, small front strands, hair blowing slightly across the face", zh: "深棕色长发，左侧偏分，韩系尾部自然大卷，碎发轻拂脸颊" },
+          { en: "Medium-length hair, soft waves, curtain bangs", zh: "中长发，柔和波浪卷，窗帘刘海" },
+          { en: "Straight long hair, center part, silky texture", zh: "直发长发，中分，顺滑质感" },
+          { en: "Short bob, subtle waves, side-swept bangs", zh: "短波波头，微卷，侧分刘海" }
+        ],
+        hairColor: [
+          { en: "Dark brown", zh: "深棕色" },
+          { en: "Natural black", zh: "自然黑" },
+          { en: "Warm chestnut brown", zh: "温暖栗棕" },
+          { en: "Ash brown", zh: "亚麻棕" }
+        ],
+        top: [
+          { en: "Oversized blue striped knit sweater with white stripes", zh: "宽松蓝白条纹针织毛衣" },
+          { en: "Cozy navy knit sweater", zh: "舒适海军蓝针织毛衣" },
+          { en: "Light blue cable-knit sweater", zh: "浅蓝色麻花针织毛衣" },
+          { en: "Blue-gray ribbed knit pullover", zh: "蓝灰色罗纹套头衫" }
+        ],
+        nails: [
+          { en: "Almond-shaped, blue with subtle sparkling crystals", zh: "杏仁形，蓝色搭配细微晶钻闪光" },
+          { en: "Short natural nude nails", zh: "短款自然裸色" },
+          { en: "Almond-shaped, navy gradient with shimmer", zh: "杏仁形，海军蓝渐变带微光" },
+          { en: "Square blue nails, glossy finish", zh: "方形蓝色甲，亮面" }
+        ],
+        earrings: [
+          { en: "Small simple silver hoops", zh: "小号简约银色圈耳环" },
+          { en: "Minimal silver studs", zh: "极简银色耳钉" },
+          { en: "Tiny pearl studs", zh: "小巧珍珠耳钉" },
+          { en: "Thin oval silver hoops", zh: "纤细椭圆银圈耳环" }
+        ],
+        rings: [
+          { en: "Delicate silver rings", zh: "细致银色戒指" },
+          { en: "Stacked minimalist silver bands", zh: "叠戴极简银戒" },
+          { en: "Single thin silver band", zh: "单只细银戒" },
+          { en: "Geometric silver ring", zh: "几何银戒" }
+        ],
+        makeupStyle: [
+          { en: "Korean-style makeup", zh: "韩系妆容" },
+          { en: "Soft natural makeup", zh: "柔和自然妆" },
+          { en: "Clean girl makeup", zh: "清爽 clean girl 妆" }
+        ],
+        blush: [
+          { en: "Light nude on cheeks, soft red on nose", zh: "面颊浅裸色，鼻尖柔红" },
+          { en: "Subtle peach on cheeks", zh: "面颊淡蜜桃色" },
+          { en: "Soft pink across cheeks and nose", zh: "面颊与鼻梁柔粉" }
+        ],
+        eyeliner: [
+          { en: "Soft, blurred Korean-style", zh: "柔和晕染韩系眼线" },
+          { en: "Thin natural eyeliner", zh: "细自然眼线" },
+          { en: "Soft winged liner", zh: "柔和上扬眼线" }
+        ],
+        eyelashes: [
+          { en: "Thin false eyelashes", zh: "轻薄假睫毛" },
+          { en: "Natural mascara", zh: "自然睫毛膏" },
+          { en: "Feathery lashes", zh: "羽感睫毛" }
+        ],
+        eyebrows: [
+          { en: "Light natural and tidy", zh: "轻柔自然、清晰" },
+          { en: "Soft arched brows", zh: "柔和弧形眉" },
+          { en: "Straight natural brows", zh: "直线自然眉" }
+        ],
+        lips: [
+          { en: "Nude with a hint of red", zh: "裸色带一丝红润" },
+          { en: "Soft rose tint", zh: "轻柔玫瑰色" },
+          { en: "Blurred coral tint", zh: "朦胧珊瑚色" }
+        ],
+        hands: [
+          { en: "Both hands gently touching cheeks", zh: "双手轻触脸颊" },
+          { en: "One hand touching cheek", zh: "单手触脸" },
+          { en: "Hands holding phone", zh: "手持手机" }
+        ],
+        expression: [
+          { en: "Dreamy and slightly cheerful", zh: "迷离且微微愉悦" },
+          { en: "Soft smile", zh: "轻柔微笑" },
+          { en: "Calm and gentle", zh: "平静温柔" }
+        ],
+        cameraAngle: [
+          { en: "High-angle selfie, approx 30 degrees above the face", zh: "高位自拍，约 30° 俯拍" },
+          { en: "Eye-level selfie", zh: "视线平视自拍" },
+          { en: "Low-angle subtle tilt", zh: "低角度轻微倾斜" }
+        ],
+        cameraType: [
+          { en: "Analog 35mm camera flash", zh: "胶片 35mm 闪光" },
+          { en: "Digital compact camera flash", zh: "数码卡片机闪光" },
+          { en: "Smartphone flash", zh: "手机闪光" }
+        ],
+        aspectRatio: [
+          { value: "1:1", en: "1:1 Square", zh: "1:1 正方形" },
+          { value: "3:4", en: "3:4 Portrait", zh: "3:4 竖幅" },
+          { value: "2:3", en: "2:3 Classic portrait", zh: "2:3 经典竖幅" },
+          { value: "4:5", en: "4:5 Portrait", zh: "4:5 竖幅" },
+          { value: "9:16", en: "9:16 Vertical", zh: "9:16 竖屏" },
+          { value: "6:19", en: "6:19 Vertical", zh: "6:19 竖幅" }
+        ],
+        bgColor: [
+          { en: "Dark wall with shallow depth, contrasting with flash lighting", zh: "深色墙面浅景深，与闪光形成对比" },
+          { en: "Plain dark background with subtle texture", zh: "纯深色背景，轻微纹理" },
+          { en: "Matte charcoal wall, shallow depth", zh: "哑光木炭灰墙面，浅景深" }
+        ],
+        bgEffect: [
+          { en: "Minimalist, modern, friendly, with slight reflective highlights", zh: "极简现代，友好氛围，略带反光高光" },
+          { en: "Minimalist background, soft texture", zh: "极简背景，柔软质感" },
+          { en: "Clean modern backdrop, slight sheen", zh: "干净现代背景，微微光泽" }
+        ],
+        lighting: [
+          { en: "Cool dim light with flash highlighting the face, hair, skin, and clothing texture", zh: "冷色微暗环境，闪光强调脸部、头发、肌肤与针织质感" },
+          { en: "Low ambient light with strong flash contrast", zh: "低环境光，闪光强对比" },
+          { en: "Dim cool light, crisp flash", zh: "微暗冷色光，清晰闪光" }
+        ],
+        mood: [
+          { en: "Film noir elegance", zh: "黑色电影式优雅" },
+          { en: "Cozy minimalism", zh: "温暖极简" },
+          { en: "Modern simplicity", zh: "现代简约" }
+        ]
+      };
+      const uiLabels = {
+        groups: {
+          hairStyle: { zh: "头发造型", en: "Hair Style" },
+          hairColor: { zh: "发色", en: "Hair Color" },
+          clothing: { zh: "服饰与饰品", en: "Clothing & Accessories" },
+          makeup: { zh: "妆容", en: "Makeup" },
+          pose: { zh: "姿态与机位", en: "Pose & Camera" },
+          composition: { zh: "构图比例", en: "Composition" },
+          background: { zh: "背景与光线", en: "Background & Lighting" },
+          style: { zh: "风格", en: "Style" },
+          camera: { zh: "相机", en: "Camera" }
+        },
+        subs: {
+          top: { zh: "上衣", en: "Top" },
+          earrings: { zh: "耳饰", en: "Earrings" },
+          rings: { zh: "戒指", en: "Rings" },
+          nails: { zh: "指甲", en: "Nails" },
+          makeupStyle: { zh: "妆容风格", en: "Makeup Style" },
+          eyebrows: { zh: "眉毛", en: "Eyebrows" },
+          eyeliner: { zh: "眼线", en: "Eyeliner" },
+          eyelashes: { zh: "睫毛", en: "Eyelashes" },
+          blush: { zh: "腮红", en: "Blush" },
+          lips: { zh: "唇妆", en: "Lips" },
+          hands: { zh: "手部动作", en: "Hand Pose" },
+          expression: { zh: "表情", en: "Expression" },
+          cameraAngle: { zh: "机位角度", en: "Camera Angle" },
+          aspectRatio: { zh: "画面比例", en: "Aspect Ratio" },
+          bgColor: { zh: "背景色/墙体", en: "Background / Wall" },
+          bgEffect: { zh: "背景效果", en: "Background Effect" },
+          lighting: { zh: "光线条件", en: "Lighting Conditions" },
+          mood: { zh: "风格氛围", en: "Mood" },
+          cameraType: { zh: "相机类型", en: "Camera Type" }
+        }
+      };
+      const uiText = {
+        title: { zh: "PromptPhoto 提示词生成器", en: "PromptPhoto Prompt Builder" },
+        dimensionHeading: { zh: "维度选择", en: "Dimension Picker" },
+        modeDropdown: { zh: "下拉模式", en: "Dropdown Mode" },
+        modeExpanded: { zh: "展开模式", en: "Expanded Mode" },
+        random: { zh: "随机", en: "Randomize" },
+        copy: { zh: "复制提示词", en: "Copy Prompt" },
+        outputHeading: { zh: "JSON 输出", en: "JSON Output" },
+        customSectionTitle: { zh: "自定义维度", en: "Custom Dimensions" },
+        customNameZhPlaceholder: { zh: "维度名称（中文）", en: "Dimension name (ZH)" },
+        customNameEnPlaceholder: { zh: "维度名称（英文）", en: "Dimension name (EN)" },
+        customOptionsPlaceholder: { zh: "每行：柔和光线 | Soft lighting", en: "Each line: Soft lighting | Translation" },
+        customHint: { zh: "每行使用“中文 | English”格式。", en: "Use “Chinese | English” per line." },
+        customSave: { zh: "添加维度", en: "Add Dimension" },
+        customSaveEdit: { zh: "保存更改", en: "Save Changes" },
+        customCancel: { zh: "取消编辑", en: "Cancel" },
+        customEmpty: { zh: "还没有自定义维度。", en: "No custom dimensions yet." },
+        customEdit: { zh: "编辑", en: "Edit" },
+        customDelete: { zh: "删除", en: "Delete" },
+        customDeleteConfirm: { zh: "确定要删除这个自定义维度吗？", en: "Delete this custom dimension?" },
+        customErrorName: { zh: "请输入维度名称。", en: "Please enter a dimension name." },
+        customErrorOptions: { zh: "请至少输入一个选项。", en: "Please provide at least one option." },
+        savedTitle: { zh: "配置缓存", en: "Saved Presets" },
+        savedPlaceholder: { zh: "配置名称", en: "Preset name" },
+        savedHint: { zh: "给当前配置命名，并在下方列表里快速切换。", en: "Name the current setup and switch quickly from the list." },
+        savedSave: { zh: "保存配置", en: "Save Preset" },
+        savedEmpty: { zh: "暂未保存配置。", en: "No saved presets yet." },
+        savedDelete: { zh: "删除", en: "Delete" },
+        savedDeleteConfirm: { zh: "确定删除这个配置吗？", en: "Delete this preset?" },
+        savedErrorName: { zh: "请输入配置名称。", en: "Please enter a name." },
+        savedStatusSaved: { zh: "已保存当前配置。", en: "Preset saved." },
+        savedStatusUpdated: { zh: "已覆盖同名配置。", en: "Preset updated." },
+        savedStatusLoaded: { zh: "已加载配置。", en: "Preset loaded." },
+        savedPanelToggle: { zh: "保存配置", en: "Manage Presets" },
+        savedClose: { zh: "关闭", en: "Close" }
+      };
+
+      const els = {
+        hairStyle: document.getElementById('hairStyle'),
+        hairColor: document.getElementById('hairColor'),
+        top: document.getElementById('top'),
+        nails: document.getElementById('nails'),
+        earrings: document.getElementById('earrings'),
+        rings: document.getElementById('rings'),
+        makeupStyle: document.getElementById('makeupStyle'),
+        blush: document.getElementById('blush'),
+        eyeliner: document.getElementById('eyeliner'),
+        eyelashes: document.getElementById('eyelashes'),
+        eyebrows: document.getElementById('eyebrows'),
+        lips: document.getElementById('lips'),
+        hands: document.getElementById('hands'),
+        expression: document.getElementById('expression'),
+        cameraAngle: document.getElementById('cameraAngle'),
+        cameraType: document.getElementById('cameraType'),
+        aspectRatio: document.getElementById('aspectRatio'),
+        bgColor: document.getElementById('bgColor'),
+        bgEffect: document.getElementById('bgEffect'),
+        lighting: document.getElementById('lighting'),
+        mood: document.getElementById('mood'),
+        promptOutput: document.getElementById('promptOutput'),
+        randomAll: document.getElementById('randomAll'),
+        copyPrompt: document.getElementById('copyPrompt'),
+        langZh: document.getElementById('lang-zh'),
+        langEn: document.getElementById('lang-en'),
+        appTitle: document.getElementById('appTitle'),
+        dimensionHeading: document.getElementById('dimensionHeading'),
+        outputHeading: document.getElementById('outputHeading'),
+        randomLabel: document.getElementById('randomLabel'),
+        copyLabel: document.getElementById('copyLabel'),
+        customSectionTitle: document.getElementById('customSectionTitle'),
+        customNameZh: document.getElementById('customNameZh'),
+        customNameEn: document.getElementById('customNameEn'),
+        customOptionsInput: document.getElementById('customOptionsInput'),
+        customSaveBtn: document.getElementById('customSaveBtn'),
+        customCancelBtn: document.getElementById('customCancelBtn'),
+        customOptionsHint: document.getElementById('customOptionsHint'),
+        customFormStatus: document.getElementById('customFormStatus'),
+        customDimensionsContainer: document.getElementById('customDimensionsContainer'),
+        savedConfigsTitle: document.getElementById('savedConfigsTitle'),
+        presetNameInput: document.getElementById('presetNameInput'),
+        savePresetBtn: document.getElementById('savePresetBtn'),
+        savedConfigsHint: document.getElementById('savedConfigsHint'),
+        savedConfigsStatus: document.getElementById('savedConfigsStatus'),
+        savedConfigsList: document.getElementById('savedConfigsList'),
+        savedFloatingPanel: document.getElementById('savedFloatingPanel'),
+        savedPanelToggle: document.getElementById('savedPanelToggle'),
+        closeSavedPanelBtn: document.getElementById('closeSavedPanelBtn'),
+        groupHairStyle: document.getElementById('group-hair-style'),
+        groupHairColor: document.getElementById('group-hair-color'),
+        groupClothing: document.getElementById('group-clothing'),
+        groupMakeup: document.getElementById('group-makeup'),
+        groupPose: document.getElementById('group-pose'),
+        groupComposition: document.getElementById('group-composition'),
+        groupBackground: document.getElementById('group-background'),
+        groupStyle: document.getElementById('group-style'),
+        groupCamera: document.getElementById('group-camera'),
+        modeToggle: document.getElementById('modeToggle')
+      };
+      const groupWraps = {
+        hairStyle: els.groupHairStyle,
+        hairColor: els.groupHairColor,
+        clothing: els.groupClothing,
+        makeup: els.groupMakeup,
+        pose: els.groupPose,
+        composition: els.groupComposition,
+        background: els.groupBackground,
+        style: els.groupStyle,
+        camera: els.groupCamera
+      };
+      function setGroupStateByKey(groupKey, on) {
+        const wrap = groupWraps[groupKey];
+        if (wrap) wrap.classList.toggle('group-disabled', !on);
+      }
+      if (current.lang === 'en') {
+        els.langEn.classList.add('active');
+        els.langZh.classList.remove('active');
+      }
+
+      function renderOptions(el, list, currentIdx, key) {
+        if (!el) return;
+        const items = Array.isArray(list) ? list : [];
+        el.innerHTML = '';
+        if (!items.length) return;
+        const numericIdx = Number(currentIdx);
+        const safeIdx = Math.max(0, Math.min(items.length - 1, Number.isFinite(numericIdx) ? numericIdx : 0));
+        const currentOption = items[safeIdx] || items[0];
+        const currentLabel = currentOption ? (currentOption[current.lang] || currentOption.en || currentOption.value || '') : '';
+        if (uiMode === 'expanded') {
+          items.forEach((v, i) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'option' + (i === safeIdx ? ' active' : '');
+            b.dataset.idx = i;
+            b.textContent = v[current.lang] || v.en || v.value || '';
+            if (!enabledSub[key] || lockedSub[key]) b.classList.add('disabled');
+            el.appendChild(b);
+          });
+        } else {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'option active';
+          b.innerHTML = `${currentLabel} <span class="caret"><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" stroke-width="2"/></svg></span>`;
+          if (!enabledSub[key] || lockedSub[key]) b.classList.add('disabled');
+          b.addEventListener('click', (e) => { if (enabledSub[key] && !lockedSub[key]) openChipPopover(e.currentTarget, key); });
+          el.appendChild(b);
+        }
+      }
+
+      function renderCustomDimensions() {
+        const container = els.customDimensionsContainer;
+        if (!container) return;
+        container.innerHTML = '';
+        Object.keys(els).forEach(key => {
+          if (key.startsWith('custom_')) delete els[key];
+        });
+        if (!customDimensions.length) {
+          const empty = document.createElement('p');
+          empty.className = 'custom-empty';
+          empty.textContent = uiText.customEmpty[current.lang];
+          container.appendChild(empty);
+          return;
+        }
+        customDimensions.forEach(dim => {
+          const card = document.createElement('div');
+          card.className = 'custom-dimension-card';
+          const header = document.createElement('div');
+          header.className = 'custom-dimension-header';
+          const nameEl = document.createElement('div');
+          nameEl.className = 'custom-dimension-name';
+          nameEl.textContent = dim.name[current.lang] || dim.name.zh || dim.name.en;
+          header.appendChild(nameEl);
+          const actions = document.createElement('div');
+          actions.className = 'custom-actions';
+          const editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'custom-text-btn';
+          editBtn.textContent = uiText.customEdit[current.lang];
+          editBtn.addEventListener('click', () => startEditingCustomDimension(dim.id));
+          const deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'custom-text-btn';
+          deleteBtn.textContent = uiText.customDelete[current.lang];
+          deleteBtn.addEventListener('click', () => deleteCustomDimension(dim.id));
+          actions.appendChild(editBtn);
+          actions.appendChild(deleteBtn);
+          header.appendChild(actions);
+          card.appendChild(header);
+          const optWrap = document.createElement('div');
+          optWrap.className = 'options options-block';
+          optWrap.id = dim.key;
+          card.appendChild(optWrap);
+          container.appendChild(card);
+          els[dim.key] = optWrap;
+          renderOptions(optWrap, options[dim.key] || [], state[dim.key] || 0, dim.key);
+          bindOptionContainer(optWrap, dim.key);
+        });
+      }
+
+      function formatSavedTimestamp(ts) {
+        try {
+          const locale = current.lang === 'zh' ? 'zh-CN' : 'en-US';
+          return new Date(ts).toLocaleString(locale, { hour12: current.lang !== 'zh' });
+        } catch (e) {
+          return '';
+        }
+      }
+      function showSavedStatus(msg) {
+        if (els.savedConfigsStatus) els.savedConfigsStatus.textContent = msg || '';
+      }
+      function renderSavedConfigsList() {
+        const container = els.savedConfigsList;
+        if (!container) return;
+        container.innerHTML = '';
+        if (!savedConfigs.length) {
+          const empty = document.createElement('p');
+          empty.className = 'saved-empty';
+          empty.textContent = uiText.savedEmpty[current.lang];
+          container.appendChild(empty);
+          return;
+        }
+        savedConfigs.forEach(cfg => {
+          const item = document.createElement('div');
+          item.className = 'saved-item' + (cfg.id === activeSavedConfigId ? ' active' : '');
+          item.tabIndex = 0;
+          item.setAttribute('role', 'button');
+          item.addEventListener('click', () => loadSavedConfig(cfg.id));
+          item.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              loadSavedConfig(cfg.id);
+            }
+          });
+          const info = document.createElement('div');
+          info.className = 'saved-item-info';
+          const nameEl = document.createElement('div');
+          nameEl.className = 'saved-item-name';
+          nameEl.textContent = cfg.name;
+          const meta = document.createElement('div');
+          meta.className = 'saved-item-meta';
+          meta.textContent = formatSavedTimestamp(cfg.updatedAt);
+          info.appendChild(nameEl);
+          info.appendChild(meta);
+          const deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'saved-item-delete';
+          deleteBtn.textContent = uiText.savedDelete[current.lang];
+          deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteSavedConfig(cfg.id);
+          });
+          item.appendChild(info);
+          item.appendChild(deleteBtn);
+          container.appendChild(item);
+        });
+      }
+
+      function updateSavedPanelVisibility() {
+        if (!els.savedFloatingPanel) return;
+        els.savedFloatingPanel.classList.toggle('hidden', !savedPanelVisible);
+        if (els.savedPanelToggle) els.savedPanelToggle.classList.toggle('active', savedPanelVisible);
+        if (savedPanelVisible) {
+          renderSavedConfigsList();
+          setTimeout(() => { els.presetNameInput?.focus(); }, 0);
+        }
+      }
+      function setSavedPanelVisible(on) {
+        savedPanelVisible = !!on;
+        updateSavedPanelVisibility();
+      }
+      function toggleSavedPanel() {
+        setSavedPanelVisible(!savedPanelVisible);
+      }
+
+      function replaceMap(target, fallback, incoming) {
+        Object.keys(target).forEach(key => { delete target[key]; });
+        if (fallback && typeof fallback === 'object') Object.assign(target, fallback);
+        if (incoming && typeof incoming === 'object') Object.assign(target, incoming);
+      }
+      function applyPresetSnapshot(snapshot) {
+        if (!snapshot) return;
+        replaceMap(state, defaultState, snapshot.state);
+        replaceMap(enabled, defaultEnabled, snapshot.enabled);
+        replaceMap(enabledSub, defaultEnabledSub, snapshot.enabledSub);
+        replaceMap(locked, defaultLocked, snapshot.locked);
+        replaceMap(lockedSub, defaultLockedSub, snapshot.lockedSub);
+        syncCustomData();
+      }
+      function captureCurrentSnapshot() {
+        return {
+          state: { ...state },
+          enabled: { ...enabled },
+          enabledSub: { ...enabledSub },
+          locked: { ...locked },
+          lockedSub: { ...lockedSub }
+        };
+      }
+      function shallowEqualMap(a = {}, b = {}) {
+        const keys = new Set([...(Object.keys(a || {})), ...(Object.keys(b || {}))]);
+        for (const key of keys) {
+          if ((a || {})[key] !== (b || {})[key]) return false;
+        }
+        return true;
+      }
+      function snapshotsEqual(a, b) {
+        if (!a || !b) return false;
+        return shallowEqualMap(a.state, b.state)
+          && shallowEqualMap(a.enabled, b.enabled)
+          && shallowEqualMap(a.enabledSub, b.enabledSub)
+          && shallowEqualMap(a.locked, b.locked)
+          && shallowEqualMap(a.lockedSub, b.lockedSub);
+      }
+      function maybeResetActivePreset() {
+        if (!activeSavedConfigId) return;
+        const preset = savedConfigs.find(cfg => cfg.id === activeSavedConfigId);
+        if (!preset) {
+          activeSavedConfigId = null;
+          renderSavedConfigsList();
+          return;
+        }
+        const currentSnapshot = captureCurrentSnapshot();
+        if (!snapshotsEqual(currentSnapshot, preset.snapshot)) {
+          activeSavedConfigId = null;
+          renderSavedConfigsList();
+        }
+      }
+      function handleSavePreset() {
+        if (!els.presetNameInput) return;
+        const rawName = els.presetNameInput.value.trim();
+        if (!rawName) {
+          showSavedStatus(uiText.savedErrorName[current.lang]);
+          return;
+        }
+        const existingIdx = savedConfigs.findIndex(cfg => cfg.name === rawName);
+        const payload = {
+          id: existingIdx >= 0 ? savedConfigs[existingIdx].id : createPresetId(),
+          name: rawName,
+          snapshot: captureCurrentSnapshot(),
+          updatedAt: Date.now()
+        };
+        if (existingIdx >= 0) {
+          savedConfigs.splice(existingIdx, 1);
+          savedConfigs.unshift(payload);
+          showSavedStatus(uiText.savedStatusUpdated[current.lang]);
+        } else {
+          savedConfigs.unshift(payload);
+          showSavedStatus(uiText.savedStatusSaved[current.lang]);
+        }
+        setSavedPanelVisible(true);
+        activeSavedConfigId = payload.id;
+        els.presetNameInput.value = '';
+        renderSavedConfigsList();
+        persistCurrentState();
+      }
+      function deleteSavedConfig(id) {
+        const idx = savedConfigs.findIndex(cfg => cfg.id === id);
+        if (idx < 0) return;
+        const confirmMsg = uiText.savedDeleteConfirm[current.lang];
+        if (confirmMsg && !window.confirm(confirmMsg)) return;
+        const [removed] = savedConfigs.splice(idx, 1);
+        if (removed && removed.id === activeSavedConfigId) activeSavedConfigId = null;
+        renderSavedConfigsList();
+        if (!savedConfigs.length) setSavedPanelVisible(false);
+        persistCurrentState();
+      }
+      function loadSavedConfig(id) {
+        const preset = savedConfigs.find(cfg => cfg.id === id);
+        if (!preset) return;
+        applyPresetSnapshot(preset.snapshot);
+        activeSavedConfigId = id;
+        init();
+        showSavedStatus(uiText.savedStatusLoaded[current.lang]);
+      }
+
+      function updateModeToggleLabel() {
+        if (!els.modeToggle) return;
+        els.modeToggle.textContent = uiMode === 'dropdown' ? uiText.modeDropdown[current.lang] : uiText.modeExpanded[current.lang];
+      }
+
+      function updateCustomFormLabels() {
+        if (els.customSectionTitle) els.customSectionTitle.textContent = uiText.customSectionTitle[current.lang];
+        if (els.customNameZh) els.customNameZh.placeholder = uiText.customNameZhPlaceholder[current.lang];
+        if (els.customNameEn) els.customNameEn.placeholder = uiText.customNameEnPlaceholder[current.lang];
+        if (els.customOptionsInput) els.customOptionsInput.placeholder = uiText.customOptionsPlaceholder[current.lang];
+        if (els.customOptionsHint) els.customOptionsHint.textContent = uiText.customHint[current.lang];
+        if (els.customSaveBtn) els.customSaveBtn.textContent = editingCustomId ? uiText.customSaveEdit[current.lang] : uiText.customSave[current.lang];
+        if (els.customCancelBtn) {
+          els.customCancelBtn.textContent = uiText.customCancel[current.lang];
+          els.customCancelBtn.classList.toggle('hidden', !editingCustomId);
+        }
+      }
+
+      function applyLabels() {
+        document.querySelectorAll('.group-title').forEach(el => {
+          const key = el.dataset.group;
+          if (!key) return;
+          const label = uiLabels.groups[key]?.[current.lang];
+          if (label) el.textContent = label;
+        });
+        document.querySelectorAll('.sub-title').forEach(el => {
+          const key = el.dataset.sub;
+          if (!key) return;
+          const label = uiLabels.subs[key]?.[current.lang];
+          if (label) el.textContent = label;
+        });
+        if (els.appTitle) els.appTitle.textContent = uiText.title[current.lang];
+        if (els.dimensionHeading) els.dimensionHeading.textContent = uiText.dimensionHeading[current.lang];
+        if (els.outputHeading) els.outputHeading.textContent = uiText.outputHeading[current.lang];
+        if (els.randomLabel) els.randomLabel.textContent = uiText.random[current.lang];
+        if (els.copyLabel) els.copyLabel.textContent = uiText.copy[current.lang];
+        if (els.savedPanelToggle) els.savedPanelToggle.textContent = uiText.savedPanelToggle[current.lang];
+        if (els.savedConfigsTitle) els.savedConfigsTitle.textContent = uiText.savedTitle[current.lang];
+        if (els.presetNameInput) els.presetNameInput.placeholder = uiText.savedPlaceholder[current.lang];
+        if (els.savePresetBtn) els.savePresetBtn.textContent = uiText.savedSave[current.lang];
+        if (els.savedConfigsHint) els.savedConfigsHint.textContent = uiText.savedHint[current.lang];
+        if (els.closeSavedPanelBtn) els.closeSavedPanelBtn.setAttribute('aria-label', uiText.savedClose[current.lang]);
+        updateModeToggleLabel();
+        updateCustomFormLabels();
+      }
+
+      function findIdx(list, matchValue) {
+        if (!Array.isArray(list) || list.length === 0) return 0;
+        if (!matchValue) return 0;
+        const byValue = list.findIndex(v => v.value === matchValue);
+        if (byValue >= 0) return byValue;
+        return Math.max(0, list.findIndex(v => v.en === matchValue));
+      }
+      const state = {
+        hairStyle: findIdx(options.hairStyle, defaults.hair.style),
+        hairColor: findIdx(options.hairColor, defaults.hair.color),
+        top: findIdx(options.top, defaults.clothing.top),
+        nails: findIdx(options.nails, defaults.clothing.nails),
+        earrings: findIdx(options.earrings, defaults.clothing.accessories.earrings),
+        rings: findIdx(options.rings, defaults.clothing.accessories.rings),
+        makeupStyle: findIdx(options.makeupStyle, defaults.makeup.style),
+        blush: findIdx(options.blush, defaults.makeup.details.blush),
+        eyeliner: findIdx(options.eyeliner, defaults.makeup.details.eyeliner),
+        eyelashes: findIdx(options.eyelashes, defaults.makeup.details.eyelashes),
+        eyebrows: findIdx(options.eyebrows, defaults.makeup.details.eyebrows),
+        lips: findIdx(options.lips, defaults.makeup.details.lips),
+        hands: findIdx(options.hands, defaults.pose.hands),
+        expression: findIdx(options.expression, defaults.pose.expression),
+        cameraAngle: findIdx(options.cameraAngle, defaults.pose.camera_angle),
+        cameraType: findIdx(options.cameraType, defaults.camera.type),
+        aspectRatio: findIdx(options.aspectRatio, defaults.composition.aspect_ratio),
+        bgColor: findIdx(options.bgColor, defaults.background.color),
+        bgEffect: findIdx(options.bgEffect, defaults.background.effect),
+        lighting: findIdx(options.lighting, defaults.background.lighting),
+        mood: findIdx(options.mood, defaults.style.mood)
+      };
+      const defaultState = { ...state };
+      if (savedData?.state) Object.assign(state, savedData.state);
+      const enabled = {
+        hairStyle: true,
+        hairColor: true,
+        clothing: true,
+        makeup: true,
+        pose: true,
+        composition: true,
+        background: true,
+        style: true,
+        camera: true
+      };
+      const defaultEnabled = { ...enabled };
+      if (savedData?.enabled) Object.assign(enabled, savedData.enabled);
+      Object.keys(groupWraps).forEach(key => setGroupStateByKey(key, enabled[key]));
+      const locked = {
+        hairStyle: false,
+        hairColor: false,
+        clothing: false,
+        makeup: false,
+        pose: false,
+        composition: false,
+        background: false,
+        style: false,
+        camera: false
+      };
+      const defaultLocked = { ...locked };
+      if (savedData?.locked) Object.assign(locked, savedData.locked);
+      const enabledSub = {
+        top: true, earrings: true, rings: true, nails: true,
+        makeupStyle: true, eyebrows: true, eyeliner: true, eyelashes: true, blush: true, lips: true,
+        hands: true, expression: true, cameraAngle: true,
+        aspectRatio: true,
+        bgColor: true, bgEffect: true, lighting: true,
+        mood: true, cameraType: true,
+        hairStyle: true, hairColor: true
+      };
+      const defaultEnabledSub = { ...enabledSub };
+      if (savedData?.enabledSub) Object.assign(enabledSub, savedData.enabledSub);
+      const lockedSub = {
+        top: false, earrings: false, rings: false, nails: false,
+        makeupStyle: false, eyebrows: false, eyeliner: false, eyelashes: false, blush: false, lips: false,
+        hands: false, expression: false, cameraAngle: false,
+        aspectRatio: false,
+        bgColor: false, bgEffect: false, lighting: false,
+        mood: false, cameraType: false,
+        hairStyle: false, hairColor: false
+      };
+      const defaultLockedSub = { ...lockedSub };
+      if (savedData?.lockedSub) Object.assign(lockedSub, savedData.lockedSub);
+      const collapsedGroups = {};
+      const collapsedSub = {};
+      const optionListenerElements = new WeakSet();
+      function bindOptionContainer(el, key) {
+        if (!el || optionListenerElements.has(el)) return;
+        el.addEventListener('click', e => {
+          const t = e.target;
+          if (!t.classList.contains('option')) return;
+          if (uiMode !== 'expanded') return;
+          if (!enabledSub[key] || lockedSub[key]) return;
+          const v = Number(t.dataset.idx);
+          state[key] = v;
+          el.querySelectorAll('.option').forEach(btn => btn.classList.remove('active'));
+          t.classList.add('active');
+          composeAndRender();
+        });
+        optionListenerElements.add(el);
+      }
+      function parseCustomOptionsText(text) {
+        return (text || '').split('\n').map(line => line.trim()).filter(Boolean).map(line => {
+          const parts = line.split('|').map(v => v.trim()).filter(Boolean);
+          const zh = parts[0] || '';
+          const en = parts[1] || zh;
+          return { zh, en };
+        });
+      }
+      function createPresetId() {
+        return `preset_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+      }
+      function cloneSnapshotSection(value) {
+        return value && typeof value === 'object' ? { ...value } : {};
+      }
+      function normalizeSavedConfigs(list) {
+        if (!Array.isArray(list)) return [];
+        return list.map(entry => {
+          if (!entry || typeof entry !== 'object') return null;
+          const name = (entry.name || '').trim();
+          if (!name) return null;
+          const snapshot = entry.snapshot && typeof entry.snapshot === 'object' ? entry.snapshot : {};
+          return {
+            id: entry.id || createPresetId(),
+            name,
+            snapshot: {
+              state: cloneSnapshotSection(snapshot.state),
+              enabled: cloneSnapshotSection(snapshot.enabled),
+              enabledSub: cloneSnapshotSection(snapshot.enabledSub),
+              locked: cloneSnapshotSection(snapshot.locked),
+              lockedSub: cloneSnapshotSection(snapshot.lockedSub)
+            },
+            updatedAt: typeof entry.updatedAt === 'number' ? entry.updatedAt : Date.now()
+          };
+        }).filter(Boolean);
+      }
+      function syncCustomData() {
+        customDimensions = (customDimensions || []).map(dim => {
+          const id = dim.id || String(Date.now() + Math.random());
+          const key = dim.key || `custom_${id}`;
+          const name = dim.name || {};
+          const zhName = name.zh || dim.labelZh || '';
+          const enName = name.en || dim.labelEn || zhName;
+          const optionArray = Array.isArray(dim.options) ? dim.options : [];
+          const rawTextFallback = optionArray.map(opt => {
+            if (!opt) return '';
+            const zh = opt.zh || '';
+            const en = opt.en && opt.en !== zh ? ` | ${opt.en}` : '';
+            return `${zh}${en}`;
+          }).filter(Boolean).join('\n');
+          const rawText = dim.rawText ?? dim.optionsText ?? rawTextFallback;
+          const optionsList = parseCustomOptionsText(rawText);
+          return { id, key, name: { zh: zhName, en: enName }, rawText, options: optionsList };
+        });
+        customDimensions.forEach(dim => {
+          options[dim.key] = dim.options;
+          if (!(dim.key in state)) state[dim.key] = 0;
+          if (!(dim.key in enabledSub)) enabledSub[dim.key] = true;
+          if (!(dim.key in lockedSub)) lockedSub[dim.key] = false;
+        });
+        Object.keys(state).forEach(key => {
+          if (key.startsWith('custom_') && !customDimensions.some(dim => dim.key === key)) {
+            delete state[key];
+          }
+        });
+        Object.keys(enabledSub).forEach(key => {
+          if (key.startsWith('custom_') && !customDimensions.some(dim => dim.key === key)) delete enabledSub[key];
+        });
+        Object.keys(lockedSub).forEach(key => {
+          if (key.startsWith('custom_') && !customDimensions.some(dim => dim.key === key)) delete lockedSub[key];
+        });
+        Object.keys(options).forEach(key => {
+          if (key.startsWith('custom_') && !customDimensions.some(dim => dim.key === key)) {
+            delete options[key];
+          }
+        });
+      }
+      syncCustomData();
+      function init() {
+        renderOptions(els.hairStyle, options.hairStyle, state.hairStyle, 'hairStyle');
+        renderOptions(els.hairColor, options.hairColor, state.hairColor, 'hairColor');
+        renderOptions(els.top, options.top, state.top, 'top');
+        renderOptions(els.nails, options.nails, state.nails, 'nails');
+        renderOptions(els.earrings, options.earrings, state.earrings, 'earrings');
+        renderOptions(els.rings, options.rings, state.rings, 'rings');
+        renderOptions(els.makeupStyle, options.makeupStyle, state.makeupStyle, 'makeupStyle');
+        renderOptions(els.blush, options.blush, state.blush, 'blush');
+        renderOptions(els.eyeliner, options.eyeliner, state.eyeliner, 'eyeliner');
+        renderOptions(els.eyelashes, options.eyelashes, state.eyelashes, 'eyelashes');
+        renderOptions(els.eyebrows, options.eyebrows, state.eyebrows, 'eyebrows');
+        renderOptions(els.lips, options.lips, state.lips, 'lips');
+        renderOptions(els.hands, options.hands, state.hands, 'hands');
+        renderOptions(els.expression, options.expression, state.expression, 'expression');
+        renderOptions(els.cameraAngle, options.cameraAngle, state.cameraAngle, 'cameraAngle');
+        renderOptions(els.cameraType, options.cameraType, state.cameraType, 'cameraType');
+        renderOptions(els.aspectRatio, options.aspectRatio, state.aspectRatio, 'aspectRatio');
+        renderOptions(els.bgColor, options.bgColor, state.bgColor, 'bgColor');
+        renderOptions(els.bgEffect, options.bgEffect, state.bgEffect, 'bgEffect');
+        renderOptions(els.lighting, options.lighting, state.lighting, 'lighting');
+        renderOptions(els.mood, options.mood, state.mood, 'mood');
+        renderCustomDimensions();
+        renderSavedConfigsList();
+        updateSavedPanelVisibility();
+        applyLabels();
+        composeAndRender();
+      }
+
+      function pick(list, idx) {
+        if (!Array.isArray(list) || list.length === 0) return '';
+        const opt = list[idx] ?? list[0];
+        if (!opt) return '';
+        return opt.value || opt[current.lang];
+      }
+      function getState() {
+        return {
+          hairStyle: pick(options.hairStyle, state.hairStyle),
+          hairColor: pick(options.hairColor, state.hairColor),
+          top: pick(options.top, state.top),
+          nails: pick(options.nails, state.nails),
+          earrings: pick(options.earrings, state.earrings),
+          rings: pick(options.rings, state.rings),
+          makeupStyle: pick(options.makeupStyle, state.makeupStyle),
+          blush: pick(options.blush, state.blush),
+          eyeliner: pick(options.eyeliner, state.eyeliner),
+          eyelashes: pick(options.eyelashes, state.eyelashes),
+          eyebrows: pick(options.eyebrows, state.eyebrows),
+          lips: pick(options.lips, state.lips),
+          hands: pick(options.hands, state.hands),
+          expression: pick(options.expression, state.expression),
+          cameraAngle: pick(options.cameraAngle, state.cameraAngle),
+          cameraType: pick(options.cameraType, state.cameraType),
+          aspectRatio: pick(options.aspectRatio, state.aspectRatio),
+          bgColor: pick(options.bgColor, state.bgColor),
+          bgEffect: pick(options.bgEffect, state.bgEffect),
+          lighting: pick(options.lighting, state.lighting),
+          mood: pick(options.mood, state.mood),
+          description: descriptions[current.lang],
+          lightingCondition: defaults.camera.lighting_condition
+        };
+      }
+
+      function composeJsonObject(s) {
+        const obj = {
+          description: s.description,
+          style: { mood: s.mood }
+        };
+        if (enabled.hairStyle || enabled.hairColor) {
+          obj.hair = {};
+          if (enabled.hairStyle && enabledSub.hairStyle) obj.hair.style = s.hairStyle;
+          if (enabled.hairColor && enabledSub.hairColor) obj.hair.color = s.hairColor;
+        }
+        if (enabled.clothing) {
+          obj.clothing = {};
+          if (enabledSub.top) obj.clothing.top = s.top;
+          obj.clothing.accessories = {};
+          if (enabledSub.earrings) obj.clothing.accessories.earrings = s.earrings;
+          if (enabledSub.rings) obj.clothing.accessories.rings = s.rings;
+          if (enabledSub.nails) obj.clothing.nails = s.nails;
+        }
+        if (enabled.makeup) {
+          obj.makeup = { style: enabledSub.makeupStyle ? s.makeupStyle : undefined, details: {} };
+          if (enabledSub.eyebrows) obj.makeup.details.eyebrows = s.eyebrows;
+          if (enabledSub.eyeliner) obj.makeup.details.eyeliner = s.eyeliner;
+          if (enabledSub.eyelashes) obj.makeup.details.eyelashes = s.eyelashes;
+          if (enabledSub.blush) obj.makeup.details.blush = s.blush;
+          if (enabledSub.lips) obj.makeup.details.lips = s.lips;
+          if (Object.keys(obj.makeup.details).length === 0) delete obj.makeup.details;
+          if (!obj.makeup.style) delete obj.makeup.style;
+        }
+        if (enabled.pose) {
+          obj.pose = {};
+          if (enabledSub.hands) obj.pose.hands = s.hands;
+          if (enabledSub.expression) obj.pose.expression = s.expression;
+          if (enabledSub.cameraAngle) obj.pose.camera_angle = s.cameraAngle;
+        }
+        if (enabled.composition) {
+          obj.composition = {};
+          if (enabledSub.aspectRatio) obj.composition.aspect_ratio = s.aspectRatio;
+          if (!Object.keys(obj.composition).length) delete obj.composition;
+        }
+        if (enabled.background) {
+          obj.background = {};
+          if (enabledSub.bgColor) obj.background.color = s.bgColor;
+          if (enabledSub.lighting) obj.background.lighting = s.lighting;
+          if (enabledSub.bgEffect) obj.background.effect = s.bgEffect;
+        }
+        if (enabled.style) {
+          obj.style = {};
+          if (enabledSub.mood) obj.style.mood = s.mood;
+        }
+        if (enabled.camera) {
+          obj.camera = {};
+          if (enabledSub.cameraType) obj.camera.type = s.cameraType;
+        }
+        if (customDimensions.length) {
+          obj.custom_dimensions = customDimensions.map(dim => {
+            const entries = options[dim.key] || [];
+            const sel = entries[state[dim.key]] || entries[0] || {};
+            const valueZh = sel.zh || '';
+            const valueEn = sel.en || sel.zh || '';
+            return {
+              key: dim.key,
+              name_zh: dim.name.zh,
+              name_en: dim.name.en || dim.name.zh,
+              value_zh: valueZh,
+              value_en: valueEn
+            };
+          });
+        }
+        return obj;
+      }
+
+      function composeAndRender() {
+        const s = getState();
+        const obj = composeJsonObject(s);
+        els.promptOutput.textContent = JSON.stringify(obj, null, 2);
+        maybeResetActivePreset();
+        persistCurrentState();
+      }
+
+      function persistCurrentState() {
+        const snapshot = {
+          state,
+          enabled,
+          enabledSub,
+          locked,
+          lockedSub,
+          customDimensions,
+          savedConfigs,
+          activeSavedConfigId,
+          uiMode,
+          currentLang: current.lang
+        };
+        saveToStorage(snapshot);
+      }
+
+      let chipPopover = null;
+      let chipPopoverOutsideHandler = null;
+      function openChipPopover(target, key) {
+        closeChipPopover();
+        const menu = document.createElement('div');
+        menu.className = 'popover';
+        const ul = document.createElement('ul');
+        const list = options[key] || [];
+        list.forEach((opt, idx) => {
+          const li = document.createElement('li');
+          li.textContent = opt[current.lang];
+          li.addEventListener('click', () => {
+            state[key] = idx;
+            composeAndRender();
+            init();
+            closeChipPopover();
+          });
+          ul.appendChild(li);
+        });
+        menu.appendChild(ul);
+        document.body.appendChild(menu);
+        const rect = target.getBoundingClientRect();
+        menu.style.top = `${rect.bottom + window.scrollY + 8}px`;
+        menu.style.left = `${rect.left + window.scrollX}px`;
+        chipPopover = menu;
+        chipPopoverOutsideHandler = (e) => {
+          const isClickInsidePopover = chipPopover && chipPopover.contains(e.target);
+          const isTrigger = target.contains(e.target);
+          if (!isClickInsidePopover && !isTrigger) {
+            closeChipPopover();
+          }
+        };
+        setTimeout(() => { document.addEventListener('click', chipPopoverOutsideHandler); }, 0);
+      }
+      function closeChipPopover() {
+        if (chipPopover) {
+          chipPopover.remove();
+          chipPopover = null;
+        }
+        if (chipPopoverOutsideHandler) {
+          document.removeEventListener('click', chipPopoverOutsideHandler);
+          chipPopoverOutsideHandler = null;
+        }
+      }
+
+      function randomAllVisible() {
+        const groupMap = {
+          hairStyle: ['hairStyle'],
+          hairColor: ['hairColor'],
+          clothing: ['top','earrings','rings','nails'],
+          makeup: ['makeupStyle','eyebrows','eyeliner','eyelashes','blush','lips'],
+          pose: ['hands','expression','cameraAngle'],
+          composition: ['aspectRatio'],
+          background: ['bgColor','bgEffect','lighting'],
+          style: ['mood'],
+          camera: ['cameraType']
+        };
+        Object.entries(groupMap).forEach(([group, keys]) => {
+          if (!enabled[group] || locked[group]) return;
+          keys.forEach(k => {
+            if (!enabledSub[k] || lockedSub[k]) return;
+            const list = options[k];
+            const idx = Math.floor(Math.random()*list.length);
+            state[k] = idx;
+            const el = els[k];
+            if (el) {
+              const chipOptions = el.querySelectorAll('.option');
+              if (chipOptions.length && uiMode === 'expanded') {
+                chipOptions.forEach(btn => {
+                  btn.classList.toggle('active', Number(btn.dataset.idx) === idx);
+                });
+              } else {
+                const sel = el.querySelector('select');
+                if (sel) sel.value = String(idx);
+              }
+            }
+          });
+        });
+        customDimensions.forEach(dim => {
+          const key = dim.key;
+          if (!enabledSub[key] || lockedSub[key]) return;
+          const list = options[key];
+          if (!list || !list.length) return;
+          state[key] = Math.floor(Math.random()*list.length);
+        });
+        if (uiMode === 'dropdown') {
+          closeChipPopover();
+          init();
+        } else {
+          composeAndRender();
+        }
+      }
+
+      function getCustomFormValues() {
+        return {
+          zh: (els.customNameZh?.value || '').trim(),
+          en: (els.customNameEn?.value || '').trim(),
+          rawText: (els.customOptionsInput?.value || '').trim()
+        };
+      }
+      function showCustomStatus(msg) {
+        if (els.customFormStatus) els.customFormStatus.textContent = msg || '';
+      }
+      function resetCustomForm() {
+        editingCustomId = null;
+        if (els.customNameZh) els.customNameZh.value = '';
+        if (els.customNameEn) els.customNameEn.value = '';
+        if (els.customOptionsInput) els.customOptionsInput.value = '';
+        showCustomStatus('');
+        updateCustomFormLabels();
+      }
+      function startEditingCustomDimension(id) {
+        const dim = customDimensions.find(d => d.id === id);
+        if (!dim) return;
+        editingCustomId = id;
+        if (els.customNameZh) els.customNameZh.value = dim.name.zh || '';
+        if (els.customNameEn) els.customNameEn.value = dim.name.en || '';
+        if (els.customOptionsInput) els.customOptionsInput.value = dim.rawText || '';
+        showCustomStatus('');
+        updateCustomFormLabels();
+        els.customOptionsInput?.focus();
+      }
+      function deleteCustomDimension(id) {
+        if (!customDimensions.some(dim => dim.id === id)) return;
+        const confirmText = uiText.customDeleteConfirm[current.lang];
+        if (confirmText && !window.confirm(confirmText)) return;
+        customDimensions = customDimensions.filter(dim => dim.id !== id);
+        syncCustomData();
+        resetCustomForm();
+        init();
+        persistCurrentState();
+      }
+      function handleCustomSave() {
+        const { zh, en, rawText } = getCustomFormValues();
+        const lang = current.lang;
+        if (!zh) { showCustomStatus(uiText.customErrorName[lang]); return; }
+        const optionsList = parseCustomOptionsText(rawText);
+        if (!optionsList.length) { showCustomStatus(uiText.customErrorOptions[lang]); return; }
+        const payload = {
+          id: editingCustomId || String(Date.now()),
+          name: { zh, en: en || zh },
+          rawText
+        };
+        if (editingCustomId) {
+          customDimensions = customDimensions.map(dim => dim.id === editingCustomId ? payload : dim);
+        } else {
+          customDimensions.push(payload);
+        }
+        editingCustomId = null;
+        syncCustomData();
+        resetCustomForm();
+        init();
+        persistCurrentState();
+      }
+
+      function bindClicks() {
+        Object.entries(els).forEach(([k, el]) => {
+          if (!options[k]) return;
+          bindOptionContainer(el, k);
+        });
+        els.langZh.addEventListener('click', () => { current.lang = 'zh'; document.documentElement.lang = 'zh'; els.langZh.classList.add('active'); els.langEn.classList.remove('active'); init(); composeAndRender(); });
+        els.langEn.addEventListener('click', () => { current.lang = 'en'; document.documentElement.lang = 'en'; els.langEn.classList.add('active'); els.langZh.classList.remove('active'); init(); composeAndRender(); });
+        const eyeOnIcon = '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>';
+        const eyeOffIcon = '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7c2.4 0 4.4.7 6 1.7M23 12s-4 7-11 7c-2.4 0-4.4-.7-6-1.7" stroke-width="2"/><path d="M3 3l18 18" stroke-width="2"/></svg>';
+        document.querySelectorAll('.visibility-btn').forEach(btn => {
+          const g = btn.dataset.group;
+          if (!g) return;
+          const update = () => {
+            btn.innerHTML = enabled[g] ? eyeOnIcon : eyeOffIcon;
+            btn.setAttribute('aria-pressed', String(!enabled[g]));
+          };
+          update();
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            enabled[g] = !enabled[g];
+            setGroupStateByKey(g, enabled[g]);
+            update();
+            composeAndRender();
+          });
+        });
+        document.querySelectorAll('.collapse-btn').forEach(btn => {
+          const g = btn.dataset.group;
+          if (!g) return;
+          if (!(g in collapsedGroups)) collapsedGroups[g] = false;
+          const applyState = (collapsed) => {
+            collapsedGroups[g] = collapsed;
+            const wrap = groupWraps[g];
+            if (wrap) wrap.classList.toggle('collapsed', collapsed);
+            btn.classList.toggle('collapsed', collapsed);
+            btn.setAttribute('aria-expanded', String(!collapsed));
+          };
+          applyState(collapsedGroups[g]);
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyState(!collapsedGroups[g]);
+          });
+        });
+        document.querySelectorAll('.sub-title').forEach(el => {
+          el.addEventListener('click', () => {
+            const k = el.dataset.sub; if (!k) return;
+            enabledSub[k] = !enabledSub[k];
+            const block = document.getElementById(k);
+            const row = el.closest('.sub-title-row');
+            const container = row && row.nextElementSibling ? row.nextElementSibling.parentElement : null;
+            const wrap = row && row.nextElementSibling ? row.nextElementSibling : null;
+            if (wrap) wrap.classList.toggle('sub-disabled', !enabledSub[k]);
+            if (row) row.classList.toggle('sub-disabled', !enabledSub[k]);
+            if (wrap) {
+              wrap.querySelectorAll('.option').forEach(btn => {
+                btn.classList.toggle('disabled', !enabledSub[k] || lockedSub[k]);
+              });
+            }
+            composeAndRender();
+          });
+        });
+        document.querySelectorAll('.sub-collapse').forEach(btn => {
+          const key = btn.dataset.subTarget;
+          if (!key) return;
+          if (!(key in collapsedSub)) collapsedSub[key] = false;
+          const wrap = document.getElementById(key);
+          const applySubState = (collapsed) => {
+            collapsedSub[key] = collapsed;
+            if (wrap) wrap.classList.toggle('collapsed', collapsed);
+            btn.classList.toggle('collapsed', collapsed);
+            btn.setAttribute('aria-expanded', String(!collapsed));
+          };
+          applySubState(collapsedSub[key]);
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applySubState(!collapsedSub[key]);
+          });
+        });
+        const unlockedIcon = '<svg viewBox="0 0 24 24"><path d="M6 10V8a6 6 0 0112 0v2" stroke-width="2"/><rect x="5" y="10" width="14" height="10" rx="2" stroke-width="2"/></svg>';
+        const lockedIcon = '<svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 018 0v2" stroke-width="2"/><rect x="5" y="10" width="14" height="10" rx="2" stroke-width="2"/></svg>';
+        document.querySelectorAll('.lock-btn').forEach(btn => {
+          btn.innerHTML = unlockedIcon;
+          btn.addEventListener('click', () => {
+            const g = btn.dataset.group;
+            const sKey = btn.dataset.sub;
+            if (g) { locked[g] = !locked[g]; btn.classList.toggle('locked', locked[g]); }
+            if (sKey) { lockedSub[sKey] = !lockedSub[sKey]; btn.classList.toggle('locked', lockedSub[sKey]); }
+            const isLocked = g ? locked[g] : lockedSub[sKey];
+            btn.innerHTML = isLocked ? lockedIcon : unlockedIcon;
+            if (sKey) {
+              const row = document.querySelector(`.sub-title-row .sub-title[data-sub="${sKey}"]`)?.closest('.sub-title-row');
+              const wrap = row && row.nextElementSibling ? row.nextElementSibling : null;
+            if (wrap) wrap.querySelectorAll('.option').forEach(btnEl => btnEl.classList.toggle('disabled', lockedSub[sKey] || !enabledSub[sKey]));
+            }
+            persistCurrentState();
+          });
+        });
+        els.savedPanelToggle?.addEventListener('click', (e) => {
+          e.preventDefault();
+          toggleSavedPanel();
+        });
+        els.closeSavedPanelBtn?.addEventListener('click', (e) => {
+          e.preventDefault();
+          setSavedPanelVisible(false);
+        });
+        els.modeToggle.addEventListener('click', () => {
+          uiMode = uiMode === 'dropdown' ? 'expanded' : 'dropdown';
+          updateModeToggleLabel();
+          init();
+          composeAndRender();
+        });
+      }
+      els.randomAll.addEventListener('click', randomAllVisible);
+      els.copyPrompt.addEventListener('click', async () => {
+        const t = els.promptOutput.textContent;
+        try { await navigator.clipboard.writeText(t); } catch(e) { }
+      });
+      els.savePresetBtn?.addEventListener('click', e => { e.preventDefault(); handleSavePreset(); });
+      els.presetNameInput?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleSavePreset();
+        }
+      });
+      els.customSaveBtn?.addEventListener('click', e => { e.preventDefault(); handleCustomSave(); });
+      els.customCancelBtn?.addEventListener('click', e => { e.preventDefault(); resetCustomForm(); });
+      
+
+      init();
+      bindClicks();
+</script>
+  </body>
+</html>
