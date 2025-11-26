@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PromptPhoto 提示词生成器</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
       :root { --bg:#faf9fb; --panel:#ffffff; --text:#3a3a40; --muted:#7a7f86; --accent:#ff8aa0; --accent-2:#ff6f91; --accent-soft: rgba(255,111,145,.12); --accent-hover: rgba(255,111,145,.16); --border:#eceff3; --chip-bg:#fff3f5; --chip-hover:#ffe9ee; --shadow-soft: 0 8px 20px rgba(58,58,64,.06); }
       * { box-sizing: border-box; }
@@ -13,6 +13,7 @@
       .wrap { max-width: 1200px; margin: 0 auto; padding: 28px 28px 150px; }
       .header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; }
       .title { font-size: 22px; font-weight: 700; letter-spacing: .15px; }
+      html.lang-en .title { font-family: "Playfair Display", ui-serif, Georgia, "Times New Roman", serif; font-weight:600; }
       .controls { display:flex; gap:10px; flex-wrap:wrap; }
       button { background:var(--accent); color:#3a0d17; border:none; padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer; transition:transform .08s ease; box-shadow: none; }
       button:active { transform: scale(.98); }
@@ -33,18 +34,27 @@
       .right-sticky .output { flex:1; overflow:auto; }
       .card h3 { margin:0 0 12px 0; font-size:16px; font-weight:600; color:var(--accent-2); }
       .group { margin-bottom:18px; padding:12px; border-radius:14px; transition: background .2s ease; position:relative; }
+      .group.collapsed,
+      .group.group-disabled { padding-bottom:10px; margin-bottom:14px; }
       .group-content { padding-top:8px; }
       .group.group-disabled { background:#f4f5f8; }
+      .group.group-locked { background:#f8f8fb; border-color:#e3e6ef; }
+      .group.group-locked .group-title { color:#4d515c; }
       .group.group-disabled .group-content { display:none; }
-      .group-title-row { display:flex; align-items:center; justify-content:flex-start; gap:8px; margin-bottom:8px; flex-wrap:wrap; position:relative; padding-left:24px; }
+      .group-title-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; position:relative; padding-left:28px; width:100%; }
       .group.collapsed > :not(.group-title-row) { display:none; }
-      .group-title { font-size:14px; font-weight:600; color:var(--text); letter-spacing:.1px; }
+      .group-title { font-size:14px; font-weight:600; color:var(--text); letter-spacing:.1px; flex:1; min-width:0; }
+      .group.collapsed .group-title-row,
+      .group.group-disabled .group-title-row { margin-bottom:0; }
+      .group-actions { margin-left:auto; display:flex; align-items:center; gap:6px; flex-wrap:nowrap; }
       .options { display:flex; flex-wrap:wrap; gap:8px; }
       .option { background:#ffffff; color:var(--text); border:1px solid var(--border); border-radius:999px; padding:7px 12px; cursor:pointer; font-weight:400; letter-spacing:.1px; transition: background .2s ease, border-color .2s ease, color .2s ease; box-shadow:none; }
       .option:hover { background:var(--chip-hover); }
       .option.active { border-color: var(--accent); background: var(--accent-soft); color:#3a0d17; }
       .option:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
       .option.disabled { opacity:.5; pointer-events:none; }
+      .option.single-option { display:inline-flex; align-items:center; gap:6px; }
+      .option.locked-view { border-color:#d9dce5; background:#f5f6fb; color:#5f6571; }
       .option .caret { display:inline-flex; align-items:center; justify-content:center; width:12px; height:12px; margin-left:6px; }
       .option .caret svg { width:12px; height:12px; stroke: var(--muted); fill:none; }
       .option.active .caret svg { stroke: var(--accent-2); }
@@ -54,15 +64,14 @@
       .toggle input:checked + label { color: var(--accent-2); }
       .group-disabled .group-title { color:#b0b4ba; }
       .group-disabled .option { background:#f8f8fb; border-color:#e3e5ec; color:#a5aab4; }
-      .output { width:100%; min-height:260px; white-space:pre-wrap; background:#ffffff; border:1px solid var(--border); border-radius:12px; padding:14px; color:var(--text); font-size:14px; }
+      .output { width:100%; min-height:260px; white-space:pre-wrap; background:#ffffff; border:1px solid var(--border); border-radius:12px; padding:14px; color:var(--text); font-size:14px; font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
       .scroll-soft { scrollbar-width: thin; scrollbar-color: rgba(122,127,134,.25) transparent; }
       .scroll-soft::-webkit-scrollbar { width:6px; }
       .scroll-soft::-webkit-scrollbar-track { background: transparent; }
       .scroll-soft::-webkit-scrollbar-thumb { background: rgba(122,127,134,.3); border-radius:999px; border:1px solid rgba(255,255,255,.4); }
       .scroll-soft:hover::-webkit-scrollbar-thumb { background: rgba(122,127,134,.45); }
       .custom-section { border-top:1px solid var(--border); margin-top:20px; padding-top:16px; }
-      .custom-section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-      .custom-section-header h4 { margin:0; font-size:14px; color:var(--accent-2); }
+      .custom-section-header { display:flex; justify-content:flex-start; align-items:center; margin-bottom:10px; }
       .custom-form { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
       .custom-form .row { display:flex; gap:8px; flex-wrap:wrap; }
       .custom-form input, .custom-form textarea { width:100%; border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-family:inherit; font-size:13px; color:var(--text); background:#fff; }
@@ -77,7 +86,16 @@
       .custom-actions { display:flex; gap:6px; }
       .custom-text-btn { background:transparent; border:none; color:var(--accent-2); font-size:12px; cursor:pointer; padding:4px 6px; border-radius:8px; }
       .custom-text-btn:hover { background:var(--accent-soft); }
-      .custom-empty { font-size:12px; color:var(--muted); margin:0; }
+      .custom-add-btn { background:#ff4d4f; color:#fff; border:none; border-radius:14px; padding:8px 16px; font-weight:600; cursor:pointer; box-shadow:var(--shadow-soft); transition:transform .08s ease; }
+      .custom-add-btn:active { transform:scale(.98); }
+      .custom-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:120; }
+      .custom-modal-overlay.hidden { display:none; }
+      .custom-modal { background:var(--panel); border-radius:20px; padding:24px; width:min(420px, 90vw); box-shadow:var(--shadow-soft); border:1px solid var(--border); display:flex; flex-direction:column; gap:14px; }
+      .custom-modal-header { display:flex; justify-content:space-between; align-items:center; }
+      .custom-modal-header h3 { margin:0; font-size:16px; color:var(--accent-2); }
+      .custom-modal-close { background:transparent; border:none; font-size:18px; line-height:1; cursor:pointer; color:var(--muted); padding:4px; border-radius:8px; }
+      .custom-modal-close:hover { color:var(--accent-2); background:var(--accent-soft); }
+      body.modal-open { overflow:hidden; }
       .hidden { display:none !important; }
       
       .pill { display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; background:var(--chip-bg); border:1px solid var(--border); color:var(--muted); }
@@ -88,21 +106,31 @@
       .lang-btn.active { border-color: var(--accent); color:#3a0d17; background: var(--accent-soft); }
       .lang-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
       .btn-cta { padding:12px 18px; font-weight:700; border-radius:14px; box-shadow: 0 6px 14px rgba(255,111,145,.12); }
-      .sub-title { font-size:12px; font-weight:500; color:var(--muted); cursor:pointer; }
+      .sub-title { font-size:12px; font-weight:500; color:var(--muted); }
       .sub-title-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; position:relative; padding-left:24px; }
       .sub-actions { margin-left:auto; display:flex; align-items:center; gap:4px; }
       .sub-title-row .lock-btn { margin-left:0; }
       .sub-title-row .visibility-btn { padding:4px; border-radius:50%; }
       .sub-disabled .sub-title { color:#c6cad3; }
-      .sub-disabled .options-block { opacity:.5; }
+      .sub-title-row.sub-locked .sub-title { color:#4c4f59; font-weight:600; }
+      .options-block.sub-disabled,
+      .options.sub-disabled { display:none; }
+      .options.sub-locked .option,
+      .options-block.sub-locked .option { background:#f8f8fb; color:#5c606a; border-color:#d9dce5; }
       .options-block { margin-bottom:8px; }
       .options-block.collapsed { display:none; }
-      select { width:100%; appearance:none; -webkit-appearance:none; -moz-appearance:none; background-color:#fff; border:1px solid var(--border); color:var(--text); border-radius:10px; padding:8px 34px 8px 10px; line-height:1.4; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='%237a7f86' stroke-width='2' d='M7 10l5 5 5-5'/></svg>"); background-repeat:no-repeat; background-position: calc(100% - 10px) 50%; background-size:12px; }
+      select { width:100%; appearance:none; -webkit-appearance:none; -moz-appearance:none; background-color:#fff; border:1px solid var(--border); color:var(--text); border-radius:10px; padding:8px 34px 8px 10px; line-height:1.4; font-size:14px; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='%237a7f86' stroke-width='2' d='M7 10l5 5 5-5'/></svg>"); background-repeat:no-repeat; background-position: calc(100% - 10px) 50%; background-size:12px; }
       .lock-btn { background:transparent; border:none; color:var(--muted); padding:4px; border-radius:50%; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; width:auto; }
       .lock-btn svg { width:16px; height:16px; stroke: currentColor; fill:none; }
       .lock-btn:hover { color:var(--accent-2); }
       .lock-btn.locked { color:var(--accent-2); }
       .lock-btn:focus-visible { outline:2px solid var(--accent-soft); outline-offset:2px; }
+      .option-lock-btn { background:transparent; border:none; color:#9499a7; padding:4px; border-radius:50%; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+      .option-lock-btn:hover { color:var(--accent-2); }
+      .option-lock-btn:focus-visible { outline:2px solid var(--accent-soft); outline-offset:2px; }
+      .option-lock-btn svg { width:14px; height:14px; stroke:currentColor; fill:none; }
+      .locked-chip { display:flex; align-items:center; gap:6px; }
+      .locked-chip .option { margin:0; }
       .group.group-disabled .lock-btn,
       .group.group-disabled .collapse-btn,
       .group.group-disabled .visibility-btn { color:#c0c4cf; }
@@ -116,6 +144,7 @@
       .global-bar { position: fixed; bottom: 20px; left:50%; transform: translateX(-50%); background: rgba(255,255,255,.92); border:1px solid var(--border); box-shadow: 0 12px 30px rgba(0,0,0,.08); border-radius:18px; padding:10px 14px; display:flex; gap:10px; z-index:50; backdrop-filter: blur(8px); }
       .action-btn { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border); background:var(--panel); color:var(--text); border-radius:999px; padding:9px 16px; font-size:13px; font-weight:600; box-shadow: inset 0 1px 0 rgba(255,255,255,.6); transition: all .15s ease; }
       .action-btn:hover { border-color: var(--accent-2); color: var(--accent-2); }
+      .action-btn.copied { border-color: var(--accent-2); color: var(--accent-2); background:var(--accent-soft); }
       .action-btn.accent { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%); color:#fff; border:none; box-shadow:none; }
       .action-btn.accent:hover { filter: brightness(1.05); }
       .btn-icon { display:inline-flex; align-items:center; justify-content:center; }
@@ -144,6 +173,7 @@
       .preset-modal input { border:1px solid var(--border); border-radius:12px; padding:10px 12px; font-size:13px; }
       .preset-modal .modal-actions { display:flex; gap:10px; }
       .preset-modal .modal-actions button { flex:1; }
+      .preset-modal .action-btn { width:100%; justify-content:center; }
       @media (max-width: 768px) {
         .saved-strip { left:12px; width:160px; top:auto; bottom:90px; transform:none; }
       }
@@ -172,7 +202,7 @@
             <div class="group-title-row">
               <button class="collapse-btn" data-group="hairStyle" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="group-title" data-group="hairStyle">头发造型</div>
-              <div class="row">
+              <div class="group-actions">
                 <button class="visibility-btn" data-group="hairStyle" aria-label="启用/禁用"></button>
                 <button class="lock-btn" data-group="hairStyle" aria-label="锁定">🔓</button>
               </div>
@@ -185,7 +215,7 @@
             <div class="group-title-row">
               <button class="collapse-btn" data-group="hairColor" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="group-title" data-group="hairColor">发色</div>
-              <div class="row">
+              <div class="group-actions">
                 <button class="visibility-btn" data-group="hairColor" aria-label="启用/禁用"></button>
                 <button class="lock-btn" data-group="hairColor" aria-label="锁定">🔓</button>
               </div>
@@ -198,7 +228,7 @@
               <div class="group-title-row">
                 <button class="collapse-btn" data-group="clothing" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
                 <div class="group-title" data-group="clothing">服饰与饰品</div>
-                <div class="row">
+                <div class="group-actions">
                   <button class="visibility-btn" data-group="clothing" aria-label="启用/禁用"></button>
                   <button class="lock-btn" data-group="clothing" aria-label="锁定">🔓</button>
                 </div>
@@ -246,7 +276,7 @@
             <div class="group-title-row">
               <button class="collapse-btn" data-group="makeup" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="group-title" data-group="makeup">妆容</div>
-              <div class="row">
+              <div class="group-actions">
                 <button class="visibility-btn" data-group="makeup" aria-label="启用/禁用"></button>
                 <button class="lock-btn" data-group="makeup" aria-label="锁定">🔓</button>
               </div>
@@ -312,7 +342,7 @@
             <div class="group-title-row">
               <button class="collapse-btn" data-group="pose" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="group-title" data-group="pose">姿态与机位</div>
-              <div class="row">
+              <div class="group-actions">
                 <button class="visibility-btn" data-group="pose" aria-label="启用/禁用"></button>
                 <button class="lock-btn" data-group="pose" aria-label="锁定">🔓</button>
               </div>
@@ -351,7 +381,7 @@
             <div class="group-title-row">
               <button class="collapse-btn" data-group="composition" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="group-title" data-group="composition">构图比例</div>
-              <div class="row">
+              <div class="group-actions">
                 <button class="visibility-btn" data-group="composition" aria-label="启用/禁用"></button>
                 <button class="lock-btn" data-group="composition" aria-label="锁定">🔓</button>
               </div>
@@ -372,7 +402,7 @@
             <div class="group-title-row">
               <button class="collapse-btn" data-group="background" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="group-title" data-group="background">背景与光线</div>
-              <div class="row">
+              <div class="group-actions">
                 <button class="visibility-btn" data-group="background" aria-label="启用/禁用"></button>
                 <button class="lock-btn" data-group="background" aria-label="锁定">🔓</button>
               </div>
@@ -411,7 +441,7 @@
             <div class="group-title-row">
               <button class="collapse-btn" data-group="style" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="group-title" data-group="style">风格</div>
-              <div class="row">
+              <div class="group-actions">
                 <button class="visibility-btn" data-group="style" aria-label="启用/禁用"></button>
                 <button class="lock-btn" data-group="style" aria-label="锁定">🔓</button>
               </div>
@@ -432,7 +462,7 @@
             <div class="group-title-row">
               <button class="collapse-btn" data-group="camera" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="group-title" data-group="camera">相机</div>
-              <div class="row">
+              <div class="group-actions">
                 <button class="visibility-btn" data-group="camera" aria-label="启用/禁用"></button>
                 <button class="lock-btn" data-group="camera" aria-label="锁定">🔓</button>
               </div>
@@ -451,20 +481,7 @@
           </div>
           <div class="custom-section">
             <div class="custom-section-header">
-              <h4 id="customSectionTitle">自定义维度</h4>
-            </div>
-            <div class="custom-form" id="customForm">
-              <div class="row">
-                <input id="customNameZh" type="text" placeholder="维度名称（中文）"/>
-                <input id="customNameEn" type="text" placeholder="Dimension name (EN)"/>
-              </div>
-              <textarea id="customOptionsInput" placeholder="每行：柔和光线 | Soft lighting"></textarea>
-              <p class="custom-hint" id="customOptionsHint">使用“中文 | English”格式，一行一个选项。</p>
-              <div class="custom-form-actions">
-                <button id="customSaveBtn" class="btn-cta" type="button">添加维度</button>
-                <button id="customCancelBtn" class="btn-secondary hidden" type="button">取消编辑</button>
-              </div>
-              <p class="custom-status" id="customFormStatus"></p>
+              <button id="customAddTrigger" class="custom-add-btn" type="button">添加维度</button>
             </div>
             <div id="customDimensionsContainer" class="custom-dimensions-list"></div>
           </div>
@@ -485,14 +502,36 @@
           <h3 id="presetModalTitle">保存配置</h3>
           <input id="presetModalInput" type="text" placeholder="配置名称"/>
           <div class="modal-actions">
-            <button id="presetModalCancel" class="btn-secondary" type="button">取消</button>
-            <button id="presetModalSave" class="btn-cta" type="button">保存</button>
+            <button id="presetModalCancel" class="action-btn" type="button">取消</button>
+            <button id="presetModalSave" class="action-btn accent" type="button">保存</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="customModalOverlay" class="custom-modal-overlay hidden" role="dialog" aria-modal="true">
+        <div class="custom-modal">
+          <div class="custom-modal-header">
+            <h3 id="customModalTitle">添加维度</h3>
+            <button id="customModalClose" class="custom-modal-close" type="button" aria-label="关闭">×</button>
+          </div>
+          <div class="custom-form" id="customForm">
+            <div class="row">
+              <input id="customNameZh" type="text" placeholder="维度名称（中文）"/>
+              <input id="customNameEn" type="text" placeholder="Dimension name (EN)"/>
+            </div>
+            <textarea id="customOptionsInput" placeholder="每行：柔和光线 | Soft lighting"></textarea>
+            <p class="custom-hint" id="customOptionsHint">使用“中文 | English”格式，一行一个选项。</p>
+            <div class="custom-form-actions">
+              <button id="customCancelBtn" class="btn-secondary" type="button">取消</button>
+              <button id="customSaveBtn" class="btn-cta" type="button">添加维度</button>
+            </div>
+            <p class="custom-status" id="customFormStatus"></p>
           </div>
         </div>
       </div>
 
       <div class="global-bar">
-        <button id="randomAll" class="action-btn">
+        <button id="randomAll" class="action-btn accent">
           <span class="btn-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 3 21 3 21 8"></polyline>
@@ -511,9 +550,9 @@
               <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
             </svg>
           </span>
-          <span id="copyLabel">复制提示词</span>
+          <span id="copyLabel">复制</span>
         </button>
-        <button id="savedPanelToggle" class="action-btn accent" type="button">
+        <button id="savedPanelToggle" class="action-btn" type="button">
           <span class="btn-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 4h16l1 4H3z"></path>
@@ -522,7 +561,7 @@
               <path d="M14 12v4"></path>
             </svg>
           </span>
-          <span id="saveLabel">保存配置</span>
+          <span id="saveLabel">保存</span>
         </button>
       </div>
     </div>
@@ -607,8 +646,13 @@
         activeSavedConfigId = null;
       }
       let editingCustomId = null;
+      let copyFeedbackTimer = null;
       const current = { lang: savedData?.currentLang || 'zh' };
-      document.documentElement.lang = current.lang;
+      function updateLangClass() {
+        document.documentElement.lang = current.lang;
+        document.documentElement.classList.toggle('lang-en', current.lang === 'en');
+      }
+      updateLangClass();
       let uiMode = savedData?.uiMode || 'dropdown';
       const options = {
         hairStyle: [
@@ -767,16 +811,19 @@
         modeExpanded: { zh: "展开模式", en: "Expanded Mode" },
         random: { zh: "随机", en: "Random" },
         copy: { zh: "复制", en: "Copy" },
+        copySuccess: { zh: "已复制", en: "Copied" },
         outputHeading: { zh: "JSON 输出", en: "JSON Output" },
-        customSectionTitle: { zh: "自定义维度", en: "Custom Dimensions" },
+        customAddTrigger: { zh: "添加维度", en: "Add Dimension" },
         customNameZhPlaceholder: { zh: "维度名称（中文）", en: "Dimension name (ZH)" },
         customNameEnPlaceholder: { zh: "维度名称（英文）", en: "Dimension name (EN)" },
         customOptionsPlaceholder: { zh: "每行：柔和光线 | Soft lighting", en: "Each line: Soft lighting | Translation" },
         customHint: { zh: "每行使用“中文 | English”格式。", en: "Use “Chinese | English” per line." },
         customSave: { zh: "添加维度", en: "Add Dimension" },
         customSaveEdit: { zh: "保存更改", en: "Save Changes" },
-        customCancel: { zh: "取消编辑", en: "Cancel" },
-        customEmpty: { zh: "还没有自定义维度。", en: "No custom dimensions yet." },
+        customCancel: { zh: "取消", en: "Cancel" },
+        customModalAddTitle: { zh: "添加维度", en: "Add Dimension" },
+        customModalEditTitle: { zh: "编辑维度", en: "Edit Dimension" },
+        customModalClose: { zh: "关闭", en: "Close" },
         customEdit: { zh: "编辑", en: "Edit" },
         customDelete: { zh: "删除", en: "Delete" },
         customDeleteConfirm: { zh: "确定要删除这个自定义维度吗？", en: "Delete this custom dimension?" },
@@ -825,7 +872,7 @@
         outputHeading: document.getElementById('outputHeading'),
         randomLabel: document.getElementById('randomLabel'),
         copyLabel: document.getElementById('copyLabel'),
-        customSectionTitle: document.getElementById('customSectionTitle'),
+        customAddTrigger: document.getElementById('customAddTrigger'),
         customNameZh: document.getElementById('customNameZh'),
         customNameEn: document.getElementById('customNameEn'),
         customOptionsInput: document.getElementById('customOptionsInput'),
@@ -833,7 +880,7 @@
         customCancelBtn: document.getElementById('customCancelBtn'),
         customOptionsHint: document.getElementById('customOptionsHint'),
         customFormStatus: document.getElementById('customFormStatus'),
-        customDimensionsContainer: document.getElementById('customDimensionsContainer'),
+      customDimensionsContainer: document.getElementById('customDimensionsContainer'),
         savedConfigsTitle: document.getElementById('savedStripTitle'),
         savedStrip: document.getElementById('savedStrip'),
         savedStripList: document.getElementById('savedStripList'),
@@ -844,6 +891,9 @@
         presetModalSave: document.getElementById('presetModalSave'),
         presetModalCancel: document.getElementById('presetModalCancel'),
         presetModalTitle: document.getElementById('presetModalTitle'),
+        customModalOverlay: document.getElementById('customModalOverlay'),
+        customModalClose: document.getElementById('customModalClose'),
+        customModalTitle: document.getElementById('customModalTitle'),
         groupHairStyle: document.getElementById('group-hair-style'),
         groupHairColor: document.getElementById('group-hair-color'),
         groupClothing: document.getElementById('group-clothing'),
@@ -858,6 +908,10 @@
       const eyeIcons = {
         on: '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>',
         off: '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7c2.4 0 4.4.7 6 1.7M23 12s-4 7-11 7c-2.4 0-4.4-.7-6-1.7" stroke-width="2"/><path d="M3 3l18 18" stroke-width="2"/></svg>'
+      };
+      const lockIcons = {
+        unlocked: '<svg viewBox="0 0 24 24"><path d="M7 10V8a5 5 0 0110 0v2" stroke-width="2"/><rect x="5" y="10" width="14" height="10" rx="2" stroke-width="2"/></svg>',
+        locked: '<svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 018 0v2" stroke-width="2"/><rect x="5" y="10" width="14" height="10" rx="2" stroke-width="2"/></svg>'
       };
       function setVisibilityButtonState(btn, on) {
         if (!btn) return;
@@ -875,6 +929,21 @@
         style: els.groupStyle,
         camera: els.groupCamera
       };
+      const groupOptionMap = {
+        hairStyle: ['hairStyle'],
+        hairColor: ['hairColor'],
+        clothing: ['top', 'earrings', 'rings', 'nails'],
+        makeup: ['makeupStyle', 'eyebrows', 'eyeliner', 'eyelashes', 'blush', 'lips'],
+        pose: ['hands', 'expression', 'cameraAngle'],
+        composition: ['aspectRatio'],
+        background: ['bgColor', 'bgEffect', 'lighting'],
+        style: ['mood'],
+        camera: ['cameraType']
+      };
+      const subToGroupMap = Object.entries(groupOptionMap).reduce((acc, [groupKey, subKeys]) => {
+        subKeys.forEach(subKey => { acc[subKey] = groupKey; });
+        return acc;
+      }, {});
       function setGroupStateByKey(groupKey, on) {
         const wrap = groupWraps[groupKey];
         if (wrap) wrap.classList.toggle('group-disabled', !on);
@@ -893,24 +962,59 @@
         const safeIdx = Math.max(0, Math.min(items.length - 1, Number.isFinite(numericIdx) ? numericIdx : 0));
         const currentOption = items[safeIdx] || items[0];
         const currentLabel = currentOption ? (currentOption[current.lang] || currentOption.en || currentOption.value || '') : '';
-        if (uiMode === 'expanded') {
+        const isLocked = !!lockedSub[key];
+        const isEnabled = enabledSub[key] !== false;
+        const shouldShowAll = uiMode === 'expanded' && !isLocked;
+        if (shouldShowAll) {
           items.forEach((v, i) => {
             const b = document.createElement('button');
             b.type = 'button';
             b.className = 'option' + (i === safeIdx ? ' active' : '');
             b.dataset.idx = i;
             b.textContent = v[current.lang] || v.en || v.value || '';
-            if (!enabledSub[key] || lockedSub[key]) b.classList.add('disabled');
+            if (!isEnabled) b.classList.add('disabled');
             el.appendChild(b);
           });
         } else {
           const b = document.createElement('button');
           b.type = 'button';
-          b.className = 'option active';
-          b.innerHTML = `${currentLabel} <span class="caret"><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" stroke-width="2"/></svg></span>`;
-          if (!enabledSub[key] || lockedSub[key]) b.classList.add('disabled');
-          b.addEventListener('click', (e) => { if (enabledSub[key] && !lockedSub[key]) openChipPopover(e.currentTarget, key); });
-          el.appendChild(b);
+          b.className = 'option active single-option' + (isLocked ? ' locked-view' : '');
+          b.dataset.idx = safeIdx;
+          if (!isLocked && uiMode !== 'expanded') {
+            b.innerHTML = `${currentLabel} <span class="caret"><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" stroke-width="2"/></svg></span>`;
+          } else {
+            b.textContent = currentLabel;
+          }
+          if (!isEnabled || isLocked) b.classList.add('disabled');
+          if (!isLocked && uiMode !== 'expanded' && isEnabled) {
+            b.addEventListener('click', (e) => { if (isEnabled) openChipPopover(e.currentTarget, key); });
+          }
+          if (!isLocked) {
+            el.appendChild(b);
+          } else {
+            const lockedWrap = document.createElement('div');
+            lockedWrap.className = 'locked-chip';
+            lockedWrap.appendChild(b);
+            const inlineLock = document.createElement('button');
+            inlineLock.type = 'button';
+            inlineLock.className = 'option-lock-btn';
+            inlineLock.innerHTML = lockIcons.unlocked;
+            inlineLock.title = current.lang === 'zh' ? '解锁' : 'Unlock';
+            inlineLock.setAttribute('aria-label', inlineLock.title);
+            inlineLock.addEventListener('click', (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              const hasSubBtn = !!document.querySelector(`.lock-btn[data-sub="${key}"]`);
+              if (hasSubBtn) {
+                applySubLockState(key, false);
+              } else {
+                const parentGroup = subToGroupMap[key] || key;
+                applyGroupLockState(parentGroup, false);
+              }
+            });
+            lockedWrap.appendChild(inlineLock);
+            el.appendChild(lockedWrap);
+          }
         }
       }
 
@@ -921,13 +1025,7 @@
         Object.keys(els).forEach(key => {
           if (key.startsWith('custom_')) delete els[key];
         });
-        if (!customDimensions.length) {
-          const empty = document.createElement('p');
-          empty.className = 'custom-empty';
-          empty.textContent = uiText.customEmpty[current.lang];
-          container.appendChild(empty);
-          return;
-        }
+        if (!customDimensions.length) return;
         customDimensions.forEach(dim => {
           const card = document.createElement('div');
           card.className = 'custom-dimension-card';
@@ -1114,16 +1212,22 @@
       }
 
       function updateCustomFormLabels() {
-        if (els.customSectionTitle) els.customSectionTitle.textContent = uiText.customSectionTitle[current.lang];
+        if (els.customAddTrigger) els.customAddTrigger.textContent = uiText.customAddTrigger[current.lang];
         if (els.customNameZh) els.customNameZh.placeholder = uiText.customNameZhPlaceholder[current.lang];
         if (els.customNameEn) els.customNameEn.placeholder = uiText.customNameEnPlaceholder[current.lang];
         if (els.customOptionsInput) els.customOptionsInput.placeholder = uiText.customOptionsPlaceholder[current.lang];
         if (els.customOptionsHint) els.customOptionsHint.textContent = uiText.customHint[current.lang];
         if (els.customSaveBtn) els.customSaveBtn.textContent = editingCustomId ? uiText.customSaveEdit[current.lang] : uiText.customSave[current.lang];
-        if (els.customCancelBtn) {
-          els.customCancelBtn.textContent = uiText.customCancel[current.lang];
-          els.customCancelBtn.classList.toggle('hidden', !editingCustomId);
+        if (els.customModalTitle) {
+          const titleKey = editingCustomId ? 'customModalEditTitle' : 'customModalAddTitle';
+          els.customModalTitle.textContent = uiText[titleKey][current.lang];
         }
+        if (els.customModalClose) {
+          const label = uiText.customModalClose[current.lang];
+          els.customModalClose.setAttribute('aria-label', label);
+          els.customModalClose.title = label;
+        }
+        if (els.customCancelBtn) els.customCancelBtn.textContent = uiText.customCancel[current.lang];
       }
 
       function applyLabels() {
@@ -1143,7 +1247,10 @@
         if (els.dimensionHeading) els.dimensionHeading.textContent = uiText.dimensionHeading[current.lang];
         if (els.outputHeading) els.outputHeading.textContent = uiText.outputHeading[current.lang];
         if (els.randomLabel) els.randomLabel.textContent = uiText.random[current.lang];
-        if (els.copyLabel) els.copyLabel.textContent = uiText.copy[current.lang];
+        if (els.copyLabel) {
+          const copyKey = els.copyPrompt?.classList.contains('copied') ? 'copySuccess' : 'copy';
+          els.copyLabel.textContent = uiText[copyKey][current.lang];
+        }
         if (els.saveLabel) els.saveLabel.textContent = uiText.savedPanelToggle[current.lang];
         if (els.savedConfigsTitle) els.savedConfigsTitle.textContent = uiText.savedTitle[current.lang];
         if (els.presetModalTitle) els.presetModalTitle.textContent = uiText.savedModalTitle[current.lang];
@@ -1213,6 +1320,10 @@
       };
       const defaultLocked = { ...locked };
       if (savedData?.locked) Object.assign(locked, savedData.locked);
+      Object.keys(locked).forEach(key => {
+        const wrap = groupWraps[key];
+        if (wrap) wrap.classList.toggle('group-locked', !!locked[key]);
+      });
       const enabledSub = {
         top: true, earrings: true, rings: true, nails: true,
         makeupStyle: true, eyebrows: true, eyeliner: true, eyelashes: true, blush: true, lips: true,
@@ -1235,16 +1346,70 @@
       };
       const defaultLockedSub = { ...lockedSub };
       if (savedData?.lockedSub) Object.assign(lockedSub, savedData.lockedSub);
+      function setLockButtonState(btn, isLocked) {
+        if (!btn) return;
+        btn.classList.toggle('locked', !!isLocked);
+        btn.innerHTML = isLocked ? lockIcons.locked : lockIcons.unlocked;
+        btn.setAttribute('aria-pressed', String(!!isLocked));
+      }
+      function refreshOptionsForKey(key) {
+        const container = els[key] || document.getElementById(key);
+        if (!container || !options[key]) return;
+        renderOptions(container, options[key], state[key], key);
+      }
+      function syncGroupLockFromSubs(groupKey) {
+        if (!(groupKey in locked)) return;
+        const subKeys = groupOptionMap[groupKey] || [];
+        if (!subKeys.length) return;
+        const allLocked = subKeys.every(subKey => lockedSub[subKey]);
+        if (locked[groupKey] !== allLocked) {
+          locked[groupKey] = allLocked;
+          const groupBtn = document.querySelector(`.lock-btn[data-group="${groupKey}"]`);
+          setLockButtonState(groupBtn, allLocked);
+          const wrap = groupWraps[groupKey];
+          if (wrap) wrap.classList.toggle('group-locked', allLocked);
+        }
+      }
+      function applySubLockState(subKey, isLocked, opts = {}) {
+        if (!(subKey in lockedSub)) return;
+        lockedSub[subKey] = !!isLocked;
+        const subBtn = document.querySelector(`.lock-btn[data-sub="${subKey}"]`);
+        setLockButtonState(subBtn, lockedSub[subKey]);
+        refreshOptionsForKey(subKey);
+        setSubStateByKey(subKey);
+        const parentGroup = subToGroupMap[subKey];
+        if (!opts.skipSync && parentGroup) syncGroupLockFromSubs(parentGroup);
+        if (!opts.skipPersist) persistCurrentState();
+      }
+      function applyGroupLockState(groupKey, isLocked, opts = {}) {
+        if (!(groupKey in locked)) return;
+        locked[groupKey] = !!isLocked;
+        const groupBtn = document.querySelector(`.lock-btn[data-group="${groupKey}"]`);
+        setLockButtonState(groupBtn, locked[groupKey]);
+        const wrap = groupWraps[groupKey];
+        if (wrap) wrap.classList.toggle('group-locked', locked[groupKey]);
+        const subKeys = groupOptionMap[groupKey] || [];
+        subKeys.forEach(subKey => {
+          applySubLockState(subKey, locked[groupKey], { skipPersist: true, skipSync: true });
+        });
+        syncGroupLockFromSubs(groupKey);
+        if (!opts.skipPersist) persistCurrentState();
+      }
       function setSubStateByKey(subKey) {
         if (!subKey) return;
         const isEnabled = enabledSub[subKey] !== false;
+        const isLocked = !!lockedSub[subKey];
         const titleEl = document.querySelector(`.sub-title[data-sub="${subKey}"]`);
         const row = titleEl ? titleEl.closest('.sub-title-row') : null;
-        if (row) row.classList.toggle('sub-disabled', !isEnabled);
+        if (row) {
+          row.classList.toggle('sub-disabled', !isEnabled);
+          row.classList.toggle('sub-locked', isLocked);
+        }
         const wrap = document.getElementById(subKey);
         if (wrap) {
           wrap.classList.toggle('sub-disabled', !isEnabled);
-          wrap.querySelectorAll('.option').forEach(btn => btn.classList.toggle('disabled', !isEnabled || lockedSub[subKey]));
+          wrap.classList.toggle('sub-locked', isLocked);
+          wrap.querySelectorAll('.option').forEach(btn => btn.classList.toggle('disabled', !isEnabled || isLocked));
         }
         const visBtn = document.querySelector(`.visibility-btn[data-sub="${subKey}"]`);
         setVisibilityButtonState(visBtn, isEnabled);
@@ -1548,18 +1713,7 @@
       }
 
       function randomAllVisible() {
-        const groupMap = {
-          hairStyle: ['hairStyle'],
-          hairColor: ['hairColor'],
-          clothing: ['top','earrings','rings','nails'],
-          makeup: ['makeupStyle','eyebrows','eyeliner','eyelashes','blush','lips'],
-          pose: ['hands','expression','cameraAngle'],
-          composition: ['aspectRatio'],
-          background: ['bgColor','bgEffect','lighting'],
-          style: ['mood'],
-          camera: ['cameraType']
-        };
-        Object.entries(groupMap).forEach(([group, keys]) => {
+        Object.entries(groupOptionMap).forEach(([group, keys]) => {
           if (!enabled[group] || locked[group]) return;
           keys.forEach(k => {
             if (!enabledSub[k] || lockedSub[k]) return;
@@ -1595,6 +1749,17 @@
         }
       }
 
+      function showCopyFeedback() {
+        if (!els.copyPrompt) return;
+        els.copyPrompt.classList.add('copied');
+        if (els.copyLabel) els.copyLabel.textContent = uiText.copySuccess[current.lang];
+        if (copyFeedbackTimer) clearTimeout(copyFeedbackTimer);
+        copyFeedbackTimer = setTimeout(() => {
+          els.copyPrompt?.classList.remove('copied');
+          if (els.copyLabel) els.copyLabel.textContent = uiText.copy[current.lang];
+        }, 1600);
+      }
+
       function getCustomFormValues() {
         return {
           zh: (els.customNameZh?.value || '').trim(),
@@ -1613,6 +1778,20 @@
         showCustomStatus('');
         updateCustomFormLabels();
       }
+      function openCustomModal() {
+        if (els.customModalOverlay) {
+          els.customModalOverlay.classList.remove('hidden');
+          document.body.classList.add('modal-open');
+        }
+        setTimeout(() => { els.customNameZh?.focus(); }, 20);
+      }
+      function closeCustomModal() {
+        if (els.customModalOverlay) {
+          els.customModalOverlay.classList.add('hidden');
+        }
+        document.body.classList.remove('modal-open');
+        resetCustomForm();
+      }
       function startEditingCustomDimension(id) {
         const dim = customDimensions.find(d => d.id === id);
         if (!dim) return;
@@ -1622,7 +1801,7 @@
         if (els.customOptionsInput) els.customOptionsInput.value = dim.rawText || '';
         showCustomStatus('');
         updateCustomFormLabels();
-        els.customOptionsInput?.focus();
+        openCustomModal();
       }
       function deleteCustomDimension(id) {
         if (!customDimensions.some(dim => dim.id === id)) return;
@@ -1630,7 +1809,7 @@
         if (confirmText && !window.confirm(confirmText)) return;
         customDimensions = customDimensions.filter(dim => dim.id !== id);
         syncCustomData();
-        resetCustomForm();
+        closeCustomModal();
         init();
         persistCurrentState();
       }
@@ -1650,9 +1829,8 @@
         } else {
           customDimensions.push(payload);
         }
-        editingCustomId = null;
         syncCustomData();
-        resetCustomForm();
+        closeCustomModal();
         init();
         persistCurrentState();
       }
@@ -1662,8 +1840,8 @@
           if (!options[k]) return;
           bindOptionContainer(el, k);
         });
-        els.langZh.addEventListener('click', () => { current.lang = 'zh'; document.documentElement.lang = 'zh'; els.langZh.classList.add('active'); els.langEn.classList.remove('active'); init(); composeAndRender(); });
-        els.langEn.addEventListener('click', () => { current.lang = 'en'; document.documentElement.lang = 'en'; els.langEn.classList.add('active'); els.langZh.classList.remove('active'); init(); composeAndRender(); });
+        els.langZh.addEventListener('click', () => { current.lang = 'zh'; updateLangClass(); els.langZh.classList.add('active'); els.langEn.classList.remove('active'); init(); composeAndRender(); });
+        els.langEn.addEventListener('click', () => { current.lang = 'en'; updateLangClass(); els.langEn.classList.add('active'); els.langZh.classList.remove('active'); init(); composeAndRender(); });
         document.querySelectorAll('.visibility-btn').forEach(btn => {
           const g = btn.dataset.group;
           const subKey = btn.dataset.sub;
@@ -1699,14 +1877,6 @@
             applyState(!collapsedGroups[g]);
           });
         });
-        document.querySelectorAll('.sub-title').forEach(el => {
-          el.addEventListener('click', () => {
-            const k = el.dataset.sub; if (!k) return;
-            enabledSub[k] = !enabledSub[k];
-            setSubStateByKey(k);
-            composeAndRender();
-          });
-        });
         document.querySelectorAll('.sub-collapse').forEach(btn => {
           const key = btn.dataset.subTarget;
           if (!key) return;
@@ -1724,21 +1894,20 @@
             applySubState(!collapsedSub[key]);
           });
         });
-        const unlockedIcon = '<svg viewBox="0 0 24 24"><path d="M6 10V8a6 6 0 0112 0v2" stroke-width="2"/><rect x="5" y="10" width="14" height="10" rx="2" stroke-width="2"/></svg>';
-        const lockedIcon = '<svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 018 0v2" stroke-width="2"/><rect x="5" y="10" width="14" height="10" rx="2" stroke-width="2"/></svg>';
         document.querySelectorAll('.lock-btn').forEach(btn => {
-          btn.innerHTML = unlockedIcon;
-          btn.addEventListener('click', () => {
+          const g = btn.dataset.group;
+          const sKey = btn.dataset.sub;
+          const initialState = g ? locked[g] : lockedSub[sKey];
+          setLockButtonState(btn, initialState);
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
             const g = btn.dataset.group;
             const sKey = btn.dataset.sub;
-            if (g) { locked[g] = !locked[g]; btn.classList.toggle('locked', locked[g]); }
-            if (sKey) { lockedSub[sKey] = !lockedSub[sKey]; btn.classList.toggle('locked', lockedSub[sKey]); }
-            const isLocked = g ? locked[g] : lockedSub[sKey];
-            btn.innerHTML = isLocked ? lockedIcon : unlockedIcon;
-            if (sKey) {
-              setSubStateByKey(sKey);
+            if (g) {
+              applyGroupLockState(g, !locked[g]);
+            } else if (sKey) {
+              applySubLockState(sKey, !lockedSub[sKey]);
             }
-            persistCurrentState();
           });
         });
         els.savedPanelToggle?.addEventListener('click', (e) => {
@@ -1755,7 +1924,11 @@
       els.randomAll.addEventListener('click', randomAllVisible);
       els.copyPrompt.addEventListener('click', async () => {
         const t = els.promptOutput.textContent;
-        try { await navigator.clipboard.writeText(t); } catch(e) { }
+        if (!t) return;
+        try {
+          await navigator.clipboard.writeText(t);
+          showCopyFeedback();
+        } catch(e) {}
       });
       els.presetModalSave?.addEventListener('click', e => { e.preventDefault(); handleSavePreset(); });
       els.presetModalCancel?.addEventListener('click', e => { e.preventDefault(); closeSaveModal(); });
@@ -1772,7 +1945,12 @@
         }
       });
       els.customSaveBtn?.addEventListener('click', e => { e.preventDefault(); handleCustomSave(); });
-      els.customCancelBtn?.addEventListener('click', e => { e.preventDefault(); resetCustomForm(); });
+      els.customCancelBtn?.addEventListener('click', e => { e.preventDefault(); closeCustomModal(); });
+      els.customAddTrigger?.addEventListener('click', e => { e.preventDefault(); resetCustomForm(); openCustomModal(); });
+      els.customModalClose?.addEventListener('click', e => { e.preventDefault(); closeCustomModal(); });
+      els.customModalOverlay?.addEventListener('click', e => {
+        if (e.target === els.customModalOverlay) closeCustomModal();
+      });
       
 
       init();
