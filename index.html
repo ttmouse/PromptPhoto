@@ -9,7 +9,7 @@
       :root { --bg:#faf9fb; --panel:#ffffff; --text:#3a3a40; --muted:#7a7f86; --accent:#ff8aa0; --accent-2:#ff6f91; --accent-soft: rgba(255,111,145,.12); --accent-hover: rgba(255,111,145,.16); --border:#eceff3; --chip-bg:#fff3f5; --chip-hover:#ffe9ee; --shadow-soft: 0 8px 20px rgba(58,58,64,.06); }
       * { box-sizing: border-box; }
       html, body { height: 100%; }
-      body { margin:0; background:var(--bg); color:var(--text); font-family: Inter, "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial; line-height: 1.6; }
+      body { margin:0; background:var(--bg); color:var(--text); font-family: Inter, "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial; line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
       .wrap { max-width: 1200px; margin: 0 auto; padding: 28px 28px 150px; }
       .header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; }
       .title { font-size: 22px; font-weight: 700; letter-spacing: .15px; }
@@ -38,7 +38,7 @@
       .group.group-disabled .group-content { display:none; }
       .group-title-row { display:flex; align-items:center; justify-content:flex-start; gap:8px; margin-bottom:8px; flex-wrap:wrap; position:relative; padding-left:24px; }
       .group.collapsed > :not(.group-title-row) { display:none; }
-      .group-title { font-size:13px; color:var(--muted); letter-spacing:.1px; }
+      .group-title { font-size:14px; font-weight:600; color:var(--text); letter-spacing:.1px; }
       .options { display:flex; flex-wrap:wrap; gap:8px; }
       .option { background:#ffffff; color:var(--text); border:1px solid var(--border); border-radius:999px; padding:7px 12px; cursor:pointer; font-weight:400; letter-spacing:.1px; transition: background .2s ease, border-color .2s ease, color .2s ease; box-shadow:none; }
       .option:hover { background:var(--chip-hover); }
@@ -54,7 +54,7 @@
       .toggle input:checked + label { color: var(--accent-2); }
       .group-disabled .group-title { color:#b0b4ba; }
       .group-disabled .option { background:#f8f8fb; border-color:#e3e5ec; color:#a5aab4; }
-      .output { width:100%; min-height:260px; white-space:pre-wrap; background:#ffffff; border:1px solid var(--border); border-radius:12px; padding:14px; color:var(--text); }
+      .output { width:100%; min-height:260px; white-space:pre-wrap; background:#ffffff; border:1px solid var(--border); border-radius:12px; padding:14px; color:var(--text); font-size:14px; }
       .scroll-soft { scrollbar-width: thin; scrollbar-color: rgba(122,127,134,.25) transparent; }
       .scroll-soft::-webkit-scrollbar { width:6px; }
       .scroll-soft::-webkit-scrollbar-track { background: transparent; }
@@ -88,10 +88,12 @@
       .lang-btn.active { border-color: var(--accent); color:#3a0d17; background: var(--accent-soft); }
       .lang-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
       .btn-cta { padding:12px 18px; font-weight:700; border-radius:14px; box-shadow: 0 6px 14px rgba(255,111,145,.12); }
-      .sub-title { font-size:12px; color:var(--muted); margin:8px 0 4px; cursor:pointer; }
-      .sub-title-row { display:flex; align-items:center; justify-content:flex-start; gap:6px; flex-wrap:wrap; position:relative; padding-left:24px; }
+      .sub-title { font-size:12px; font-weight:500; color:var(--muted); cursor:pointer; }
+      .sub-title-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; position:relative; padding-left:24px; }
+      .sub-actions { margin-left:auto; display:flex; align-items:center; gap:4px; }
       .sub-title-row .lock-btn { margin-left:0; }
-      .sub-disabled .sub-title { color:#b0b4ba; }
+      .sub-title-row .visibility-btn { padding:4px; border-radius:50%; }
+      .sub-disabled .sub-title { color:#c6cad3; }
       .sub-disabled .options-block { opacity:.5; }
       .options-block { margin-bottom:8px; }
       .options-block.collapsed { display:none; }
@@ -111,39 +113,39 @@
       .visibility-btn { background:transparent; border:none; color:var(--muted); padding:4px; border-radius:50%; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
       .visibility-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; }
       .visibility-btn:focus-visible { outline:2px solid var(--accent-soft); outline-offset:2px; }
-      .global-bar { position: fixed; bottom: 16px; left:50%; transform: translateX(-50%); background: #fff; border:1px solid var(--border); box-shadow: var(--shadow-soft); border-radius:14px; padding:8px 12px; display:flex; gap:8px; z-index:50; }
-      .btn-with-icon { display:inline-flex; align-items:center; gap:6px; }
-      .btn-with-icon svg { width:16px; height:16px; stroke:currentColor; fill:none; }
+      .global-bar { position: fixed; bottom: 20px; left:50%; transform: translateX(-50%); background: rgba(255,255,255,.92); border:1px solid var(--border); box-shadow: 0 12px 30px rgba(0,0,0,.08); border-radius:18px; padding:10px 14px; display:flex; gap:10px; z-index:50; backdrop-filter: blur(8px); }
+      .action-btn { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border); background:var(--panel); color:var(--text); border-radius:999px; padding:9px 16px; font-size:13px; font-weight:600; box-shadow: inset 0 1px 0 rgba(255,255,255,.6); transition: all .15s ease; }
+      .action-btn:hover { border-color: var(--accent-2); color: var(--accent-2); }
+      .action-btn.accent { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%); color:#fff; border:none; box-shadow:none; }
+      .action-btn.accent:hover { filter: brightness(1.05); }
       .btn-icon { display:inline-flex; align-items:center; justify-content:center; }
+      .action-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; }
+      .action-btn.accent svg { stroke:#fff; }
       .v-subtitle { font-size:12px; color:var(--muted); margin:6px 0; }
       .v-subitems { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
       .popover { position:absolute; z-index:1000; background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow: var(--shadow-soft); padding:6px; }
       .popover ul { list-style:none; margin:0; padding:0; max-height:220px; overflow:auto; }
       .popover li { padding:6px 8px; border-radius:8px; cursor:pointer; }
       .popover li:hover { background:var(--chip-hover); }
-      .saved-floating { position:fixed; left:24px; top:110px; width:260px; max-height:calc(100vh - 160px); display:flex; flex-direction:column; gap:12px; z-index:90; }
-      .saved-floating.hidden { display:none; }
-      .saved-header { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-      .saved-header h3 { margin:0; font-size:16px; color:var(--accent-2); }
-      .saved-close { border:none; background:transparent; color:var(--muted); cursor:pointer; padding:4px; border-radius:8px; }
-      .saved-close:hover { color:var(--accent-2); background:var(--chip-hover); }
-      .saved-form { display:flex; gap:8px; }
-      .saved-form input { flex:1; border:1px solid var(--border); border-radius:12px; padding:8px 10px; font-size:13px; font-family:inherit; }
-      .saved-form button { white-space:nowrap; }
-      .saved-hint { font-size:12px; color:var(--muted); margin:0; }
-      .saved-status { min-height:16px; font-size:12px; color:var(--accent-2); margin:0; }
-      .saved-list { flex:1; overflow:auto; display:flex; flex-direction:column; gap:10px; padding-right:4px; }
-      .saved-item { border:1px solid var(--border); border-radius:12px; padding:10px 12px; display:flex; justify-content:space-between; gap:10px; align-items:center; cursor:pointer; transition: background .15s ease, border-color .15s ease; }
-      .saved-item:hover { background:var(--chip-hover); }
-      .saved-item.active { border-color: var(--accent); background: var(--accent-soft); }
-      .saved-item-info { display:flex; flex-direction:column; gap:4px; flex:1; min-width:0; }
-      .saved-item-name { font-weight:600; font-size:13px; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-      .saved-item-meta { font-size:12px; color:var(--muted); }
-      .saved-item-delete { border:none; background:transparent; color:var(--accent-2); font-weight:600; cursor:pointer; padding:6px 8px; border-radius:8px; }
-      .saved-item-delete:hover { background:var(--chip-hover); }
-      .saved-empty { font-size:12px; color:var(--muted); text-align:center; margin:16px 0; }
+      .saved-strip { position:fixed; left:16px; top:50%; transform: translateY(-50%); display:flex; flex-direction:column; gap:8px; width:180px; padding:12px; border-radius:16px; border:1px solid var(--border); background:var(--panel); box-shadow: var(--shadow-soft); z-index:80; }
+      .saved-strip.hidden { display:none; }
+      .saved-strip h4 { margin:0; font-size:13px; color:var(--muted); }
+      .saved-strip-list { display:flex; flex-direction:column; gap:6px; max-height:calc(100vh - 180px); overflow:auto; padding-right:2px; }
+      .saved-strip-item { border:1px solid var(--border); border-radius:10px; padding:6px 8px; font-size:12px; display:flex; align-items:center; justify-content:space-between; gap:6px; cursor:pointer; transition: background .15s ease, border-color .15s ease; }
+      .saved-strip-item:hover { background:var(--chip-hover); }
+      .saved-strip-item.active { border-color: var(--accent); background: var(--accent-soft); color:#3a0d17; }
+      .saved-strip-item-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .saved-strip-item button { border:none; background:transparent; color:inherit; cursor:pointer; padding:0 4px; font-size:12px; }
+      .saved-strip-item button:hover { color:var(--accent-2); }
+      .preset-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:100; }
+      .preset-modal-overlay.hidden { display:none; }
+      .preset-modal { background:var(--panel); border-radius:20px; padding:24px; width:min(320px, 90vw); display:flex; flex-direction:column; gap:14px; box-shadow:var(--shadow-soft); border:1px solid var(--border); }
+      .preset-modal h3 { margin:0; font-size:16px; color:var(--accent-2); text-align:center; }
+      .preset-modal input { border:1px solid var(--border); border-radius:12px; padding:10px 12px; font-size:13px; }
+      .preset-modal .modal-actions { display:flex; gap:10px; }
+      .preset-modal .modal-actions button { flex:1; }
       @media (max-width: 768px) {
-        .saved-floating { left:12px; right:12px; width:auto; }
+        .saved-strip { left:12px; width:160px; top:auto; bottom:90px; transform:none; }
       }
     </style>
   </head>
@@ -156,7 +158,6 @@
             <button id="lang-zh" class="lang-btn active">中文</button>
             <button id="lang-en" class="lang-btn">EN</button>
           </div>
-          <button id="savedPanelToggle" class="btn-secondary" type="button">保存配置</button>
         </div>
       </div>
 
@@ -193,42 +194,54 @@
               <div class="options" id="hairColor"></div>
             </div>
           </div>
-          <div class="group" id="group-clothing">
-            <div class="group-title-row">
-              <button class="collapse-btn" data-group="clothing" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
-              <div class="group-title" data-group="clothing">服饰与饰品</div>
-              <div class="row">
-                <button class="visibility-btn" data-group="clothing" aria-label="启用/禁用"></button>
-                <button class="lock-btn" data-group="clothing" aria-label="锁定">🔓</button>
+            <div class="group" id="group-clothing">
+              <div class="group-title-row">
+                <button class="collapse-btn" data-group="clothing" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="group-title" data-group="clothing">服饰与饰品</div>
+                <div class="row">
+                  <button class="visibility-btn" data-group="clothing" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-group="clothing" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="group-content">
+              <div class="sub-title-row">
+                <button class="collapse-btn sub-collapse" data-sub-target="top" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="sub-title" data-sub="top">上衣</div>
+                <div class="sub-actions">
+                  <button class="visibility-btn" data-sub="top" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-sub="top" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="options options-block" id="top"></div>
+              <div class="sub-title-row">
+                <button class="collapse-btn sub-collapse" data-sub-target="earrings" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="sub-title" data-sub="earrings">耳饰</div>
+                <div class="sub-actions">
+                  <button class="visibility-btn" data-sub="earrings" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-sub="earrings" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="options options-block" id="earrings"></div>
+              <div class="sub-title-row">
+                <button class="collapse-btn sub-collapse" data-sub-target="rings" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="sub-title" data-sub="rings">戒指</div>
+                <div class="sub-actions">
+                  <button class="visibility-btn" data-sub="rings" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-sub="rings" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="options options-block" id="rings"></div>
+              <div class="sub-title-row">
+                <button class="collapse-btn sub-collapse" data-sub-target="nails" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="sub-title" data-sub="nails">指甲</div>
+                <div class="sub-actions">
+                  <button class="visibility-btn" data-sub="nails" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-sub="nails" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="options options-block" id="nails"></div>
               </div>
             </div>
-            <div class="group-content">
-            <div class="sub-title-row">
-              <button class="collapse-btn sub-collapse" data-sub-target="top" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
-              <div class="sub-title" data-sub="top">上衣</div>
-              <button class="lock-btn" data-sub="top" aria-label="锁定">🔓</button>
-            </div>
-            <div class="options options-block" id="top"></div>
-            <div class="sub-title-row">
-              <button class="collapse-btn sub-collapse" data-sub-target="earrings" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
-              <div class="sub-title" data-sub="earrings">耳饰</div>
-              <button class="lock-btn" data-sub="earrings" aria-label="锁定">🔓</button>
-            </div>
-            <div class="options options-block" id="earrings"></div>
-            <div class="sub-title-row">
-              <button class="collapse-btn sub-collapse" data-sub-target="rings" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
-              <div class="sub-title" data-sub="rings">戒指</div>
-              <button class="lock-btn" data-sub="rings" aria-label="锁定">🔓</button>
-            </div>
-            <div class="options options-block" id="rings"></div>
-            <div class="sub-title-row">
-              <button class="collapse-btn sub-collapse" data-sub-target="nails" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
-              <div class="sub-title" data-sub="nails">指甲</div>
-              <button class="lock-btn" data-sub="nails" aria-label="锁定">🔓</button>
-            </div>
-            <div class="options options-block" id="nails"></div>
-            </div>
-          </div>
           <div class="group" id="group-makeup">
             <div class="group-title-row">
               <button class="collapse-btn" data-group="makeup" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
@@ -242,37 +255,55 @@
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="makeupStyle" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="makeupStyle">妆容风格</div>
-              <button class="lock-btn" data-sub="makeupStyle" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="makeupStyle" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="makeupStyle" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="makeupStyle"></div>
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="eyebrows" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="eyebrows">眉毛</div>
-              <button class="lock-btn" data-sub="eyebrows" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="eyebrows" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="eyebrows" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="eyebrows"></div>
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="eyeliner" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="eyeliner">眼线</div>
-              <button class="lock-btn" data-sub="eyeliner" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="eyeliner" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="eyeliner" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="eyeliner"></div>
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="eyelashes" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="eyelashes">睫毛</div>
-              <button class="lock-btn" data-sub="eyelashes" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="eyelashes" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="eyelashes" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="eyelashes"></div>
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="blush" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="blush">腮红</div>
-              <button class="lock-btn" data-sub="blush" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="blush" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="blush" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="blush"></div>
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="lips" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="lips">唇妆</div>
-              <button class="lock-btn" data-sub="lips" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="lips" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="lips" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="lips"></div>
             </div>
@@ -290,19 +321,28 @@
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="hands" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="hands">手部动作</div>
-              <button class="lock-btn" data-sub="hands" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="hands" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="hands" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="hands"></div>
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="expression" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="expression">表情</div>
-              <button class="lock-btn" data-sub="expression" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="expression" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="expression" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="expression"></div>
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="cameraAngle" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="cameraAngle">机位角度</div>
-              <button class="lock-btn" data-sub="cameraAngle" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="cameraAngle" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="cameraAngle" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="cameraAngle"></div>
             </div>
@@ -320,7 +360,10 @@
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="aspectRatio" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="aspectRatio">画面比例</div>
-              <button class="lock-btn" data-sub="aspectRatio" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="aspectRatio" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="aspectRatio" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="aspectRatio"></div>
             </div>
@@ -338,19 +381,28 @@
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="bgColor" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="bgColor">背景色/墙体</div>
-              <button class="lock-btn" data-sub="bgColor" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="bgColor" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="bgColor" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="bgColor"></div>
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="bgEffect" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="bgEffect">背景效果</div>
-              <button class="lock-btn" data-sub="bgEffect" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="bgEffect" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="bgEffect" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="bgEffect"></div>
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="lighting" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="lighting">光线条件</div>
-              <button class="lock-btn" data-sub="lighting" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="lighting" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="lighting" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="lighting"></div>
             </div>
@@ -368,7 +420,10 @@
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="mood" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="mood">风格氛围</div>
-              <button class="lock-btn" data-sub="mood" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="mood" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="mood" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="mood"></div>
             </div>
@@ -386,7 +441,10 @@
             <div class="sub-title-row">
               <button class="collapse-btn sub-collapse" data-sub-target="cameraType" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
               <div class="sub-title" data-sub="cameraType">相机类型</div>
-              <button class="lock-btn" data-sub="cameraType" aria-label="锁定">🔓</button>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="cameraType" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="cameraType" aria-label="锁定">🔓</button>
+              </div>
             </div>
             <div class="options options-block" id="cameraType"></div>
             </div>
@@ -417,28 +475,24 @@
           <div id="promptOutput" class="output scroll-soft"></div>
         </div>
       </div>
+      <div id="savedStrip" class="saved-strip hidden">
+        <h4 id="savedStripTitle">配置缓存</h4>
+        <div id="savedStripList" class="saved-strip-list scroll-soft"></div>
+      </div>
 
-      <div id="savedFloatingPanel" class="card saved-floating hidden">
-        <div class="saved-header">
-          <h3 id="savedConfigsTitle">配置缓存</h3>
-          <button id="closeSavedPanelBtn" class="saved-close" type="button" aria-label="关闭">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
+      <div id="presetModalOverlay" class="preset-modal-overlay hidden" role="dialog" aria-modal="true">
+        <div class="preset-modal">
+          <h3 id="presetModalTitle">保存配置</h3>
+          <input id="presetModalInput" type="text" placeholder="配置名称"/>
+          <div class="modal-actions">
+            <button id="presetModalCancel" class="btn-secondary" type="button">取消</button>
+            <button id="presetModalSave" class="btn-cta" type="button">保存</button>
+          </div>
         </div>
-        <div class="saved-form">
-          <input id="presetNameInput" type="text" placeholder="配置名称"/>
-          <button id="savePresetBtn" class="btn-cta" type="button">保存配置</button>
-        </div>
-        <p class="saved-hint" id="savedConfigsHint">给当前配置命名，并在下方列表里快速切换。</p>
-        <p class="saved-status" id="savedConfigsStatus"></p>
-        <div id="savedConfigsList" class="saved-list scroll-soft"></div>
       </div>
 
       <div class="global-bar">
-        <button id="randomAll" class="btn-cta btn-with-icon">
+        <button id="randomAll" class="action-btn">
           <span class="btn-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 3 21 3 21 8"></polyline>
@@ -450,7 +504,7 @@
           </span>
           <span id="randomLabel">随机</span>
         </button>
-        <button id="copyPrompt" class="btn-secondary btn-with-icon">
+        <button id="copyPrompt" class="action-btn">
           <span class="btn-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -458,6 +512,17 @@
             </svg>
           </span>
           <span id="copyLabel">复制提示词</span>
+        </button>
+        <button id="savedPanelToggle" class="action-btn accent" type="button">
+          <span class="btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16l1 4H3z"></path>
+              <path d="M6 12v7h12v-7"></path>
+              <path d="M10 12v4"></path>
+              <path d="M14 12v4"></path>
+            </svg>
+          </span>
+          <span id="saveLabel">保存配置</span>
         </button>
       </div>
     </div>
@@ -545,7 +610,6 @@
       const current = { lang: savedData?.currentLang || 'zh' };
       document.documentElement.lang = current.lang;
       let uiMode = savedData?.uiMode || 'dropdown';
-      let savedPanelVisible = false;
       const options = {
         hairStyle: [
           { en: "Long dark brown hair, side part on the left, Korean-style loose curls at the ends, small front strands, hair blowing slightly across the face", zh: "深棕色长发，左侧偏分，韩系尾部自然大卷，碎发轻拂脸颊" },
@@ -701,8 +765,8 @@
         dimensionHeading: { zh: "维度选择", en: "Dimension Picker" },
         modeDropdown: { zh: "下拉模式", en: "Dropdown Mode" },
         modeExpanded: { zh: "展开模式", en: "Expanded Mode" },
-        random: { zh: "随机", en: "Randomize" },
-        copy: { zh: "复制提示词", en: "Copy Prompt" },
+        random: { zh: "随机", en: "Random" },
+        copy: { zh: "复制", en: "Copy" },
         outputHeading: { zh: "JSON 输出", en: "JSON Output" },
         customSectionTitle: { zh: "自定义维度", en: "Custom Dimensions" },
         customNameZhPlaceholder: { zh: "维度名称（中文）", en: "Dimension name (ZH)" },
@@ -719,18 +783,14 @@
         customErrorName: { zh: "请输入维度名称。", en: "Please enter a dimension name." },
         customErrorOptions: { zh: "请至少输入一个选项。", en: "Please provide at least one option." },
         savedTitle: { zh: "配置缓存", en: "Saved Presets" },
-        savedPlaceholder: { zh: "配置名称", en: "Preset name" },
-        savedHint: { zh: "给当前配置命名，并在下方列表里快速切换。", en: "Name the current setup and switch quickly from the list." },
-        savedSave: { zh: "保存配置", en: "Save Preset" },
-        savedEmpty: { zh: "暂未保存配置。", en: "No saved presets yet." },
         savedDelete: { zh: "删除", en: "Delete" },
         savedDeleteConfirm: { zh: "确定删除这个配置吗？", en: "Delete this preset?" },
         savedErrorName: { zh: "请输入配置名称。", en: "Please enter a name." },
-        savedStatusSaved: { zh: "已保存当前配置。", en: "Preset saved." },
-        savedStatusUpdated: { zh: "已覆盖同名配置。", en: "Preset updated." },
-        savedStatusLoaded: { zh: "已加载配置。", en: "Preset loaded." },
-        savedPanelToggle: { zh: "保存配置", en: "Manage Presets" },
-        savedClose: { zh: "关闭", en: "Close" }
+        savedPanelToggle: { zh: "保存", en: "Save" },
+        savedModalTitle: { zh: "保存当前配置", en: "Save Current Preset" },
+        savedModalPlaceholder: { zh: "输入名称", en: "Preset name" },
+        savedModalSave: { zh: "保存", en: "Save" },
+        savedModalCancel: { zh: "取消", en: "Cancel" }
       };
 
       const els = {
@@ -774,15 +834,16 @@
         customOptionsHint: document.getElementById('customOptionsHint'),
         customFormStatus: document.getElementById('customFormStatus'),
         customDimensionsContainer: document.getElementById('customDimensionsContainer'),
-        savedConfigsTitle: document.getElementById('savedConfigsTitle'),
-        presetNameInput: document.getElementById('presetNameInput'),
-        savePresetBtn: document.getElementById('savePresetBtn'),
-        savedConfigsHint: document.getElementById('savedConfigsHint'),
-        savedConfigsStatus: document.getElementById('savedConfigsStatus'),
-        savedConfigsList: document.getElementById('savedConfigsList'),
-        savedFloatingPanel: document.getElementById('savedFloatingPanel'),
+        savedConfigsTitle: document.getElementById('savedStripTitle'),
+        savedStrip: document.getElementById('savedStrip'),
+        savedStripList: document.getElementById('savedStripList'),
         savedPanelToggle: document.getElementById('savedPanelToggle'),
-        closeSavedPanelBtn: document.getElementById('closeSavedPanelBtn'),
+        saveLabel: document.getElementById('saveLabel'),
+        presetModalOverlay: document.getElementById('presetModalOverlay'),
+        presetModalInput: document.getElementById('presetModalInput'),
+        presetModalSave: document.getElementById('presetModalSave'),
+        presetModalCancel: document.getElementById('presetModalCancel'),
+        presetModalTitle: document.getElementById('presetModalTitle'),
         groupHairStyle: document.getElementById('group-hair-style'),
         groupHairColor: document.getElementById('group-hair-color'),
         groupClothing: document.getElementById('group-clothing'),
@@ -794,6 +855,15 @@
         groupCamera: document.getElementById('group-camera'),
         modeToggle: document.getElementById('modeToggle')
       };
+      const eyeIcons = {
+        on: '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>',
+        off: '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7c2.4 0 4.4.7 6 1.7M23 12s-4 7-11 7c-2.4 0-4.4-.7-6-1.7" stroke-width="2"/><path d="M3 3l18 18" stroke-width="2"/></svg>'
+      };
+      function setVisibilityButtonState(btn, on) {
+        if (!btn) return;
+        btn.innerHTML = on ? eyeIcons.on : eyeIcons.off;
+        btn.setAttribute('aria-pressed', String(!on));
+      }
       const groupWraps = {
         hairStyle: els.groupHairStyle,
         hairColor: els.groupHairColor,
@@ -894,33 +964,31 @@
         });
       }
 
-      function formatSavedTimestamp(ts) {
-        try {
-          const locale = current.lang === 'zh' ? 'zh-CN' : 'en-US';
-          return new Date(ts).toLocaleString(locale, { hour12: current.lang !== 'zh' });
-        } catch (e) {
-          return '';
-        }
-      }
-      function showSavedStatus(msg) {
-        if (els.savedConfigsStatus) els.savedConfigsStatus.textContent = msg || '';
-      }
       function renderSavedConfigsList() {
-        const container = els.savedConfigsList;
+        const container = els.savedStripList;
         if (!container) return;
         container.innerHTML = '';
-        if (!savedConfigs.length) {
-          const empty = document.createElement('p');
-          empty.className = 'saved-empty';
-          empty.textContent = uiText.savedEmpty[current.lang];
-          container.appendChild(empty);
-          return;
-        }
+        const hasPresets = savedConfigs.length > 0;
+        if (els.savedStrip) els.savedStrip.classList.toggle('hidden', !hasPresets);
+        if (!hasPresets) return;
         savedConfigs.forEach(cfg => {
           const item = document.createElement('div');
-          item.className = 'saved-item' + (cfg.id === activeSavedConfigId ? ' active' : '');
+          item.className = 'saved-strip-item' + (cfg.id === activeSavedConfigId ? ' active' : '');
           item.tabIndex = 0;
           item.setAttribute('role', 'button');
+          const nameEl = document.createElement('span');
+          nameEl.className = 'saved-strip-item-name';
+          nameEl.textContent = cfg.name;
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.textContent = '×';
+          const label = uiText.savedDelete[current.lang];
+          delBtn.setAttribute('aria-label', label);
+          delBtn.title = label;
+          delBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteSavedConfig(cfg.id);
+          });
           item.addEventListener('click', () => loadSavedConfig(cfg.id));
           item.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -928,45 +996,20 @@
               loadSavedConfig(cfg.id);
             }
           });
-          const info = document.createElement('div');
-          info.className = 'saved-item-info';
-          const nameEl = document.createElement('div');
-          nameEl.className = 'saved-item-name';
-          nameEl.textContent = cfg.name;
-          const meta = document.createElement('div');
-          meta.className = 'saved-item-meta';
-          meta.textContent = formatSavedTimestamp(cfg.updatedAt);
-          info.appendChild(nameEl);
-          info.appendChild(meta);
-          const deleteBtn = document.createElement('button');
-          deleteBtn.type = 'button';
-          deleteBtn.className = 'saved-item-delete';
-          deleteBtn.textContent = uiText.savedDelete[current.lang];
-          deleteBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteSavedConfig(cfg.id);
-          });
-          item.appendChild(info);
-          item.appendChild(deleteBtn);
+          item.appendChild(nameEl);
+          item.appendChild(delBtn);
           container.appendChild(item);
         });
       }
-
-      function updateSavedPanelVisibility() {
-        if (!els.savedFloatingPanel) return;
-        els.savedFloatingPanel.classList.toggle('hidden', !savedPanelVisible);
-        if (els.savedPanelToggle) els.savedPanelToggle.classList.toggle('active', savedPanelVisible);
-        if (savedPanelVisible) {
-          renderSavedConfigsList();
-          setTimeout(() => { els.presetNameInput?.focus(); }, 0);
+      function openSaveModal() {
+        if (els.presetModalOverlay) els.presetModalOverlay.classList.remove('hidden');
+        if (els.presetModalInput) {
+          els.presetModalInput.value = '';
+          setTimeout(() => els.presetModalInput?.focus(), 0);
         }
       }
-      function setSavedPanelVisible(on) {
-        savedPanelVisible = !!on;
-        updateSavedPanelVisibility();
-      }
-      function toggleSavedPanel() {
-        setSavedPanelVisible(!savedPanelVisible);
+      function closeSaveModal() {
+        if (els.presetModalOverlay) els.presetModalOverlay.classList.add('hidden');
       }
 
       function replaceMap(target, fallback, incoming) {
@@ -1022,10 +1065,11 @@
         }
       }
       function handleSavePreset() {
-        if (!els.presetNameInput) return;
-        const rawName = els.presetNameInput.value.trim();
+        if (!els.presetModalInput) return;
+        const rawName = els.presetModalInput.value.trim();
         if (!rawName) {
-          showSavedStatus(uiText.savedErrorName[current.lang]);
+          window.alert(uiText.savedErrorName[current.lang]);
+          els.presetModalInput.focus();
           return;
         }
         const existingIdx = savedConfigs.findIndex(cfg => cfg.name === rawName);
@@ -1038,14 +1082,11 @@
         if (existingIdx >= 0) {
           savedConfigs.splice(existingIdx, 1);
           savedConfigs.unshift(payload);
-          showSavedStatus(uiText.savedStatusUpdated[current.lang]);
         } else {
           savedConfigs.unshift(payload);
-          showSavedStatus(uiText.savedStatusSaved[current.lang]);
         }
-        setSavedPanelVisible(true);
         activeSavedConfigId = payload.id;
-        els.presetNameInput.value = '';
+        closeSaveModal();
         renderSavedConfigsList();
         persistCurrentState();
       }
@@ -1057,7 +1098,6 @@
         const [removed] = savedConfigs.splice(idx, 1);
         if (removed && removed.id === activeSavedConfigId) activeSavedConfigId = null;
         renderSavedConfigsList();
-        if (!savedConfigs.length) setSavedPanelVisible(false);
         persistCurrentState();
       }
       function loadSavedConfig(id) {
@@ -1066,7 +1106,6 @@
         applyPresetSnapshot(preset.snapshot);
         activeSavedConfigId = id;
         init();
-        showSavedStatus(uiText.savedStatusLoaded[current.lang]);
       }
 
       function updateModeToggleLabel() {
@@ -1105,12 +1144,12 @@
         if (els.outputHeading) els.outputHeading.textContent = uiText.outputHeading[current.lang];
         if (els.randomLabel) els.randomLabel.textContent = uiText.random[current.lang];
         if (els.copyLabel) els.copyLabel.textContent = uiText.copy[current.lang];
-        if (els.savedPanelToggle) els.savedPanelToggle.textContent = uiText.savedPanelToggle[current.lang];
+        if (els.saveLabel) els.saveLabel.textContent = uiText.savedPanelToggle[current.lang];
         if (els.savedConfigsTitle) els.savedConfigsTitle.textContent = uiText.savedTitle[current.lang];
-        if (els.presetNameInput) els.presetNameInput.placeholder = uiText.savedPlaceholder[current.lang];
-        if (els.savePresetBtn) els.savePresetBtn.textContent = uiText.savedSave[current.lang];
-        if (els.savedConfigsHint) els.savedConfigsHint.textContent = uiText.savedHint[current.lang];
-        if (els.closeSavedPanelBtn) els.closeSavedPanelBtn.setAttribute('aria-label', uiText.savedClose[current.lang]);
+        if (els.presetModalTitle) els.presetModalTitle.textContent = uiText.savedModalTitle[current.lang];
+        if (els.presetModalInput) els.presetModalInput.placeholder = uiText.savedModalPlaceholder[current.lang];
+        if (els.presetModalSave) els.presetModalSave.textContent = uiText.savedModalSave[current.lang];
+        if (els.presetModalCancel) els.presetModalCancel.textContent = uiText.savedModalCancel[current.lang];
         updateModeToggleLabel();
         updateCustomFormLabels();
       }
@@ -1196,6 +1235,20 @@
       };
       const defaultLockedSub = { ...lockedSub };
       if (savedData?.lockedSub) Object.assign(lockedSub, savedData.lockedSub);
+      function setSubStateByKey(subKey) {
+        if (!subKey) return;
+        const isEnabled = enabledSub[subKey] !== false;
+        const titleEl = document.querySelector(`.sub-title[data-sub="${subKey}"]`);
+        const row = titleEl ? titleEl.closest('.sub-title-row') : null;
+        if (row) row.classList.toggle('sub-disabled', !isEnabled);
+        const wrap = document.getElementById(subKey);
+        if (wrap) {
+          wrap.classList.toggle('sub-disabled', !isEnabled);
+          wrap.querySelectorAll('.option').forEach(btn => btn.classList.toggle('disabled', !isEnabled || lockedSub[subKey]));
+        }
+        const visBtn = document.querySelector(`.visibility-btn[data-sub="${subKey}"]`);
+        setVisibilityButtonState(visBtn, isEnabled);
+      }
       const collapsedGroups = {};
       const collapsedSub = {};
       const optionListenerElements = new WeakSet();
@@ -1314,8 +1367,8 @@
         renderOptions(els.lighting, options.lighting, state.lighting, 'lighting');
         renderOptions(els.mood, options.mood, state.mood, 'mood');
         renderCustomDimensions();
+        Object.keys(enabledSub).forEach(key => setSubStateByKey(key));
         renderSavedConfigsList();
-        updateSavedPanelVisibility();
         applyLabels();
         composeAndRender();
       }
@@ -1611,21 +1664,21 @@
         });
         els.langZh.addEventListener('click', () => { current.lang = 'zh'; document.documentElement.lang = 'zh'; els.langZh.classList.add('active'); els.langEn.classList.remove('active'); init(); composeAndRender(); });
         els.langEn.addEventListener('click', () => { current.lang = 'en'; document.documentElement.lang = 'en'; els.langEn.classList.add('active'); els.langZh.classList.remove('active'); init(); composeAndRender(); });
-        const eyeOnIcon = '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>';
-        const eyeOffIcon = '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7c2.4 0 4.4.7 6 1.7M23 12s-4 7-11 7c-2.4 0-4.4-.7-6-1.7" stroke-width="2"/><path d="M3 3l18 18" stroke-width="2"/></svg>';
         document.querySelectorAll('.visibility-btn').forEach(btn => {
           const g = btn.dataset.group;
-          if (!g) return;
-          const update = () => {
-            btn.innerHTML = enabled[g] ? eyeOnIcon : eyeOffIcon;
-            btn.setAttribute('aria-pressed', String(!enabled[g]));
-          };
-          update();
+          const subKey = btn.dataset.sub;
+          if (g) setVisibilityButtonState(btn, enabled[g]);
+          if (subKey) setVisibilityButtonState(btn, enabledSub[subKey]);
           btn.addEventListener('click', (e) => {
             e.preventDefault();
-            enabled[g] = !enabled[g];
-            setGroupStateByKey(g, enabled[g]);
-            update();
+            if (g) {
+              enabled[g] = !enabled[g];
+              setGroupStateByKey(g, enabled[g]);
+              setVisibilityButtonState(btn, enabled[g]);
+            } else if (subKey) {
+              enabledSub[subKey] = !enabledSub[subKey];
+              setSubStateByKey(subKey);
+            }
             composeAndRender();
           });
         });
@@ -1650,17 +1703,7 @@
           el.addEventListener('click', () => {
             const k = el.dataset.sub; if (!k) return;
             enabledSub[k] = !enabledSub[k];
-            const block = document.getElementById(k);
-            const row = el.closest('.sub-title-row');
-            const container = row && row.nextElementSibling ? row.nextElementSibling.parentElement : null;
-            const wrap = row && row.nextElementSibling ? row.nextElementSibling : null;
-            if (wrap) wrap.classList.toggle('sub-disabled', !enabledSub[k]);
-            if (row) row.classList.toggle('sub-disabled', !enabledSub[k]);
-            if (wrap) {
-              wrap.querySelectorAll('.option').forEach(btn => {
-                btn.classList.toggle('disabled', !enabledSub[k] || lockedSub[k]);
-              });
-            }
+            setSubStateByKey(k);
             composeAndRender();
           });
         });
@@ -1693,20 +1736,14 @@
             const isLocked = g ? locked[g] : lockedSub[sKey];
             btn.innerHTML = isLocked ? lockedIcon : unlockedIcon;
             if (sKey) {
-              const row = document.querySelector(`.sub-title-row .sub-title[data-sub="${sKey}"]`)?.closest('.sub-title-row');
-              const wrap = row && row.nextElementSibling ? row.nextElementSibling : null;
-            if (wrap) wrap.querySelectorAll('.option').forEach(btnEl => btnEl.classList.toggle('disabled', lockedSub[sKey] || !enabledSub[sKey]));
+              setSubStateByKey(sKey);
             }
             persistCurrentState();
           });
         });
         els.savedPanelToggle?.addEventListener('click', (e) => {
           e.preventDefault();
-          toggleSavedPanel();
-        });
-        els.closeSavedPanelBtn?.addEventListener('click', (e) => {
-          e.preventDefault();
-          setSavedPanelVisible(false);
+          openSaveModal();
         });
         els.modeToggle.addEventListener('click', () => {
           uiMode = uiMode === 'dropdown' ? 'expanded' : 'dropdown';
@@ -1720,11 +1757,18 @@
         const t = els.promptOutput.textContent;
         try { await navigator.clipboard.writeText(t); } catch(e) { }
       });
-      els.savePresetBtn?.addEventListener('click', e => { e.preventDefault(); handleSavePreset(); });
-      els.presetNameInput?.addEventListener('keydown', e => {
+      els.presetModalSave?.addEventListener('click', e => { e.preventDefault(); handleSavePreset(); });
+      els.presetModalCancel?.addEventListener('click', e => { e.preventDefault(); closeSaveModal(); });
+      els.presetModalOverlay?.addEventListener('click', e => {
+        if (e.target === els.presetModalOverlay) closeSaveModal();
+      });
+      els.presetModalInput?.addEventListener('keydown', e => {
         if (e.key === 'Enter') {
           e.preventDefault();
           handleSavePreset();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeSaveModal();
         }
       });
       els.customSaveBtn?.addEventListener('click', e => { e.preventDefault(); handleCustomSave(); });
