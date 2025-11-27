@@ -487,6 +487,18 @@
     "presetThumbnailDropError": {
       "zh": "只能拖入图片文件。",
       "en": "Only image files can be dropped here."
+    },
+    "mixedLangLabel": {
+      "zh": "当前仅有 {lang} 文案，将同时用于中英文界面。",
+      "en": "Only {lang} text is available; it will display for both languages."
+    },
+    "langNameZh": {
+      "zh": "中文",
+      "en": "Chinese"
+    },
+    "langNameEn": {
+      "zh": "英文",
+      "en": "English"
     }
   },
   "options": {
