@@ -6,10 +6,10 @@
     <title>PromptPhoto 提示词生成器</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-      :root { --bg:#faf9fb; --panel:#ffffff; --text:#3a3a40; --muted:#7a7f86; --accent:#ff8aa0; --accent-2:#ff6f91; --accent-soft: rgba(255,111,145,.12); --accent-hover: rgba(255,111,145,.16); --border:#eceff3; --chip-bg:#fff3f5; --chip-hover:#ffe9ee; --shadow-soft: 0 8px 20px rgba(58,58,64,.06); }
+      :root { --bg:#faf9fb; --panel:#ffffff; --text:#3a3a40; --muted:#7a7f86; --accent:#ff8aa0; --accent-2:#ff6f91; --accent-soft: rgba(255,111,145,.12); --accent-hover: rgba(255,111,145,.16); --border:#eceff3; --chip-bg:#fff3f5; --chip-hover:#ffe9ee; --shadow-soft: 0 8px 20px rgba(58,58,64,.06); --sidebar-width: 280px; }
       * { box-sizing: border-box; }
       html, body { height: 100%; }
-      body { margin:0; background:var(--bg); color:var(--text); font-family: Inter, "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial; line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+      body { margin:0; background:var(--bg); color:var(--text); font-family: Inter, "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial; line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; padding-left: var(--sidebar-width); }
       .wrap { max-width: 1200px; margin: 0 auto; padding: 28px 28px 150px; }
       .header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; }
       .title { font-size: 22px; font-weight: 700; letter-spacing: .15px; }
@@ -153,6 +153,8 @@
       .action-btn.copy-error { border-color:#f26b6b; color:#aa1c1c; background:rgba(242,107,107,.15); }
       .action-btn.accent { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%); color:#fff; border:none; box-shadow:none; }
       .action-btn.accent:hover { filter: brightness(1.05); }
+      .action-btn.danger { border-color:#f26b6b; color:#aa1c1c; background:#fff6f6; }
+      .action-btn.danger:hover { background:#ffecec; }
       .btn-icon { display:inline-flex; align-items:center; justify-content:center; }
       .action-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; }
       .action-btn.accent svg { stroke:#fff; }
@@ -162,16 +164,45 @@
       .popover ul { list-style:none; margin:0; padding:0; max-height:220px; overflow:auto; }
       .popover li { padding:6px 8px; border-radius:8px; cursor:pointer; }
       .popover li:hover { background:var(--chip-hover); }
-      .saved-strip { position:fixed; left:16px; top:50%; transform: translateY(-50%); display:flex; flex-direction:column; gap:8px; width:180px; padding:12px; border-radius:16px; border:1px solid var(--border); background:var(--panel); box-shadow: var(--shadow-soft); z-index:80; }
-      .saved-strip.hidden { display:none; }
-      .saved-strip h4 { margin:0; font-size:13px; color:var(--muted); }
-      .saved-strip-list { display:flex; flex-direction:column; gap:6px; max-height:calc(100vh - 180px); overflow:auto; padding-right:2px; }
-      .saved-strip-item { border:1px solid var(--border); border-radius:10px; padding:6px 8px; font-size:12px; display:flex; align-items:center; justify-content:space-between; gap:6px; cursor:pointer; transition: background .15s ease, border-color .15s ease; }
-      .saved-strip-item:hover { background:var(--chip-hover); }
-      .saved-strip-item.active { border-color: var(--accent); background: var(--accent-soft); color:#3a0d17; }
-      .saved-strip-item-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-      .saved-strip-item button { border:none; background:transparent; color:inherit; cursor:pointer; padding:0 4px; font-size:12px; }
-      .saved-strip-item button:hover { color:var(--accent-2); }
+      .preset-sidebar { position:fixed; left:0; top:0; bottom:0; width:var(--sidebar-width); padding:20px 18px 20px 18px; border-right:1px solid var(--border); background:var(--panel); box-shadow: 4px 0 20px rgba(58,58,64,.06); display:flex; flex-direction:column; gap:14px; z-index:90; }
+      .preset-sidebar-header { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+      .preset-sidebar-actions { display:flex; align-items:center; gap:6px; }
+      .preset-sidebar button.preset-create { padding:8px 12px; border-radius:12px; background:var(--accent-soft); color:var(--accent-2); border:1px solid var(--accent-2); font-size:12px; font-weight:600; width:100%; justify-content:center; display:inline-flex; }
+      .preset-sidebar button.preset-create:hover { background:var(--accent); color:#fff; }
+      .preset-sidebar-title { font-size:15px; font-weight:600; color:var(--accent-2); }
+      .preset-count-label { font-size:12px; color:var(--muted); margin-left:6px; }
+      .preset-sidebar button.sidebar-close { display:none; }
+      .preset-search { position:relative; }
+      .preset-search input { width:100%; border:1px solid var(--border); border-radius:12px; padding:8px 12px 8px 32px; font-size:13px; }
+      .preset-search svg { position:absolute; left:10px; top:50%; transform:translateY(-50%); width:14px; height:14px; stroke:var(--muted); }
+      .preset-tag-filter { display:flex; flex-wrap:wrap; gap:6px; }
+      .preset-tag-chip { border:1px solid var(--border); background:#fff; color:var(--muted); border-radius:999px; padding:4px 10px; font-size:11px; cursor:pointer; }
+      .preset-tag-chip.active { border-color:var(--accent-2); color:var(--accent-2); background:var(--accent-soft); }
+      .preset-tag-empty { font-size:11px; color:var(--muted); }
+      .preset-card-list { flex:1; overflow:auto; display:flex; flex-direction:column; gap:8px; padding-right:4px; }
+      .preset-empty { font-size:12px; color:var(--muted); text-align:center; padding:20px 0; }
+      .preset-card { border:1px solid var(--border); border-radius:14px; padding:8px 12px; display:flex; gap:10px; background:#fff; cursor:pointer; position:relative; transition:border-color .15s ease, box-shadow .15s ease; }
+      .preset-card.active { border-color:var(--accent-2); box-shadow:0 8px 18px rgba(255,111,145,0.15); }
+      .preset-card:hover { border-color:var(--accent-2); }
+      .preset-card-thumb { width:46px; height:46px; border-radius:12px; background:linear-gradient(135deg,#ffe0ec,#ffeef5); flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center; font-weight:700; color:#c84a6a; }
+      .preset-card-thumb img { width:100%; height:100%; object-fit:cover; }
+      .preset-card-content { flex:1; display:flex; flex-direction:column; gap:4px; min-width:0; }
+      .preset-card-header { display:flex; justify-content:space-between; align-items:center; gap:6px; }
+      .preset-card-name { font-size:12px; font-weight:600; color:var(--text); margin:0; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:4px; }
+      .preset-card-count-text { font-size:11px; color:var(--muted); font-weight:500; }
+      .preset-tag-list { display:flex; flex-wrap:wrap; gap:4px; }
+      .preset-tag { font-size:10px; padding:2px 6px; border-radius:999px; background:#f4f5f8; color:#5d616b; }
+      .preset-card-actions { position:absolute; top:6px; right:6px; display:flex; gap:4px; opacity:0; pointer-events:none; transition:opacity .15s ease; }
+      .preset-card:hover .preset-card-actions { opacity:1; pointer-events:auto; }
+      .preset-card-actions button { width:28px; height:28px; border-radius:10px; border:1px solid rgba(58,58,64,.08); background:rgba(255,255,255,.95); display:flex; align-items:center; justify-content:center; color:var(--muted); padding:0; backdrop-filter: blur(4px); }
+      .preset-card-actions button:hover { border-color:var(--accent-2); color:var(--accent-2); }
+      .preset-card-actions svg { width:16px; height:16px; stroke:currentColor; fill:none; }
+      .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
+      @media (max-width: 768px) {
+        body { padding-left:0; }
+        .preset-sidebar { position:relative; width:100%; height:auto; top:0; bottom:auto; border-right:none; box-shadow:none; }
+        .wrap { padding:20px; }
+      }
       .preset-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:100; }
       .preset-modal-overlay.hidden { display:none; }
       .preset-modal { background:var(--panel); border-radius:20px; padding:24px; width:min(320px, 90vw); display:flex; flex-direction:column; gap:14px; box-shadow:var(--shadow-soft); border:1px solid var(--border); }
@@ -180,9 +211,6 @@
       .preset-modal .modal-actions { display:flex; gap:10px; }
       .preset-modal .modal-actions button { flex:1; }
       .preset-modal .action-btn { width:100%; justify-content:center; }
-      @media (max-width: 768px) {
-        .saved-strip { left:12px; width:160px; top:auto; bottom:90px; transform:none; }
-      }
     </style>
   </head>
   <body>
@@ -542,19 +570,32 @@
           <div id="promptOutput" class="output scroll-soft"></div>
         </div>
       </div>
-      <div id="savedStrip" class="saved-strip hidden">
-        <h4 id="savedStripTitle">配置缓存</h4>
-        <div id="savedStripList" class="saved-strip-list scroll-soft"></div>
+      <div id="presetSidebar" class="preset-sidebar">
+        <div class="preset-sidebar-header">
+          <div class="preset-sidebar-title"><span id="presetSidebarTitleText">配置缓存</span><span id="presetCountLabel" class="preset-count-label">(0)</span></div>
+          <div class="preset-sidebar-actions">
+            <button id="presetCreateBtn" class="preset-create" type="button">保存当前</button>
+          </div>
+        </div>
+        <div class="preset-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="presetSearchInput" type="search" placeholder="搜索预设…">
+        </div>
+        <div class="preset-tag-filter" id="presetTagFilter"></div>
+        <div id="presetCardList" class="preset-card-list scroll-soft"></div>
       </div>
 
       <div id="presetModalOverlay" class="preset-modal-overlay hidden" role="dialog" aria-modal="true">
         <div class="preset-modal">
           <h3 id="presetModalTitle">保存配置</h3>
           <input id="presetModalInput" type="text" placeholder="配置名称"/>
+          <input id="presetTagsInput" type="text" placeholder="标签（逗号分隔）"/>
+          <input id="presetThumbnailInput" type="text" placeholder="缩略图 URL（可选）"/>
           <div class="modal-actions">
             <button id="presetModalCancel" class="action-btn" type="button">取消</button>
             <button id="presetModalSave" class="action-btn accent" type="button">保存</button>
           </div>
+          <button id="presetModalDelete" class="action-btn danger" type="button">删除预设</button>
         </div>
       </div>
 
@@ -705,6 +746,9 @@
         activeSavedConfigId = null;
       }
       let editingCustomId = null;
+      let editingPresetId = null;
+      let presetSearchTerm = '';
+      const activePresetTags = new Set();
       let copyFeedbackTimer = null;
       const current = { lang: savedData?.currentLang || 'zh' };
       function updateLangClass() {
@@ -753,7 +797,8 @@
           { en: "Square blue nails, glossy finish", zh: "方形蓝色甲，亮面" },
           { en: "Glossy black almond nails with chrome tips", zh: "亮黑杏仁甲配铬色指尖" },
           { en: "Milky white squoval nails", zh: "奶白色方圆甲" },
-          { en: "Sheer pink jelly nails with glitter flakes", zh: "半透粉色果冻甲点缀细闪" }
+          { en: "Sheer pink jelly nails with glitter flakes", zh: "半透粉色果冻甲点缀细闪" },
+          { en: "Almond-shaped, semi-transparent creamy pink with subtle pearlescent glow", zh: "杏仁形，半透明奶油粉色带微珠光" }
         ],
         earrings: [
           { en: "Small simple silver hoops", zh: "小号简约银色圈耳环" },
@@ -780,7 +825,8 @@
           { en: "Soft glam evening makeup", zh: "柔雾晚宴妆" },
           { en: "Dewy glass-skin makeup", zh: "水光玻璃肌妆" },
           { en: "Retro 90s supermodel makeup", zh: "复古 90 年代超模妆" },
-          { en: "No-makeup Korean glass skin with innocent pure vibe", zh: "清透伪素颜韩系水光肌，纯欲风" }
+          { en: "No-makeup Korean glass skin with innocent pure vibe", zh: "清透伪素颜韩系水光肌，纯欲风" },
+          { en: "Soft natural pink-tinted dewy makeup", zh: "柔和自然的粉嫩光泽妆" }
         ],
         blush: [
           { en: "Light nude on cheeks, soft red on nose", zh: "面颊浅裸色，鼻尖柔红" },
@@ -798,7 +844,8 @@
           { en: "Graphic inner-corner liner", zh: "内眼角线条感眼线" },
           { en: "Smoky brown liner", zh: "烟熏棕色眼线" },
           { en: "Subtle kitten liner", zh: "细致小猫眼线" },
-          { en: "Invisible tightline with minimal eye makeup and no visible eyeshadow", zh: "极简眼妆，贴近内眼线，无明显眼影" }
+          { en: "Invisible tightline with minimal eye makeup and no visible eyeshadow", zh: "极简眼妆，贴近内眼线，无明显眼影" },
+          { en: "Soft blurred Korean-style brown eyeliner", zh: "细致柔化的韩系棕色眼线" }
         ],
         eyelashes: [
           { en: "Thin false eyelashes", zh: "轻薄假睫毛" },
@@ -824,7 +871,8 @@
           { en: "Juicy cherry stain", zh: "樱桃水染唇" },
           { en: "Matte brick red", zh: "雾面砖红" },
           { en: "Glazed peach gloss", zh: "蜜桃玻璃唇" },
-          { en: "Peach jelly lips with mirror gloss, soft pink and plump", zh: "蜜桃果冻镜面唇，嫩粉水嘟嘟" }
+          { en: "Peach jelly lips with mirror gloss, soft pink and plump", zh: "蜜桃果冻镜面唇，嫩粉水嘟嘟" },
+          { en: "Hydrated cherry stain with sheer gloss", zh: "水润樱桃染唇，轻透光泽" }
         ],
         hands: [
           { en: "Both hands gently touching cheeks", zh: "双手轻触脸颊" },
@@ -856,7 +904,8 @@
           { en: "Smartphone flash", zh: "手机闪光" },
           { en: "DSLR with 50mm lens", zh: "搭配 50mm 镜头的单反" },
           { en: "Instant film camera", zh: "拍立得相机" },
-          { en: "Vintage camcorder still frame", zh: "复古摄像机定格" }
+          { en: "Vintage camcorder still frame", zh: "复古摄像机定格" },
+          { en: "Soft-light digital portrait setup", zh: "柔光风格数字摄影" }
         ],
         aspectRatio: [
           { value: "1:1", en: "1:1 Square", zh: "1:1 正方形" },
@@ -894,7 +943,8 @@
           { en: "Split lighting with flash on one side", zh: "闪光单侧分割光" },
           { en: "Warm desk lamp mixed with cool flash", zh: "暖色台灯与冷闪混合" },
           { en: "Backlit hair light with fill flash", zh: "背光发光结合补光闪光" },
-          { en: "Softbox-style diffused flash", zh: "柔光箱感扩散闪光" }
+          { en: "Softbox-style diffused flash", zh: "柔光箱感扩散闪光" },
+          { en: "Diffused soft light with gentle haze glow effect", zh: "漫射柔光，伴随轻微 haze glow 效果" }
         ],
         mood: [
           { en: "Film noir elegance", zh: "黑色电影式优雅" },
@@ -904,19 +954,22 @@
           { en: "Vintage film nostalgia", zh: "复古胶片怀旧" },
           { en: "High-fashion editorial", zh: "高定杂志感" },
           { en: "Whimsical coquette energy", zh: "俏皮 coquette 氛围" },
-          { en: "Cozy innocent pure vibe with soft autumn casual energy", zh: "舒适纯欲氛围，温暖秋冬感" }
+          { en: "Cozy innocent pure vibe with soft autumn casual energy", zh: "舒适纯欲氛围，温暖秋冬感" },
+          { en: "Soft, pink, subtly sweet soft-girl vibe", zh: "柔软粉嫩、轻甜的 soft girl 气质" }
         ],
         quality: [
           { en: "Ultra high-definition 4K clarity, crisp lens detail, zero noise", zh: "超高清 4K 画质，镜头清晰无噪点" },
           { en: "6K cinema-grade sharpness with immaculate texture rendering", zh: "6K 电影级锐度，质感完美呈现" },
           { en: "8K hyper-real photo realism, tack-sharp focus", zh: "8K 超写实效果，焦点极致锐利" },
-          { en: "High-resolution RAW-style capture, deep dynamic range", zh: "高分辨率 RAW 风格捕捉，宽容度高" }
+          { en: "High-resolution RAW-style capture, deep dynamic range", zh: "高分辨率 RAW 风格捕捉，宽容度高" },
+          { en: "High-resolution capture with gentle soft focus and luminous sheen", zh: "高解析但带轻柔焦，呈现细腻光泽感" }
         ],
         skinTexture: [
           { en: "Water-plump glass skin, poreless glow, silky sheen", zh: "水嫩玻璃肌，毛孔隐形，丝滑高光" },
           { en: "Bouncy baby-skin texture with translucent dew", zh: "弹嫩婴儿肌质感，透亮水润" },
           { en: "Airbrushed yet realistic complexion, blurred imperfections", zh: "真实又磨皮的底妆，瑕疵柔化" },
-          { en: "Hydrated, luminous skin with subtle reflections", zh: "高保湿亮泽肤感，带柔和反光" }
+          { en: "Hydrated, luminous skin with subtle reflections", zh: "高保湿亮泽肤感，带柔和反光" },
+          { en: "Silky smooth, translucent skin with natural soft glow", zh: "细滑透亮、自然柔光肌" }
         ],
         ageShift: [
           { en: "Appears about 5 years younger while matching the reference identity", zh: "保持人物特征基础上，看起来年轻约 5 岁" },
@@ -1000,7 +1053,19 @@
         savedModalTitle: { zh: "保存当前配置", en: "Save Current Preset" },
         savedModalPlaceholder: { zh: "输入名称", en: "Preset name" },
         savedModalSave: { zh: "保存", en: "Save" },
-        savedModalCancel: { zh: "取消", en: "Cancel" }
+        savedModalCancel: { zh: "取消", en: "Cancel" },
+        presetSidebarTitle: { zh: "预设库", en: "Preset Library" },
+        presetSearchPlaceholder: { zh: "搜索名称、描述或标签…", en: "Search name, description, or tags…" },
+        presetTagEmpty: { zh: "暂无标签", en: "No tags yet" },
+        presetNoPresets: { zh: "当前还没有保存的预设。", en: "No presets saved yet." },
+        presetNoResults: { zh: "没有匹配的预设。", en: "No results." },
+        presetCreateBtn: { zh: "保存当前", en: "Save current" },
+        presetApply: { zh: "应用", en: "Apply" },
+        presetEdit: { zh: "编辑", en: "Edit" },
+        presetDelete: { zh: "删除", en: "Delete" },
+        presetTagsPlaceholder: { zh: "标签（逗号分隔）", en: "Tags (comma separated)" },
+        presetThumbnailPlaceholder: { zh: "缩略图 URL（可选）", en: "Thumbnail URL (optional)" },
+        presetResultCount: { zh: "{count} 个结果", en: "{count} results" }
       };
 
       const els = {
@@ -1047,15 +1112,22 @@
         customOptionsHint: document.getElementById('customOptionsHint'),
         customFormStatus: document.getElementById('customFormStatus'),
       customDimensionsContainer: document.getElementById('customDimensionsContainer'),
-        savedConfigsTitle: document.getElementById('savedStripTitle'),
-        savedStrip: document.getElementById('savedStrip'),
-        savedStripList: document.getElementById('savedStripList'),
+        presetSidebar: document.getElementById('presetSidebar'),
+        presetSidebarTitleText: document.getElementById('presetSidebarTitleText'),
+        presetCountLabel: document.getElementById('presetCountLabel'),
+        presetSearchInput: document.getElementById('presetSearchInput'),
+        presetTagFilter: document.getElementById('presetTagFilter'),
+        presetCardList: document.getElementById('presetCardList'),
+        presetCreateBtn: document.getElementById('presetCreateBtn'),
         savedPanelToggle: document.getElementById('savedPanelToggle'),
         saveLabel: document.getElementById('saveLabel'),
         presetModalOverlay: document.getElementById('presetModalOverlay'),
         presetModalInput: document.getElementById('presetModalInput'),
+        presetTagsInput: document.getElementById('presetTagsInput'),
+        presetThumbnailInput: document.getElementById('presetThumbnailInput'),
         presetModalSave: document.getElementById('presetModalSave'),
         presetModalCancel: document.getElementById('presetModalCancel'),
+        presetModalDelete: document.getElementById('presetModalDelete'),
         presetModalTitle: document.getElementById('presetModalTitle'),
         customModalOverlay: document.getElementById('customModalOverlay'),
         customModalClose: document.getElementById('customModalClose'),
@@ -1252,52 +1324,169 @@
         });
       }
 
-      function renderSavedConfigsList() {
-        const container = els.savedStripList;
-        if (!container) return;
-        container.innerHTML = '';
-        const hasPresets = savedConfigs.length > 0;
-        if (els.savedStrip) els.savedStrip.classList.toggle('hidden', !hasPresets);
-        if (!hasPresets) return;
+      function getPresetDescriptionSnippet(cfg) {
+        const desc = cfg?.snapshot?.descriptions?.[current.lang] || cfg?.snapshot?.descriptions?.zh || '';
+        return (desc || '').trim();
+      }
+      function countPresetDimensions(snapshot = {}) {
+        const enabledCount = Object.values(snapshot.enabled || {}).filter(Boolean).length;
+        const subCount = Object.values(snapshot.enabledSub || {}).filter(Boolean).length;
+        return enabledCount + subCount;
+      }
+      function getAllPresetTags() {
+        const tagSet = new Set();
         savedConfigs.forEach(cfg => {
-          const item = document.createElement('div');
-          item.className = 'saved-strip-item' + (cfg.id === activeSavedConfigId ? ' active' : '');
-          item.tabIndex = 0;
-          item.setAttribute('role', 'button');
-          const nameEl = document.createElement('span');
-          nameEl.className = 'saved-strip-item-name';
-          nameEl.textContent = cfg.name;
-          const delBtn = document.createElement('button');
-          delBtn.type = 'button';
-          delBtn.textContent = '×';
-          const label = uiText.savedDelete[current.lang];
-          delBtn.setAttribute('aria-label', label);
-          delBtn.title = label;
-          delBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteSavedConfig(cfg.id);
+          (cfg.tags || []).forEach(tag => tagSet.add(tag));
+        });
+        return Array.from(tagSet).sort((a, b) => a.localeCompare(b, 'zh-Hans'));
+      }
+      function matchesPresetSearch(cfg) {
+        const term = presetSearchTerm.trim().toLowerCase();
+        if (!term) return true;
+        const haystack = [
+          cfg.name,
+          getPresetDescriptionSnippet(cfg),
+          ...(cfg.tags || [])
+        ].join(' ').toLowerCase();
+        return haystack.includes(term);
+      }
+      function matchesPresetTags(cfg) {
+        if (!activePresetTags.size) return true;
+        const tagSet = new Set((cfg.tags || []).map(tag => tag.toLowerCase()));
+        for (const tag of activePresetTags) {
+          if (!tagSet.has(tag)) return false;
+        }
+        return true;
+      }
+      function renderPresetSidebar() {
+        const sidebar = els.presetSidebar;
+        const list = els.presetCardList;
+        if (!sidebar || !list) return;
+        const tagContainer = els.presetTagFilter;
+        if (!savedConfigs.length) {
+          if (tagContainer) tagContainer.innerHTML = `<span class="preset-tag-empty">${uiText.presetTagEmpty[current.lang]}</span>`;
+          list.innerHTML = `<div class="preset-empty">${uiText.presetNoPresets[current.lang]}</div>`;
+          return;
+        }
+        const allTags = getAllPresetTags();
+        if (tagContainer) {
+          if (!allTags.length) {
+            tagContainer.innerHTML = `<span class="preset-tag-empty">${uiText.presetTagEmpty[current.lang]}</span>`;
+          } else {
+            tagContainer.innerHTML = '';
+            allTags.forEach(tag => {
+              const chip = document.createElement('button');
+              chip.type = 'button';
+              chip.className = 'preset-tag-chip' + (activePresetTags.has(tag.toLowerCase()) ? ' active' : '');
+              chip.textContent = tag;
+              chip.dataset.tag = tag;
+              tagContainer.appendChild(chip);
+            });
+          }
+        }
+        const filtered = savedConfigs.filter(cfg => matchesPresetSearch(cfg) && matchesPresetTags(cfg));
+        if (els.presetCountLabel) {
+          els.presetCountLabel.textContent = `(${filtered.length})`;
+        }
+        list.innerHTML = '';
+        if (!filtered.length) {
+          list.innerHTML = `<div class="preset-empty">${uiText.presetNoResults[current.lang]}</div>`;
+          return;
+        }
+        filtered.forEach(cfg => {
+          const card = document.createElement('div');
+          card.className = 'preset-card' + (cfg.id === activeSavedConfigId ? ' active' : '');
+          card.dataset.id = cfg.id;
+          const thumb = document.createElement('div');
+          thumb.className = 'preset-card-thumb';
+          if (cfg.thumbnail) {
+            const img = document.createElement('img');
+            img.src = cfg.thumbnail;
+            img.alt = cfg.name;
+            thumb.appendChild(img);
+          } else {
+            thumb.textContent = (cfg.name || 'P').slice(0, 1).toUpperCase();
+          }
+          const content = document.createElement('div');
+          content.className = 'preset-card-content';
+          const header = document.createElement('div');
+          header.className = 'preset-card-header';
+          const title = document.createElement('p');
+          title.className = 'preset-card-name';
+          const titleText = document.createElement('span');
+          titleText.textContent = cfg.name;
+          const countText = document.createElement('span');
+          countText.className = 'preset-card-count-text';
+          countText.textContent = `· ${countPresetDimensions(cfg.snapshot)}`;
+          title.appendChild(titleText);
+          title.appendChild(countText);
+          header.appendChild(title);
+          content.appendChild(header);
+          const tagList = document.createElement('div');
+          tagList.className = 'preset-tag-list';
+          (cfg.tags || []).slice(0, 4).forEach(tag => {
+            const tagEl = document.createElement('span');
+            tagEl.className = 'preset-tag';
+            tagEl.textContent = tag;
+            tagList.appendChild(tagEl);
           });
-          item.addEventListener('click', () => loadSavedConfig(cfg.id));
-          item.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              loadSavedConfig(cfg.id);
-            }
-          });
-          item.appendChild(nameEl);
-          item.appendChild(delBtn);
-          container.appendChild(item);
+          content.appendChild(tagList);
+          const actions = document.createElement('div');
+          actions.className = 'preset-card-actions';
+          const editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.innerHTML = `<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4 12.5-12.5z"></path></svg><span class="sr-only">${uiText.presetEdit[current.lang]}</span>`;
+          editBtn.addEventListener('click', (e) => { e.stopPropagation(); openSaveModal(cfg.id); });
+          actions.appendChild(editBtn);
+          content.appendChild(actions);
+          card.appendChild(thumb);
+          card.appendChild(content);
+          card.addEventListener('click', () => loadSavedConfig(cfg.id));
+          list.appendChild(card);
         });
       }
-      function openSaveModal() {
+      function openSaveModal(presetId = null) {
+        editingPresetId = presetId;
         if (els.presetModalOverlay) els.presetModalOverlay.classList.remove('hidden');
+        let preset = null;
+        if (presetId) {
+          preset = savedConfigs.find(cfg => cfg.id === presetId) || null;
+        }
         if (els.presetModalInput) {
-          els.presetModalInput.value = '';
+          els.presetModalInput.value = preset?.name || '';
           setTimeout(() => els.presetModalInput?.focus(), 0);
+        }
+        if (els.presetTagsInput) {
+          els.presetTagsInput.value = (preset?.tags || []).join(', ');
+        }
+        if (els.presetThumbnailInput) {
+          els.presetThumbnailInput.value = preset?.thumbnail || '';
+        }
+        if (els.presetModalDelete) {
+          els.presetModalDelete.style.display = preset ? 'inline-flex' : 'none';
         }
       }
       function closeSaveModal() {
+        editingPresetId = null;
         if (els.presetModalOverlay) els.presetModalOverlay.classList.add('hidden');
+        if (els.presetModalInput) els.presetModalInput.value = '';
+        if (els.presetTagsInput) els.presetTagsInput.value = '';
+        if (els.presetThumbnailInput) els.presetThumbnailInput.value = '';
+        if (els.presetModalDelete) els.presetModalDelete.style.display = 'none';
+      }
+      function handlePresetSearchInput(value) {
+        presetSearchTerm = value || '';
+        renderPresetSidebar();
+      }
+      function togglePresetTag(tag) {
+        if (!tag) return;
+        const key = tag.toLowerCase();
+        if (activePresetTags.has(key)) {
+          activePresetTags.delete(key);
+        } else {
+          activePresetTags.add(key);
+        }
+        renderPresetSidebar();
       }
 
       function replaceMap(target, fallback, incoming) {
@@ -1350,14 +1539,14 @@
         const preset = savedConfigs.find(cfg => cfg.id === activeSavedConfigId);
         if (!preset) {
           activeSavedConfigId = null;
-          renderSavedConfigsList();
+          renderPresetSidebar();
           return;
         }
         const currentSnapshot = captureCurrentSnapshot();
         if (!snapshotsEqual(currentSnapshot, preset.snapshot)) {
           activeSavedConfigId = null;
-          renderSavedConfigsList();
-        }
+          renderPresetSidebar();
+      }
       }
       function handleSavePreset() {
         if (!els.presetModalInput) return;
@@ -1367,33 +1556,37 @@
           els.presetModalInput.focus();
           return;
         }
-        const existingIdx = savedConfigs.findIndex(cfg => cfg.name === rawName);
+        let targetIdx = editingPresetId ? savedConfigs.findIndex(cfg => cfg.id === editingPresetId) : -1;
+        if (targetIdx < 0) targetIdx = savedConfigs.findIndex(cfg => cfg.name === rawName);
+        const existing = targetIdx >= 0 ? savedConfigs[targetIdx] : null;
+        const tags = normalizeTagList(els.presetTagsInput?.value || '');
+        const thumbnail = (els.presetThumbnailInput?.value || '').trim();
         const payload = {
-          id: existingIdx >= 0 ? savedConfigs[existingIdx].id : createPresetId(),
+          id: existing?.id || createPresetId(),
           name: rawName,
           snapshot: captureCurrentSnapshot(),
+          tags,
+          thumbnail,
+          favorite: existing?.favorite || false,
           updatedAt: Date.now()
         };
-        if (existingIdx >= 0) {
-          savedConfigs.splice(existingIdx, 1);
-          savedConfigs.unshift(payload);
-        } else {
-          savedConfigs.unshift(payload);
-        }
+        if (targetIdx >= 0) savedConfigs.splice(targetIdx, 1);
+        savedConfigs.unshift(payload);
         activeSavedConfigId = payload.id;
         closeSaveModal();
-        renderSavedConfigsList();
+        renderPresetSidebar();
         persistCurrentState();
       }
       function deleteSavedConfig(id) {
         const idx = savedConfigs.findIndex(cfg => cfg.id === id);
-        if (idx < 0) return;
+        if (idx < 0) return false;
         const confirmMsg = uiText.savedDeleteConfirm[current.lang];
-        if (confirmMsg && !window.confirm(confirmMsg)) return;
+        if (confirmMsg && !window.confirm(confirmMsg)) return false;
         const [removed] = savedConfigs.splice(idx, 1);
         if (removed && removed.id === activeSavedConfigId) activeSavedConfigId = null;
-        renderSavedConfigsList();
+        renderPresetSidebar();
         persistCurrentState();
+        return true;
       }
       function loadSavedConfig(id) {
         const preset = savedConfigs.find(cfg => cfg.id === id);
@@ -1451,11 +1644,16 @@
           updateCopyLabel();
         }
         if (els.saveLabel) els.saveLabel.textContent = uiText.savedPanelToggle[current.lang];
-        if (els.savedConfigsTitle) els.savedConfigsTitle.textContent = uiText.savedTitle[current.lang];
+        if (els.presetSidebarTitleText) els.presetSidebarTitleText.textContent = uiText.presetSidebarTitle[current.lang];
+        if (els.presetCreateBtn) els.presetCreateBtn.textContent = uiText.presetCreateBtn[current.lang];
+        if (els.presetSearchInput) els.presetSearchInput.placeholder = uiText.presetSearchPlaceholder[current.lang];
         if (els.presetModalTitle) els.presetModalTitle.textContent = uiText.savedModalTitle[current.lang];
         if (els.presetModalInput) els.presetModalInput.placeholder = uiText.savedModalPlaceholder[current.lang];
+        if (els.presetTagsInput) els.presetTagsInput.placeholder = uiText.presetTagsPlaceholder[current.lang];
+        if (els.presetThumbnailInput) els.presetThumbnailInput.placeholder = uiText.presetThumbnailPlaceholder[current.lang];
         if (els.presetModalSave) els.presetModalSave.textContent = uiText.savedModalSave[current.lang];
         if (els.presetModalCancel) els.presetModalCancel.textContent = uiText.savedModalCancel[current.lang];
+        if (els.presetModalDelete) els.presetModalDelete.textContent = uiText.presetDelete[current.lang];
         updateModeToggleLabel();
         updateCustomFormLabels();
         syncDescriptionInputValue();
@@ -1577,10 +1775,10 @@
         }
         return {
           state: snapshotState,
-          enabled: { ...defaultEnabled },
-          enabledSub: { ...defaultEnabledSub },
-          locked: { ...defaultLocked },
-          lockedSub: { ...defaultLockedSub },
+          enabled: { ...defaultEnabled, ...(overrides.enabled || {}) },
+          enabledSub: { ...defaultEnabledSub, ...(overrides.enabledSub || {}) },
+          locked: { ...defaultLocked, ...(overrides.locked || {}) },
+          lockedSub: { ...defaultLockedSub, ...(overrides.lockedSub || {}) },
           descriptions: snapshotDescriptions
         };
       }
@@ -1588,6 +1786,7 @@
         {
           id: 'preset_glassGlow',
           name: '官方示例 · 清透水光',
+          tags: ['自拍', '水光肌', '居家'],
           state: {
             hairStyle: "Long sleek center-part hair with face-framing baby braids braided tight near the roots",
             top: "Oatmeal ribbed knit cardigan with large tortoise shell buttons layered over a white crewneck tee",
@@ -1607,6 +1806,7 @@
         {
           id: 'preset_flashNight',
           name: '官方示例 · 夜幕闪光',
+          tags: ['闪光', '夜景', '时尚大片'],
           state: {
             hairStyle: "Loose messy bun with face-framing tendrils",
             top: "Charcoal oversized hoodie",
@@ -1628,6 +1828,7 @@
         {
           id: 'preset_softCoquette',
           name: '官方示例 · 软萌纯欲',
+          tags: ['自拍', '粉色', '纯欲'],
           state: {
             hairStyle: "Shoulder-length blunt cut with airy micro bangs",
             hairColor: "Soft caramel brown",
@@ -1651,8 +1852,44 @@
           }
         },
         {
+          id: 'preset_softGirlBlush',
+          name: '官方示例 · 柔粉软萌',
+          tags: ['自拍', '粉色', '软萌'],
+          state: {
+            hairStyle: "Shoulder-length blunt cut with airy micro bangs",
+            hairColor: "Soft caramel brown",
+            top: "Pastel pink mohair sweater",
+            earrings: "Tiny pearl studs",
+            rings: "Stacked rose gold rings with tiny gems",
+            nails: "Almond-shaped, semi-transparent creamy pink with subtle pearlescent glow",
+            makeupStyle: "Soft natural pink-tinted dewy makeup",
+            eyebrows: "Light natural and tidy",
+            eyeliner: "Soft blurred Korean-style brown eyeliner",
+            eyelashes: "Thin false eyelashes",
+            blush: "Soft pink across cheeks and nose",
+            lips: "Hydrated cherry stain with sheer gloss",
+            hands: "Both hands gently touching cheeks",
+            expression: "Soft smile",
+            cameraAngle: "High-angle selfie, approx 30 degrees above the face",
+            aspectRatio: "3:4",
+            bgColor: "Dusty pink backdrop",
+            bgEffect: "Subtle gradient wash",
+            lighting: "Diffused soft light with gentle haze glow effect",
+            mood: "Soft, pink, subtly sweet soft-girl vibe",
+            quality: "High-resolution capture with gentle soft focus and luminous sheen",
+            skinTexture: "Silky smooth, translucent skin with natural soft glow",
+            ageShift: "Subtle age rewind (3-5 years) keeping every defining trait",
+            cameraType: "Soft-light digital portrait setup"
+          },
+          description: {
+            zh: "请仔细分析我提供的照片，完整保留人物面貌与五官，以空气刘海与粉彩毛衣呈现柔和粉调的软萌纯欲气质，搭配柔光与轻雾化背景强化肌肤的细腻光泽感。",
+            en: "Carefully analyze the provided portrait, keep the exact facial identity, then pair airy bangs and a pastel mohair sweater for a soft pink soft-girl vibe, using diffused glow + gentle haze to highlight luminous skin."
+          }
+        },
+        {
           id: 'preset_modernMinimal',
           name: '官方示例 · 都市极简',
+          tags: ['都市', '极简', '自然光'],
           state: {
             hairStyle: "Straight long hair, center part, silky texture",
             hairColor: "Natural black",
@@ -1679,6 +1916,7 @@
         {
           id: 'preset_vintageFilm',
           name: '官方示例 · 复古影像',
+          tags: ['胶片', '复古', '棚拍'],
           state: {
             hairStyle: "Loose messy bun with face-framing tendrils",
             hairColor: "Warm chestnut brown",
@@ -1709,10 +1947,21 @@
         const inserts = [];
         builtinPresetDefinitions.forEach(def => {
           if (existing.has(def.id) || nameSet.has(def.name)) return;
+          const snapshot = createPresetSnapshotFromOverrides({
+            state: def.state,
+            description: def.description,
+            enabled: def.enabled,
+            enabledSub: def.enabledSub,
+            locked: def.locked,
+            lockedSub: def.lockedSub
+          });
           inserts.push({
             id: def.id,
             name: def.name,
-            snapshot: createPresetSnapshotFromOverrides({ state: def.state, description: def.description }),
+            snapshot,
+            tags: normalizeTagList(def.tags),
+            thumbnail: typeof def.thumbnail === 'string' ? def.thumbnail : '',
+            favorite: !!def.favorite,
             updatedAt: Date.now()
           });
         });
@@ -1815,6 +2064,15 @@
       function cloneSnapshotSection(value) {
         return value && typeof value === 'object' ? { ...value } : {};
       }
+      function normalizeTagList(value) {
+        if (Array.isArray(value)) {
+          return value.map(v => (typeof v === 'string' ? v.trim() : '')).filter(Boolean);
+        }
+        if (typeof value === 'string') {
+          return value.split(',').map(v => v.trim()).filter(Boolean);
+        }
+        return [];
+      }
       function normalizeSavedConfigs(list) {
         if (!Array.isArray(list)) return [];
         return list.map(entry => {
@@ -1833,6 +2091,9 @@
               lockedSub: cloneSnapshotSection(snapshot.lockedSub),
               descriptions: cloneSnapshotSection(snapshot.descriptions)
             },
+            tags: normalizeTagList(entry.tags),
+            thumbnail: typeof entry.thumbnail === 'string' ? entry.thumbnail : '',
+            favorite: !!entry.favorite,
             updatedAt: typeof entry.updatedAt === 'number' ? entry.updatedAt : Date.now()
           };
         }).filter(Boolean);
@@ -1906,7 +2167,7 @@
         renderOptions(els.ageShift, options.ageShift, state.ageShift, 'ageShift');
         renderCustomDimensions();
         Object.keys(enabledSub).forEach(key => setSubStateByKey(key));
-        renderSavedConfigsList();
+        renderPresetSidebar();
         applyLabels();
         composeAndRender();
       }
@@ -2361,6 +2622,13 @@
       });
       els.presetModalSave?.addEventListener('click', e => { e.preventDefault(); handleSavePreset(); });
       els.presetModalCancel?.addEventListener('click', e => { e.preventDefault(); closeSaveModal(); });
+      els.presetModalDelete?.addEventListener('click', e => {
+        e.preventDefault();
+        if (!editingPresetId) return;
+        const targetId = editingPresetId;
+        const deleted = deleteSavedConfig(targetId);
+        if (deleted) closeSaveModal();
+      });
       els.presetModalOverlay?.addEventListener('click', e => {
         if (e.target === els.presetModalOverlay) closeSaveModal();
       });
@@ -2377,6 +2645,13 @@
       els.customCancelBtn?.addEventListener('click', e => { e.preventDefault(); closeCustomModal(); });
       els.customAddTrigger?.addEventListener('click', e => { e.preventDefault(); resetCustomForm(); openCustomModal(); });
       els.customModalClose?.addEventListener('click', e => { e.preventDefault(); closeCustomModal(); });
+      els.presetCreateBtn?.addEventListener('click', e => { e.preventDefault(); openSaveModal(); });
+      els.presetSearchInput?.addEventListener('input', e => handlePresetSearchInput(e.target.value));
+      els.presetTagFilter?.addEventListener('click', e => {
+        const btn = e.target.closest('.preset-tag-chip');
+        if (!btn) return;
+        togglePresetTag(btn.dataset.tag);
+      });
       els.customModalOverlay?.addEventListener('click', e => {
         if (e.target === els.customModalOverlay) closeCustomModal();
       });
