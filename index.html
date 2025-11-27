@@ -1,0 +1,2389 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PromptPhoto 提示词生成器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root { --bg:#faf9fb; --panel:#ffffff; --text:#3a3a40; --muted:#7a7f86; --accent:#ff8aa0; --accent-2:#ff6f91; --accent-soft: rgba(255,111,145,.12); --accent-hover: rgba(255,111,145,.16); --border:#eceff3; --chip-bg:#fff3f5; --chip-hover:#ffe9ee; --shadow-soft: 0 8px 20px rgba(58,58,64,.06); }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body { margin:0; background:var(--bg); color:var(--text); font-family: Inter, "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial; line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+      .wrap { max-width: 1200px; margin: 0 auto; padding: 28px 28px 150px; }
+      .header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; }
+      .title { font-size: 22px; font-weight: 700; letter-spacing: .15px; }
+      html.lang-en .title { font-family: "Playfair Display", ui-serif, Georgia, "Times New Roman", serif; font-weight:600; }
+      .controls { display:flex; gap:10px; flex-wrap:wrap; }
+      button { background:var(--accent); color:#3a0d17; border:none; padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer; transition:transform .08s ease; box-shadow: none; }
+      button:active { transform: scale(.98); }
+      .btn-cta { padding:12px 18px; font-weight:700; border-radius:14px; }
+      .btn-secondary { background:var(--panel); color:var(--text); border:1px solid var(--border); }
+      .grid { display:grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap:22px; align-items:start; }
+      @media (max-width: 1200px) {
+        .grid { grid-template-columns: 1fr; }
+        .left-panel, .right-sticky { position:relative; height:auto; max-height:none; }
+        .right-sticky { top:auto; }
+      }
+      .card { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:20px; box-shadow: var(--shadow-soft); }
+      .left-panel { height: calc(100vh - 220px); display:flex; flex-direction:column; }
+      .dimension-header { flex-shrink:0; display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; margin-bottom:12px; border-bottom:1px solid var(--border); }
+      .dimension-header h3 { margin:0; }
+      .dimension-body { flex:1; overflow-y:auto; padding-right:4px; }
+      .description-editor { margin-bottom:16px; display:flex; flex-direction:column; gap:6px; }
+      .description-editor label { font-size:13px; font-weight:600; color:var(--muted); }
+      .description-editor textarea { width:100%; min-height:110px; border:1px solid var(--border); border-radius:12px; padding:10px 12px; font-family: inherit; font-size:13px; resize:vertical; background:var(--panel); color:var(--text); box-shadow:none; }
+      .description-editor textarea:focus { outline:2px solid var(--accent-soft); border-color:var(--accent-2); }
+      .description-hint { margin:0; font-size:12px; color:var(--muted); }
+      .right-sticky { position: sticky; top: 96px; max-height: calc(100vh - 220px); height: calc(100vh - 220px); display:flex; flex-direction:column; overflow:hidden; }
+      .right-sticky .output { flex:1; overflow:auto; }
+      .card h3 { margin:0 0 12px 0; font-size:16px; font-weight:600; color:var(--accent-2); }
+      .group { margin-bottom:18px; padding:12px; border-radius:14px; transition: background .2s ease; position:relative; }
+      .group.collapsed,
+      .group.group-disabled { padding-bottom:10px; margin-bottom:14px; }
+      .group-content { padding-top:8px; }
+      .group.group-disabled { background:#f4f5f8; }
+      .group.group-locked { background:#f8f8fb; border-color:#e3e6ef; }
+      .group.group-locked .group-title { color:#4d515c; }
+      .group.group-disabled .group-content { display:none; }
+      .group-title-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; position:relative; padding-left:28px; width:100%; }
+      .group.collapsed > :not(.group-title-row) { display:none; }
+      .group-title { font-size:14px; font-weight:600; color:var(--text); letter-spacing:.1px; flex:1; min-width:0; }
+      .group.collapsed .group-title-row,
+      .group.group-disabled .group-title-row { margin-bottom:0; }
+      .group-actions { margin-left:auto; display:flex; align-items:center; gap:6px; flex-wrap:nowrap; }
+      .options { display:flex; flex-wrap:wrap; gap:8px; }
+      .option { background:#ffffff; color:var(--text); border:1px solid var(--border); border-radius:999px; padding:7px 12px; cursor:pointer; font-weight:400; letter-spacing:.1px; transition: background .2s ease, border-color .2s ease, color .2s ease; box-shadow:none; }
+      .option:hover { background:var(--chip-hover); }
+      .option.active { border-color: var(--accent); background: var(--accent-soft); color:#3a0d17; }
+      .option:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+      .option.disabled { opacity:.5; pointer-events:none; }
+      .option.single-option { display:inline-flex; align-items:center; gap:6px; }
+      .option.locked-view { border-color:#d9dce5; background:#f5f6fb; color:#5f6571; }
+      .option .caret { display:inline-flex; align-items:center; justify-content:center; width:12px; height:12px; margin-left:6px; }
+      .option .caret svg { width:12px; height:12px; stroke: var(--muted); fill:none; }
+      .option.active .caret svg { stroke: var(--accent-2); }
+      .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+      .toggle { display:flex; align-items:center; gap:8px; padding:6px 6px; background:transparent; border:0; border-radius:10px; color:var(--muted); }
+      .toggle input[type="checkbox"] { accent-color: var(--accent); width:16px; height:16px; }
+      .toggle input:checked + label { color: var(--accent-2); }
+      .group-disabled .group-title { color:#b0b4ba; }
+      .group-disabled .option { background:#f8f8fb; border-color:#e3e5ec; color:#a5aab4; }
+      .output { width:100%; min-height:260px; white-space:pre-wrap; background:#ffffff; border:1px solid var(--border); border-radius:12px; padding:14px; color:var(--text); font-size:14px; font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+      .scroll-soft { scrollbar-width: thin; scrollbar-color: rgba(122,127,134,.25) transparent; }
+      .scroll-soft::-webkit-scrollbar { width:6px; }
+      .scroll-soft::-webkit-scrollbar-track { background: transparent; }
+      .scroll-soft::-webkit-scrollbar-thumb { background: rgba(122,127,134,.3); border-radius:999px; border:1px solid rgba(255,255,255,.4); }
+      .scroll-soft:hover::-webkit-scrollbar-thumb { background: rgba(122,127,134,.45); }
+      .custom-section { border-top:1px solid var(--border); margin-top:20px; padding-top:16px; }
+      .custom-section-header { display:flex; justify-content:flex-start; align-items:center; margin-bottom:10px; }
+      .custom-form { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+      .custom-form .row { display:flex; gap:8px; flex-wrap:wrap; }
+      .custom-form input, .custom-form textarea { width:100%; border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-family:inherit; font-size:13px; color:var(--text); background:#fff; }
+      .custom-form textarea { min-height:80px; resize:vertical; }
+      .custom-form-actions { display:flex; gap:8px; }
+      .custom-hint { font-size:12px; color:var(--muted); margin:0; }
+      .custom-status { font-size:12px; color:var(--accent-2); margin:0; min-height:16px; }
+      .custom-dimensions-list { display:flex; flex-direction:column; gap:14px; }
+      .custom-dimension-card { border:1px solid var(--border); border-radius:14px; padding:12px; }
+      .custom-dimension-header { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; }
+      .custom-dimension-name { font-weight:600; font-size:13px; color:var(--muted); }
+      .custom-actions { display:flex; gap:6px; }
+      .custom-text-btn { background:transparent; border:none; color:var(--accent-2); font-size:12px; cursor:pointer; padding:4px 6px; border-radius:8px; }
+      .custom-text-btn:hover { background:var(--accent-soft); }
+      .custom-add-btn { background:#ff4d4f; color:#fff; border:none; border-radius:14px; padding:8px 16px; font-weight:600; cursor:pointer; box-shadow:var(--shadow-soft); transition:transform .08s ease; }
+      .custom-add-btn:active { transform:scale(.98); }
+      .custom-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:120; }
+      .custom-modal-overlay.hidden { display:none; }
+      .custom-modal { background:var(--panel); border-radius:20px; padding:24px; width:min(420px, 90vw); box-shadow:var(--shadow-soft); border:1px solid var(--border); display:flex; flex-direction:column; gap:14px; }
+      .custom-modal-header { display:flex; justify-content:space-between; align-items:center; }
+      .custom-modal-header h3 { margin:0; font-size:16px; color:var(--accent-2); }
+      .custom-modal-close { background:transparent; border:none; font-size:18px; line-height:1; cursor:pointer; color:var(--muted); padding:4px; border-radius:8px; }
+      .custom-modal-close:hover { color:var(--accent-2); background:var(--accent-soft); }
+      body.modal-open { overflow:hidden; }
+      .hidden { display:none !important; }
+      
+      .pill { display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; background:var(--chip-bg); border:1px solid var(--border); color:var(--muted); }
+      .footer { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:16px; }
+      .small { font-size:12px; color:var(--muted); }
+      .lang-toggle { display:flex; gap:6px; }
+      .lang-btn { background:var(--chip-bg); color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:400; box-shadow:none; }
+      .lang-btn.active { border-color: var(--accent); color:#3a0d17; background: var(--accent-soft); }
+      .lang-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+      .btn-cta { padding:12px 18px; font-weight:700; border-radius:14px; box-shadow: 0 6px 14px rgba(255,111,145,.12); }
+      .sub-title { font-size:12px; font-weight:500; color:var(--muted); }
+      .sub-title-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; position:relative; padding-left:24px; }
+      .sub-actions { margin-left:auto; display:flex; align-items:center; gap:4px; }
+      .sub-title-row .lock-btn { margin-left:0; }
+      .sub-title-row .visibility-btn { padding:4px; border-radius:50%; }
+      .sub-disabled .sub-title { color:#c6cad3; }
+      .sub-title-row.sub-locked .sub-title { color:#4c4f59; font-weight:600; }
+      .options-block.sub-disabled,
+      .options.sub-disabled { display:none; }
+      .options.sub-locked .option,
+      .options-block.sub-locked .option { background:#f8f8fb; color:#5c606a; border-color:#d9dce5; }
+      .options-block { margin-bottom:8px; }
+      .options-block.collapsed { display:none; }
+      select { width:100%; appearance:none; -webkit-appearance:none; -moz-appearance:none; background-color:#fff; border:1px solid var(--border); color:var(--text); border-radius:10px; padding:8px 34px 8px 10px; line-height:1.4; font-size:14px; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='%237a7f86' stroke-width='2' d='M7 10l5 5 5-5'/></svg>"); background-repeat:no-repeat; background-position: calc(100% - 10px) 50%; background-size:12px; }
+      .lock-btn { background:transparent; border:none; color:var(--muted); padding:4px; border-radius:50%; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; width:auto; }
+      .lock-btn svg { width:16px; height:16px; stroke: currentColor; fill:none; }
+      .lock-btn:hover { color:var(--accent-2); }
+      .lock-btn.locked { color:var(--accent-2); }
+      .lock-btn:focus-visible { outline:2px solid var(--accent-soft); outline-offset:2px; }
+      .option-lock-btn { background:transparent; border:none; color:#9499a7; padding:4px; border-radius:50%; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+      .option-lock-btn:hover { color:var(--accent-2); }
+      .option-lock-btn:focus-visible { outline:2px solid var(--accent-soft); outline-offset:2px; }
+      .option-lock-btn svg { width:14px; height:14px; stroke:currentColor; fill:none; }
+      .locked-chip { display:flex; align-items:center; gap:6px; }
+      .locked-chip .option { margin:0; }
+      .group.group-disabled .lock-btn,
+      .group.group-disabled .collapse-btn,
+      .group.group-disabled .visibility-btn { color:#c0c4cf; }
+      .collapse-btn { background:transparent; border:none; padding:4px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted); position:absolute; left:0; top:50%; transform: translateY(-50%); }
+      .collapse-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; transition: transform .2s ease; }
+      .collapse-btn:focus-visible { outline:2px solid var(--accent-soft); outline-offset:2px; }
+      .collapse-btn.collapsed svg { transform: rotate(-90deg); }
+      .visibility-btn { background:transparent; border:none; color:var(--muted); padding:4px; border-radius:50%; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+      .visibility-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; }
+      .visibility-btn:focus-visible { outline:2px solid var(--accent-soft); outline-offset:2px; }
+      .global-bar { position: fixed; bottom: 20px; left:50%; transform: translateX(-50%); background: rgba(255,255,255,.92); border:1px solid var(--border); box-shadow: 0 12px 30px rgba(0,0,0,.08); border-radius:18px; padding:10px 14px; display:flex; gap:10px; z-index:50; backdrop-filter: blur(8px); }
+      .action-btn { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border); background:var(--panel); color:var(--text); border-radius:999px; padding:9px 16px; font-size:13px; font-weight:600; box-shadow: inset 0 1px 0 rgba(255,255,255,.6); transition: all .15s ease; }
+      .action-btn:hover { border-color: var(--accent-2); color: var(--accent-2); }
+      .action-btn.copied { border-color: var(--accent-2); color: var(--accent-2); background:var(--accent-soft); }
+      .action-btn.copy-error { border-color:#f26b6b; color:#aa1c1c; background:rgba(242,107,107,.15); }
+      .action-btn.accent { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%); color:#fff; border:none; box-shadow:none; }
+      .action-btn.accent:hover { filter: brightness(1.05); }
+      .btn-icon { display:inline-flex; align-items:center; justify-content:center; }
+      .action-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; }
+      .action-btn.accent svg { stroke:#fff; }
+      .v-subtitle { font-size:12px; color:var(--muted); margin:6px 0; }
+      .v-subitems { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+      .popover { position:absolute; z-index:1000; background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow: var(--shadow-soft); padding:6px; }
+      .popover ul { list-style:none; margin:0; padding:0; max-height:220px; overflow:auto; }
+      .popover li { padding:6px 8px; border-radius:8px; cursor:pointer; }
+      .popover li:hover { background:var(--chip-hover); }
+      .saved-strip { position:fixed; left:16px; top:50%; transform: translateY(-50%); display:flex; flex-direction:column; gap:8px; width:180px; padding:12px; border-radius:16px; border:1px solid var(--border); background:var(--panel); box-shadow: var(--shadow-soft); z-index:80; }
+      .saved-strip.hidden { display:none; }
+      .saved-strip h4 { margin:0; font-size:13px; color:var(--muted); }
+      .saved-strip-list { display:flex; flex-direction:column; gap:6px; max-height:calc(100vh - 180px); overflow:auto; padding-right:2px; }
+      .saved-strip-item { border:1px solid var(--border); border-radius:10px; padding:6px 8px; font-size:12px; display:flex; align-items:center; justify-content:space-between; gap:6px; cursor:pointer; transition: background .15s ease, border-color .15s ease; }
+      .saved-strip-item:hover { background:var(--chip-hover); }
+      .saved-strip-item.active { border-color: var(--accent); background: var(--accent-soft); color:#3a0d17; }
+      .saved-strip-item-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .saved-strip-item button { border:none; background:transparent; color:inherit; cursor:pointer; padding:0 4px; font-size:12px; }
+      .saved-strip-item button:hover { color:var(--accent-2); }
+      .preset-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:100; }
+      .preset-modal-overlay.hidden { display:none; }
+      .preset-modal { background:var(--panel); border-radius:20px; padding:24px; width:min(320px, 90vw); display:flex; flex-direction:column; gap:14px; box-shadow:var(--shadow-soft); border:1px solid var(--border); }
+      .preset-modal h3 { margin:0; font-size:16px; color:var(--accent-2); text-align:center; }
+      .preset-modal input { border:1px solid var(--border); border-radius:12px; padding:10px 12px; font-size:13px; }
+      .preset-modal .modal-actions { display:flex; gap:10px; }
+      .preset-modal .modal-actions button { flex:1; }
+      .preset-modal .action-btn { width:100%; justify-content:center; }
+      @media (max-width: 768px) {
+        .saved-strip { left:12px; width:160px; top:auto; bottom:90px; transform:none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <div class="title" id="appTitle">PromptPhoto 提示词生成器</div>
+        <div class="controls">
+          <div class="lang-toggle">
+            <button id="lang-zh" class="lang-btn active">中文</button>
+            <button id="lang-en" class="lang-btn">EN</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card left-panel">
+          <div class="description-editor">
+            <label for="descriptionInput" id="descriptionLabel">整体描述</label>
+            <textarea id="descriptionInput" placeholder="在此编辑整体描述…"></textarea>
+            <p class="description-hint" id="descriptionHint">文本会同步到 JSON description 字段。</p>
+          </div>
+          <div class="row dimension-header">
+            <h3 id="dimensionHeading">维度选择</h3>
+            <button id="modeToggle" class="btn-secondary" title="切换视图模式">下拉模式</button>
+          </div>
+          <div class="dimension-body scroll-soft">
+          <div class="group" id="group-hair-style">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="hairStyle" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="hairStyle">头发造型</div>
+              <div class="group-actions">
+                <button class="visibility-btn" data-group="hairStyle" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="hairStyle" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+              <div class="options" id="hairStyle"></div>
+            </div>
+          </div>
+          <div class="group" id="group-hair-color">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="hairColor" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="hairColor">发色</div>
+              <div class="group-actions">
+                <button class="visibility-btn" data-group="hairColor" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="hairColor" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+              <div class="options" id="hairColor"></div>
+            </div>
+          </div>
+            <div class="group" id="group-clothing">
+              <div class="group-title-row">
+                <button class="collapse-btn" data-group="clothing" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="group-title" data-group="clothing">服饰与饰品</div>
+                <div class="group-actions">
+                  <button class="visibility-btn" data-group="clothing" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-group="clothing" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="group-content">
+              <div class="sub-title-row">
+                <button class="collapse-btn sub-collapse" data-sub-target="top" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="sub-title" data-sub="top">上衣</div>
+                <div class="sub-actions">
+                  <button class="visibility-btn" data-sub="top" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-sub="top" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="options options-block" id="top"></div>
+              <div class="sub-title-row">
+                <button class="collapse-btn sub-collapse" data-sub-target="earrings" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="sub-title" data-sub="earrings">耳饰</div>
+                <div class="sub-actions">
+                  <button class="visibility-btn" data-sub="earrings" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-sub="earrings" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="options options-block" id="earrings"></div>
+              <div class="sub-title-row">
+                <button class="collapse-btn sub-collapse" data-sub-target="rings" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="sub-title" data-sub="rings">戒指</div>
+                <div class="sub-actions">
+                  <button class="visibility-btn" data-sub="rings" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-sub="rings" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="options options-block" id="rings"></div>
+              <div class="sub-title-row">
+                <button class="collapse-btn sub-collapse" data-sub-target="nails" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="sub-title" data-sub="nails">指甲</div>
+                <div class="sub-actions">
+                  <button class="visibility-btn" data-sub="nails" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-sub="nails" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="options options-block" id="nails"></div>
+              </div>
+            </div>
+          <div class="group" id="group-makeup">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="makeup" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="makeup">妆容</div>
+              <div class="group-actions">
+                <button class="visibility-btn" data-group="makeup" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="makeup" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="makeupStyle" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="makeupStyle">妆容风格</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="makeupStyle" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="makeupStyle" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="makeupStyle"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="eyebrows" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="eyebrows">眉毛</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="eyebrows" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="eyebrows" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="eyebrows"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="eyeliner" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="eyeliner">眼线</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="eyeliner" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="eyeliner" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="eyeliner"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="eyelashes" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="eyelashes">睫毛</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="eyelashes" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="eyelashes" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="eyelashes"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="blush" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="blush">腮红</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="blush" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="blush" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="blush"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="lips" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="lips">唇妆</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="lips" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="lips" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="lips"></div>
+            </div>
+          </div>
+          <div class="group" id="group-pose">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="pose" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="pose">姿态与机位</div>
+              <div class="group-actions">
+                <button class="visibility-btn" data-group="pose" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="pose" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="hands" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="hands">手部动作</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="hands" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="hands" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="hands"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="expression" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="expression">表情</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="expression" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="expression" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="expression"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="cameraAngle" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="cameraAngle">机位角度</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="cameraAngle" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="cameraAngle" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="cameraAngle"></div>
+            </div>
+          </div>
+          <div class="group" id="group-composition">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="composition" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="composition">构图比例</div>
+              <div class="group-actions">
+                <button class="visibility-btn" data-group="composition" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="composition" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="aspectRatio" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="aspectRatio">画面比例</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="aspectRatio" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="aspectRatio" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="aspectRatio"></div>
+            </div>
+          </div>
+          <div class="group" id="group-background">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="background" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="background">背景与光线</div>
+              <div class="group-actions">
+                <button class="visibility-btn" data-group="background" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="background" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="bgColor" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="bgColor">背景色/墙体</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="bgColor" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="bgColor" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="bgColor"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="bgEffect" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="bgEffect">背景效果</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="bgEffect" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="bgEffect" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="bgEffect"></div>
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="lighting" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="lighting">光线条件</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="lighting" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="lighting" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="lighting"></div>
+            </div>
+          </div>
+          <div class="group" id="group-style">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="style" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="style">风格</div>
+              <div class="group-actions">
+                <button class="visibility-btn" data-group="style" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="style" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="mood" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="mood">风格氛围</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="mood" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="mood" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="mood"></div>
+            </div>
+          </div>
+          <div class="group" id="group-detail">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="detail" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="detail">画质与细节</div>
+              <div class="group-actions">
+                <button class="visibility-btn" data-group="detail" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="detail" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+              <div class="sub-title-row">
+                <button class="collapse-btn sub-collapse" data-sub-target="quality" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="sub-title" data-sub="quality">画质</div>
+                <div class="sub-actions">
+                  <button class="visibility-btn" data-sub="quality" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-sub="quality" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="options options-block" id="quality"></div>
+              <div class="sub-title-row">
+                <button class="collapse-btn sub-collapse" data-sub-target="skinTexture" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="sub-title" data-sub="skinTexture">皮肤质感</div>
+                <div class="sub-actions">
+                  <button class="visibility-btn" data-sub="skinTexture" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-sub="skinTexture" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="options options-block" id="skinTexture"></div>
+              <div class="sub-title-row">
+                <button class="collapse-btn sub-collapse" data-sub-target="ageShift" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+                <div class="sub-title" data-sub="ageShift">年龄细化</div>
+                <div class="sub-actions">
+                  <button class="visibility-btn" data-sub="ageShift" aria-label="启用/禁用"></button>
+                  <button class="lock-btn" data-sub="ageShift" aria-label="锁定">🔓</button>
+                </div>
+              </div>
+              <div class="options options-block" id="ageShift"></div>
+            </div>
+          </div>
+          <div class="group" id="group-camera">
+            <div class="group-title-row">
+              <button class="collapse-btn" data-group="camera" aria-label="折叠/展开"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="group-title" data-group="camera">相机</div>
+              <div class="group-actions">
+                <button class="visibility-btn" data-group="camera" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-group="camera" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="group-content">
+            <div class="sub-title-row">
+              <button class="collapse-btn sub-collapse" data-sub-target="cameraType" aria-label="折叠/展开选项"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-width="2"/></svg></button>
+              <div class="sub-title" data-sub="cameraType">相机类型</div>
+              <div class="sub-actions">
+                <button class="visibility-btn" data-sub="cameraType" aria-label="启用/禁用"></button>
+                <button class="lock-btn" data-sub="cameraType" aria-label="锁定">🔓</button>
+              </div>
+            </div>
+            <div class="options options-block" id="cameraType"></div>
+            </div>
+          </div>
+          <div class="custom-section">
+            <div class="custom-section-header">
+              <button id="customAddTrigger" class="custom-add-btn" type="button">添加维度</button>
+            </div>
+            <div id="customDimensionsContainer" class="custom-dimensions-list"></div>
+          </div>
+        </div>
+        </div>
+        <div class="card right-sticky">
+          <h3 id="outputHeading">JSON 输出</h3>
+          <div id="promptOutput" class="output scroll-soft"></div>
+        </div>
+      </div>
+      <div id="savedStrip" class="saved-strip hidden">
+        <h4 id="savedStripTitle">配置缓存</h4>
+        <div id="savedStripList" class="saved-strip-list scroll-soft"></div>
+      </div>
+
+      <div id="presetModalOverlay" class="preset-modal-overlay hidden" role="dialog" aria-modal="true">
+        <div class="preset-modal">
+          <h3 id="presetModalTitle">保存配置</h3>
+          <input id="presetModalInput" type="text" placeholder="配置名称"/>
+          <div class="modal-actions">
+            <button id="presetModalCancel" class="action-btn" type="button">取消</button>
+            <button id="presetModalSave" class="action-btn accent" type="button">保存</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="customModalOverlay" class="custom-modal-overlay hidden" role="dialog" aria-modal="true">
+        <div class="custom-modal">
+          <div class="custom-modal-header">
+            <h3 id="customModalTitle">添加维度</h3>
+            <button id="customModalClose" class="custom-modal-close" type="button" aria-label="关闭">×</button>
+          </div>
+          <div class="custom-form" id="customForm">
+            <div class="row">
+              <input id="customNameZh" type="text" placeholder="维度名称（中文）"/>
+              <input id="customNameEn" type="text" placeholder="Dimension name (EN)"/>
+            </div>
+            <textarea id="customOptionsInput" placeholder="每行：柔和光线 | Soft lighting"></textarea>
+            <p class="custom-hint" id="customOptionsHint">使用“中文 | English”格式，一行一个选项。</p>
+            <div class="custom-form-actions">
+              <button id="customCancelBtn" class="btn-secondary" type="button">取消</button>
+              <button id="customSaveBtn" class="btn-cta" type="button">添加维度</button>
+            </div>
+            <p class="custom-status" id="customFormStatus"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="global-bar">
+        <button id="randomAll" class="action-btn accent">
+          <span class="btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 3 21 3 21 8"></polyline>
+              <line x1="4" y1="20" x2="9" y2="15"></line>
+              <line x1="4" y1="4" x2="15" y2="15"></line>
+              <polyline points="16 16 21 16 21 21"></polyline>
+              <line x1="15" y1="9" x2="21" y2="15"></line>
+            </svg>
+          </span>
+          <span id="randomLabel">随机</span>
+        </button>
+        <button id="copyPrompt" class="action-btn">
+          <span class="btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+            </svg>
+          </span>
+          <span id="copyLabel">复制</span>
+        </button>
+        <button id="savedPanelToggle" class="action-btn" type="button">
+          <span class="btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16l1 4H3z"></path>
+              <path d="M6 12v7h12v-7"></path>
+              <path d="M10 12v4"></path>
+              <path d="M14 12v4"></path>
+            </svg>
+          </span>
+          <span id="saveLabel">保存</span>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const STORAGE_KEY = 'promptPhotoSelections_v1';
+      function loadPersistedState() {
+        if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return null;
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+          return null;
+        }
+      }
+      function saveToStorage(data) {
+        if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return;
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {}
+      }
+      const savedData = loadPersistedState();
+      const defaults = {
+        subject: "Baby ꕤ Blue",
+        description: "Carefully analyze the provided base photo and create a realistic close-up selfie of the same young woman (face must stay 100% unchanged). Use her existing facial structure, skin texture, and unique traits as the foundation, while the environment, lighting, wardrobe, colors, and styling are defined via the dimensions below.",
+        hair: {
+          style: "Long sleek straight hair with a center part, plus face-framing baby braids braided tightly near the roots on each cheek",
+          color: "Natural black"
+        },
+        clothing: {
+          top: "Oatmeal ribbed knit cardigan with large tortoise shell buttons layered over a white crewneck T-shirt",
+          accessories: {
+            earrings: "Small simple silver hoops",
+            rings: "Delicate silver rings"
+          },
+          nails: "Sheer pink jelly nails with a plump glossy finish"
+        },
+        makeup: {
+          style: "No-makeup Korean glass-skin look with innocent & pure vibes",
+          details: {
+            skin: "Creamy dewy complexion, zero blemishes, high-gloss glass-skin sheen",
+            eyebrows: "Soft natural straight brows, lightly groomed",
+            eyeliner: "Barely-there tightline along the roots, no visible eyeshadow",
+            eyelashes: "Clean separated natural lashes, no clumps",
+            blush: "Sakura pink blush diffused broadly across center cheeks for youthful radiance",
+            lips: "Peach jelly glossy lips, soft pink and plump"
+          }
+        },
+        pose: {
+          hands: "Both hands gently touching cheeks",
+          expression: "Dreamy and slightly cheerful",
+          camera_angle: "High-angle selfie, approx 30 degrees above the face"
+        },
+        background: {
+          color: "Soft beige interior wall with warm undertones",
+          lighting: "Gentle diffused indoor glow enhancing glass skin",
+          effect: "Cozy home texture, subtle ribbed textiles, inviting warmth"
+        },
+        style: {
+          mood: "Innocent pure vibe with cozy casual autumn softness",
+          effects: "Translucent no-makeup glow, high-detail glass skin, intimate home comfort"
+        },
+        detail: {
+          quality: "Ultra high-definition 4K clarity, crisp lens detail, zero noise",
+          skin: "Water-plump poreless glass skin, baby-soft and bouncy",
+          age: "Appears about 5-10 years younger than the original photo while staying recognizable"
+        },
+        camera: {
+          type: "Analog 35mm camera flash",
+          lighting_condition: "Dark room"
+        },
+        composition: {
+          aspect_ratio: "3:4"
+        },
+        model_version: "SDXL1.0"
+      };
+      const descriptions = {
+        en: defaults.description,
+        zh: "请仔细分析我提供的照片，完整保留人物的面部特征、五官、皮肤纹理，确保看起来是同一个人，再生成真实感特写自拍。其余环境、光线、服饰、背景与风格细节请以下方维度设置为准，确保整体叙述一致。"
+      };
+      if (savedData?.descriptions) {
+        descriptions.en = typeof savedData.descriptions.en === 'string' ? savedData.descriptions.en : descriptions.en;
+        descriptions.zh = typeof savedData.descriptions.zh === 'string' ? savedData.descriptions.zh : descriptions.zh;
+      }
+
+      let customDimensions = Array.isArray(savedData?.customDimensions) ? savedData.customDimensions : [];
+      const normalizedSaved = Array.isArray(savedData?.savedConfigs) ? savedData.savedConfigs : [];
+      let savedConfigs = normalizeSavedConfigs(normalizedSaved);
+      let activeSavedConfigId = savedData?.activeSavedConfigId || null;
+      if (activeSavedConfigId && !savedConfigs.some(cfg => cfg.id === activeSavedConfigId)) {
+        activeSavedConfigId = null;
+      }
+      let editingCustomId = null;
+      let copyFeedbackTimer = null;
+      const current = { lang: savedData?.currentLang || 'zh' };
+      function updateLangClass() {
+        document.documentElement.lang = current.lang;
+        document.documentElement.classList.toggle('lang-en', current.lang === 'en');
+      }
+      updateLangClass();
+      let uiMode = savedData?.uiMode || 'dropdown';
+      const options = {
+        hairStyle: [
+          { en: "Long dark brown hair, side part on the left, Korean-style loose curls at the ends, small front strands, hair blowing slightly across the face", zh: "深棕色长发，左侧偏分，韩系尾部自然大卷，碎发轻拂脸颊" },
+          { en: "Medium-length hair, soft waves, curtain bangs", zh: "中长发，柔和波浪卷，窗帘刘海" },
+          { en: "Straight long hair, center part, silky texture", zh: "直发长发，中分，顺滑质感" },
+          { en: "Short bob, subtle waves, side-swept bangs", zh: "短波波头，微卷，侧分刘海" },
+          { en: "Loose messy bun with face-framing tendrils", zh: "慵懒松散丸子头，碎发勾勒脸部" },
+          { en: "Low ribbon ponytail with gentle outward curls", zh: "低马尾配缎带，尾端柔和外卷" },
+          { en: "Shoulder-length blunt cut with airy micro bangs", zh: "及肩平直发，空气刘海" },
+          { en: "Long braided pigtails with playful texture", zh: "长双麻花辫，俏皮质感" },
+          { en: "Long sleek center-part hair with face-framing baby braids braided tight near the roots", zh: "中分长直发，脸颊两侧贴头皮细麻花小辫" }
+        ],
+        hairColor: [
+          { en: "Dark brown", zh: "深棕色" },
+          { en: "Natural black", zh: "自然黑" },
+          { en: "Warm chestnut brown", zh: "温暖栗棕" },
+          { en: "Ash brown", zh: "亚麻棕" },
+          { en: "Soft caramel brown", zh: "焦糖棕" },
+          { en: "Cool ash blonde", zh: "冷亚麻金" },
+          { en: "Rose gold", zh: "玫瑰金" },
+          { en: "Deep burgundy", zh: "深勃艮第红" }
+        ],
+        top: [
+          { en: "Oversized blue striped knit sweater with white stripes", zh: "宽松蓝白条纹针织毛衣" },
+          { en: "Cozy navy knit sweater", zh: "舒适海军蓝针织毛衣" },
+          { en: "Light blue cable-knit sweater", zh: "浅蓝色麻花针织毛衣" },
+          { en: "Blue-gray ribbed knit pullover", zh: "蓝灰色罗纹套头衫" },
+          { en: "Cream knit cardigan with wooden buttons", zh: "奶油色木扣针织开衫" },
+          { en: "Charcoal oversized hoodie", zh: "木炭灰宽松连帽衫" },
+          { en: "Pastel pink mohair sweater", zh: "粉彩粉色马海毛毛衣" },
+          { en: "Beige trench coat layered over a white tee", zh: "米色风衣叠穿白 T" },
+          { en: "Oatmeal ribbed knit cardigan with large tortoise shell buttons layered over a white crewneck tee", zh: "燕麦色罗纹针织开衫配玳瑁大纽扣，内搭白色圆领 T 恤" }
+        ],
+        nails: [
+          { en: "Almond-shaped, blue with subtle sparkling crystals", zh: "杏仁形，蓝色搭配细微晶钻闪光" },
+          { en: "Short natural nude nails", zh: "短款自然裸色" },
+          { en: "Almond-shaped, navy gradient with shimmer", zh: "杏仁形，海军蓝渐变带微光" },
+          { en: "Square blue nails, glossy finish", zh: "方形蓝色甲，亮面" },
+          { en: "Glossy black almond nails with chrome tips", zh: "亮黑杏仁甲配铬色指尖" },
+          { en: "Milky white squoval nails", zh: "奶白色方圆甲" },
+          { en: "Sheer pink jelly nails with glitter flakes", zh: "半透粉色果冻甲点缀细闪" }
+        ],
+        earrings: [
+          { en: "Small simple silver hoops", zh: "小号简约银色圈耳环" },
+          { en: "Minimal silver studs", zh: "极简银色耳钉" },
+          { en: "Tiny pearl studs", zh: "小巧珍珠耳钉" },
+          { en: "Thin oval silver hoops", zh: "纤细椭圆银圈耳环" },
+          { en: "Small gold huggie hoops", zh: "小巧金色贴耳圈" },
+          { en: "Asymmetric geometric earrings", zh: "不对称几何耳饰" },
+          { en: "Delicate chain drop earrings", zh: "纤细链条垂坠耳环" }
+        ],
+        rings: [
+          { en: "Delicate silver rings", zh: "细致银色戒指" },
+          { en: "Stacked minimalist silver bands", zh: "叠戴极简银戒" },
+          { en: "Single thin silver band", zh: "单只细银戒" },
+          { en: "Geometric silver ring", zh: "几何银戒" },
+          { en: "Stacked rose gold rings with tiny gems", zh: "叠戴玫瑰金戒指镶小钻" },
+          { en: "Minimal open-ended ring", zh: "极简开口戒" },
+          { en: "Vintage-style signet ring", zh: "复古印章戒" }
+        ],
+        makeupStyle: [
+          { en: "Korean-style makeup", zh: "韩系妆容" },
+          { en: "Soft natural makeup", zh: "柔和自然妆" },
+          { en: "Clean girl makeup", zh: "清爽 clean girl 妆" },
+          { en: "Soft glam evening makeup", zh: "柔雾晚宴妆" },
+          { en: "Dewy glass-skin makeup", zh: "水光玻璃肌妆" },
+          { en: "Retro 90s supermodel makeup", zh: "复古 90 年代超模妆" },
+          { en: "No-makeup Korean glass skin with innocent pure vibe", zh: "清透伪素颜韩系水光肌，纯欲风" }
+        ],
+        blush: [
+          { en: "Light nude on cheeks, soft red on nose", zh: "面颊浅裸色，鼻尖柔红" },
+          { en: "Subtle peach on cheeks", zh: "面颊淡蜜桃色" },
+          { en: "Soft pink across cheeks and nose", zh: "面颊与鼻梁柔粉" },
+          { en: "Sun-kissed draping blush", zh: "仿晒晕染腮红" },
+          { en: "Muted mauve across cheeks", zh: "低饱和豆沙腮红" },
+          { en: "Peachy ombre blush", zh: "蜜桃渐层腮红" },
+          { en: "Sakura pink blush diffused broadly across center cheeks for youthful radiance", zh: "樱花粉腮红大面积晕染面中，提升气色" }
+        ],
+        eyeliner: [
+          { en: "Soft, blurred Korean-style", zh: "柔和晕染韩系眼线" },
+          { en: "Thin natural eyeliner", zh: "细自然眼线" },
+          { en: "Soft winged liner", zh: "柔和上扬眼线" },
+          { en: "Graphic inner-corner liner", zh: "内眼角线条感眼线" },
+          { en: "Smoky brown liner", zh: "烟熏棕色眼线" },
+          { en: "Subtle kitten liner", zh: "细致小猫眼线" },
+          { en: "Invisible tightline with minimal eye makeup and no visible eyeshadow", zh: "极简眼妆，贴近内眼线，无明显眼影" }
+        ],
+        eyelashes: [
+          { en: "Thin false eyelashes", zh: "轻薄假睫毛" },
+          { en: "Natural mascara", zh: "自然睫毛膏" },
+          { en: "Feathery lashes", zh: "羽感睫毛" },
+          { en: "Wispy doll lashes", zh: "根根分明洋娃娃睫毛" },
+          { en: "Brown mascara with soft curl", zh: "棕色睫毛膏柔和卷翘" },
+          { en: "Lifted lash extensions effect", zh: "根部上提睫毛嫁接效果" },
+          { en: "Clean separated natural lashes with defined roots, zero clumps", zh: "根根分明的自然睫毛，根部清晰不结块" }
+        ],
+        eyebrows: [
+          { en: "Light natural and tidy", zh: "轻柔自然、清晰" },
+          { en: "Soft arched brows", zh: "柔和弧形眉" },
+          { en: "Straight natural brows", zh: "直线自然眉" },
+          { en: "Feathered straight brows", zh: "自然羽感平眉" },
+          { en: "Defined microbladed look", zh: "仿雾眉精致效果" },
+          { en: "Soft angled brows with gradient", zh: "柔和渐变斜眉" }
+        ],
+        lips: [
+          { en: "Nude with a hint of red", zh: "裸色带一丝红润" },
+          { en: "Soft rose tint", zh: "轻柔玫瑰色" },
+          { en: "Blurred coral tint", zh: "朦胧珊瑚色" },
+          { en: "Juicy cherry stain", zh: "樱桃水染唇" },
+          { en: "Matte brick red", zh: "雾面砖红" },
+          { en: "Glazed peach gloss", zh: "蜜桃玻璃唇" },
+          { en: "Peach jelly lips with mirror gloss, soft pink and plump", zh: "蜜桃果冻镜面唇，嫩粉水嘟嘟" }
+        ],
+        hands: [
+          { en: "Both hands gently touching cheeks", zh: "双手轻触脸颊" },
+          { en: "One hand touching cheek", zh: "单手触脸" },
+          { en: "Hands holding phone", zh: "手持手机" },
+          { en: "Hands resting on chin", zh: "双手托下巴" },
+          { en: "One hand playing with hair", zh: "单手撩发" },
+          { en: "Hands tucked into sleeves", zh: "双手缩进袖口" }
+        ],
+        expression: [
+          { en: "Dreamy and slightly cheerful", zh: "迷离且微微愉悦" },
+          { en: "Soft smile", zh: "轻柔微笑" },
+          { en: "Calm and gentle", zh: "平静温柔" },
+          { en: "Playful wink", zh: "俏皮眨眼" },
+          { en: "Thoughtful gaze away from camera", zh: "若有所思偏视镜头" },
+          { en: "Soft laughter mid-smile", zh: "柔和笑出声的瞬间" }
+        ],
+        cameraAngle: [
+          { en: "High-angle selfie, approx 30 degrees above the face", zh: "高位自拍，约 30° 俯拍" },
+          { en: "Eye-level selfie", zh: "视线平视自拍" },
+          { en: "Low-angle subtle tilt", zh: "低角度轻微倾斜" },
+          { en: "Mirror selfie with slight tilt", zh: "镜前自拍轻微倾斜" },
+          { en: "Overhead shot capturing shoulders", zh: "俯视拍肩颈" },
+          { en: "Close crop from chin to forehead", zh: "从下巴到额头的近景裁切" }
+        ],
+        cameraType: [
+          { en: "Analog 35mm camera flash", zh: "胶片 35mm 闪光" },
+          { en: "Digital compact camera flash", zh: "数码卡片机闪光" },
+          { en: "Smartphone flash", zh: "手机闪光" },
+          { en: "DSLR with 50mm lens", zh: "搭配 50mm 镜头的单反" },
+          { en: "Instant film camera", zh: "拍立得相机" },
+          { en: "Vintage camcorder still frame", zh: "复古摄像机定格" }
+        ],
+        aspectRatio: [
+          { value: "1:1", en: "1:1 Square", zh: "1:1 正方形" },
+          { value: "3:4", en: "3:4 Portrait", zh: "3:4 竖幅" },
+          { value: "2:3", en: "2:3 Classic portrait", zh: "2:3 经典竖幅" },
+          { value: "4:5", en: "4:5 Portrait", zh: "4:5 竖幅" },
+          { value: "9:16", en: "9:16 Vertical", zh: "9:16 竖屏" },
+          { value: "6:19", en: "6:19 Vertical", zh: "6:19 竖幅" },
+          { value: "5:4", en: "5:4 Classic print", zh: "5:4 经典尺寸" },
+          { value: "16:9", en: "16:9 Wide", zh: "16:9 横幅" },
+          { value: "21:9", en: "21:9 Cinematic", zh: "21:9 电影横幅" }
+        ],
+        bgColor: [
+          { en: "Dark wall with shallow depth, contrasting with flash lighting", zh: "深色墙面浅景深，与闪光形成对比" },
+          { en: "Plain dark background with subtle texture", zh: "纯深色背景，轻微纹理" },
+          { en: "Matte charcoal wall, shallow depth", zh: "哑光木炭灰墙面，浅景深" },
+          { en: "Soft beige wall with warm undertone", zh: "暖调柔米色墙面" },
+          { en: "Dusty pink backdrop", zh: "灰粉色背景" },
+          { en: "Industrial concrete wall", zh: "工业感混凝土墙" },
+          { en: "Deep forest green background", zh: "深森林绿背景" }
+        ],
+        bgEffect: [
+          { en: "Minimalist, modern, friendly, with slight reflective highlights", zh: "极简现代，友好氛围，略带反光高光" },
+          { en: "Minimalist background, soft texture", zh: "极简背景，柔软质感" },
+          { en: "Clean modern backdrop, slight sheen", zh: "干净现代背景，微微光泽" },
+          { en: "Bokeh fairy lights behind the subject", zh: "背景虚化小灯串" },
+          { en: "Subtle gradient wash", zh: "轻柔渐变晕染" },
+          { en: "Textured plaster wall", zh: "带纹理的石膏墙面" },
+          { en: "Neon rim-light haze", zh: "霓虹轮廓光雾感" }
+        ],
+        lighting: [
+          { en: "Cool dim light with flash highlighting the face, hair, skin, and clothing texture", zh: "冷色微暗环境，闪光强调脸部、头发、肌肤与针织质感" },
+          { en: "Low ambient light with strong flash contrast", zh: "低环境光，闪光强对比" },
+          { en: "Dim cool light, crisp flash", zh: "微暗冷色光，清晰闪光" },
+          { en: "Split lighting with flash on one side", zh: "闪光单侧分割光" },
+          { en: "Warm desk lamp mixed with cool flash", zh: "暖色台灯与冷闪混合" },
+          { en: "Backlit hair light with fill flash", zh: "背光发光结合补光闪光" },
+          { en: "Softbox-style diffused flash", zh: "柔光箱感扩散闪光" }
+        ],
+        mood: [
+          { en: "Film noir elegance", zh: "黑色电影式优雅" },
+          { en: "Cozy minimalism", zh: "温暖极简" },
+          { en: "Modern simplicity", zh: "现代简约" },
+          { en: "Dreamy cyberpunk glow", zh: "梦幻赛博荧光" },
+          { en: "Vintage film nostalgia", zh: "复古胶片怀旧" },
+          { en: "High-fashion editorial", zh: "高定杂志感" },
+          { en: "Whimsical coquette energy", zh: "俏皮 coquette 氛围" },
+          { en: "Cozy innocent pure vibe with soft autumn casual energy", zh: "舒适纯欲氛围，温暖秋冬感" }
+        ],
+        quality: [
+          { en: "Ultra high-definition 4K clarity, crisp lens detail, zero noise", zh: "超高清 4K 画质，镜头清晰无噪点" },
+          { en: "6K cinema-grade sharpness with immaculate texture rendering", zh: "6K 电影级锐度，质感完美呈现" },
+          { en: "8K hyper-real photo realism, tack-sharp focus", zh: "8K 超写实效果，焦点极致锐利" },
+          { en: "High-resolution RAW-style capture, deep dynamic range", zh: "高分辨率 RAW 风格捕捉，宽容度高" }
+        ],
+        skinTexture: [
+          { en: "Water-plump glass skin, poreless glow, silky sheen", zh: "水嫩玻璃肌，毛孔隐形，丝滑高光" },
+          { en: "Bouncy baby-skin texture with translucent dew", zh: "弹嫩婴儿肌质感，透亮水润" },
+          { en: "Airbrushed yet realistic complexion, blurred imperfections", zh: "真实又磨皮的底妆，瑕疵柔化" },
+          { en: "Hydrated, luminous skin with subtle reflections", zh: "高保湿亮泽肤感，带柔和反光" }
+        ],
+        ageShift: [
+          { en: "Appears about 5 years younger while matching the reference identity", zh: "保持人物特征基础上，看起来年轻约 5 岁" },
+          { en: "Appears 8 years younger with youthful vitality", zh: "整体年轻约 8 岁，状态青春" },
+          { en: "Appears 10 years younger but unmistakably the same person", zh: "看起来年轻约 10 岁，但仍是同一人" },
+          { en: "Subtle age rewind (3-5 years) keeping every defining trait", zh: "轻度逆龄 3-5 岁，保留所有特征" }
+        ]
+      };
+      const uiLabels = {
+        groups: {
+          hairStyle: { zh: "头发造型", en: "Hair Style" },
+          hairColor: { zh: "发色", en: "Hair Color" },
+          clothing: { zh: "服饰与饰品", en: "Clothing & Accessories" },
+          makeup: { zh: "妆容", en: "Makeup" },
+          pose: { zh: "姿态与机位", en: "Pose & Camera" },
+          composition: { zh: "构图比例", en: "Composition" },
+          background: { zh: "背景与光线", en: "Background & Lighting" },
+          style: { zh: "风格", en: "Style" },
+          detail: { zh: "画质与细节", en: "Quality & Detail" },
+          camera: { zh: "相机", en: "Camera" }
+        },
+        subs: {
+          top: { zh: "上衣", en: "Top" },
+          earrings: { zh: "耳饰", en: "Earrings" },
+          rings: { zh: "戒指", en: "Rings" },
+          nails: { zh: "指甲", en: "Nails" },
+          makeupStyle: { zh: "妆容风格", en: "Makeup Style" },
+          eyebrows: { zh: "眉毛", en: "Eyebrows" },
+          eyeliner: { zh: "眼线", en: "Eyeliner" },
+          eyelashes: { zh: "睫毛", en: "Eyelashes" },
+          blush: { zh: "腮红", en: "Blush" },
+          lips: { zh: "唇妆", en: "Lips" },
+          hands: { zh: "手部动作", en: "Hand Pose" },
+          expression: { zh: "表情", en: "Expression" },
+          cameraAngle: { zh: "机位角度", en: "Camera Angle" },
+          aspectRatio: { zh: "画面比例", en: "Aspect Ratio" },
+          bgColor: { zh: "背景色/墙体", en: "Background / Wall" },
+          bgEffect: { zh: "背景效果", en: "Background Effect" },
+          lighting: { zh: "光线条件", en: "Lighting Conditions" },
+          mood: { zh: "风格氛围", en: "Mood" },
+          cameraType: { zh: "相机类型", en: "Camera Type" },
+          quality: { zh: "画质", en: "Quality" },
+          skinTexture: { zh: "皮肤质感", en: "Skin Texture" },
+          ageShift: { zh: "年龄细化", en: "Age Adjustment" }
+        }
+      };
+      const uiText = {
+        title: { zh: "PromptPhoto 提示词生成器", en: "PromptPhoto Prompt Builder" },
+        dimensionHeading: { zh: "维度选择", en: "Dimension Picker" },
+        descriptionLabel: { zh: "整体描述", en: "Description" },
+        descriptionPlaceholder: { zh: "在此编辑整体描述…", en: "Edit the overall description…" },
+        descriptionHint: { zh: "内容会实时同步到 JSON description 字段。", en: "Text syncs to the JSON description field." },
+        modeDropdown: { zh: "下拉模式", en: "Dropdown Mode" },
+        modeExpanded: { zh: "展开模式", en: "Expanded Mode" },
+        random: { zh: "随机", en: "Random" },
+        copy: { zh: "复制", en: "Copy" },
+        copySuccess: { zh: "已复制", en: "Copied" },
+        copyError: { zh: "复制失败", en: "Copy failed" },
+        outputHeading: { zh: "JSON 输出", en: "JSON Output" },
+        customAddTrigger: { zh: "添加维度", en: "Add Dimension" },
+        customNameZhPlaceholder: { zh: "维度名称（中文）", en: "Dimension name (ZH)" },
+        customNameEnPlaceholder: { zh: "维度名称（英文）", en: "Dimension name (EN)" },
+        customOptionsPlaceholder: { zh: "每行：柔和光线 | Soft lighting", en: "Each line: Soft lighting | Translation" },
+        customHint: { zh: "每行使用“中文 | English”格式。", en: "Use “Chinese | English” per line." },
+        customSave: { zh: "添加维度", en: "Add Dimension" },
+        customSaveEdit: { zh: "保存更改", en: "Save Changes" },
+        customCancel: { zh: "取消", en: "Cancel" },
+        customModalAddTitle: { zh: "添加维度", en: "Add Dimension" },
+        customModalEditTitle: { zh: "编辑维度", en: "Edit Dimension" },
+        customModalClose: { zh: "关闭", en: "Close" },
+        customEdit: { zh: "编辑", en: "Edit" },
+        customDelete: { zh: "删除", en: "Delete" },
+        customDeleteConfirm: { zh: "确定要删除这个自定义维度吗？", en: "Delete this custom dimension?" },
+        customErrorName: { zh: "请输入维度名称。", en: "Please enter a dimension name." },
+        customErrorOptions: { zh: "请至少输入一个选项。", en: "Please provide at least one option." },
+        savedTitle: { zh: "配置缓存", en: "Saved Presets" },
+        savedDelete: { zh: "删除", en: "Delete" },
+        savedDeleteConfirm: { zh: "确定删除这个配置吗？", en: "Delete this preset?" },
+        savedErrorName: { zh: "请输入配置名称。", en: "Please enter a name." },
+        savedPanelToggle: { zh: "保存", en: "Save" },
+        savedModalTitle: { zh: "保存当前配置", en: "Save Current Preset" },
+        savedModalPlaceholder: { zh: "输入名称", en: "Preset name" },
+        savedModalSave: { zh: "保存", en: "Save" },
+        savedModalCancel: { zh: "取消", en: "Cancel" }
+      };
+
+      const els = {
+        hairStyle: document.getElementById('hairStyle'),
+        hairColor: document.getElementById('hairColor'),
+        top: document.getElementById('top'),
+        nails: document.getElementById('nails'),
+        earrings: document.getElementById('earrings'),
+        rings: document.getElementById('rings'),
+        makeupStyle: document.getElementById('makeupStyle'),
+        blush: document.getElementById('blush'),
+        eyeliner: document.getElementById('eyeliner'),
+        eyelashes: document.getElementById('eyelashes'),
+        eyebrows: document.getElementById('eyebrows'),
+        lips: document.getElementById('lips'),
+        hands: document.getElementById('hands'),
+        expression: document.getElementById('expression'),
+        cameraAngle: document.getElementById('cameraAngle'),
+        cameraType: document.getElementById('cameraType'),
+        aspectRatio: document.getElementById('aspectRatio'),
+        bgColor: document.getElementById('bgColor'),
+        bgEffect: document.getElementById('bgEffect'),
+        lighting: document.getElementById('lighting'),
+        mood: document.getElementById('mood'),
+        promptOutput: document.getElementById('promptOutput'),
+        randomAll: document.getElementById('randomAll'),
+        copyPrompt: document.getElementById('copyPrompt'),
+        descriptionInput: document.getElementById('descriptionInput'),
+        descriptionLabel: document.getElementById('descriptionLabel'),
+        descriptionHint: document.getElementById('descriptionHint'),
+        langZh: document.getElementById('lang-zh'),
+        langEn: document.getElementById('lang-en'),
+        appTitle: document.getElementById('appTitle'),
+        dimensionHeading: document.getElementById('dimensionHeading'),
+        outputHeading: document.getElementById('outputHeading'),
+        randomLabel: document.getElementById('randomLabel'),
+        copyLabel: document.getElementById('copyLabel'),
+        customAddTrigger: document.getElementById('customAddTrigger'),
+        customNameZh: document.getElementById('customNameZh'),
+        customNameEn: document.getElementById('customNameEn'),
+        customOptionsInput: document.getElementById('customOptionsInput'),
+        customSaveBtn: document.getElementById('customSaveBtn'),
+        customCancelBtn: document.getElementById('customCancelBtn'),
+        customOptionsHint: document.getElementById('customOptionsHint'),
+        customFormStatus: document.getElementById('customFormStatus'),
+      customDimensionsContainer: document.getElementById('customDimensionsContainer'),
+        savedConfigsTitle: document.getElementById('savedStripTitle'),
+        savedStrip: document.getElementById('savedStrip'),
+        savedStripList: document.getElementById('savedStripList'),
+        savedPanelToggle: document.getElementById('savedPanelToggle'),
+        saveLabel: document.getElementById('saveLabel'),
+        presetModalOverlay: document.getElementById('presetModalOverlay'),
+        presetModalInput: document.getElementById('presetModalInput'),
+        presetModalSave: document.getElementById('presetModalSave'),
+        presetModalCancel: document.getElementById('presetModalCancel'),
+        presetModalTitle: document.getElementById('presetModalTitle'),
+        customModalOverlay: document.getElementById('customModalOverlay'),
+        customModalClose: document.getElementById('customModalClose'),
+        customModalTitle: document.getElementById('customModalTitle'),
+        groupHairStyle: document.getElementById('group-hair-style'),
+        groupHairColor: document.getElementById('group-hair-color'),
+        groupClothing: document.getElementById('group-clothing'),
+        groupMakeup: document.getElementById('group-makeup'),
+        groupPose: document.getElementById('group-pose'),
+        groupComposition: document.getElementById('group-composition'),
+        groupBackground: document.getElementById('group-background'),
+        groupStyle: document.getElementById('group-style'),
+        groupDetail: document.getElementById('group-detail'),
+        groupCamera: document.getElementById('group-camera'),
+        quality: document.getElementById('quality'),
+        skinTexture: document.getElementById('skinTexture'),
+        ageShift: document.getElementById('ageShift'),
+        modeToggle: document.getElementById('modeToggle')
+      };
+      const eyeIcons = {
+        on: '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>',
+        off: '<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7c2.4 0 4.4.7 6 1.7M23 12s-4 7-11 7c-2.4 0-4.4-.7-6-1.7" stroke-width="2"/><path d="M3 3l18 18" stroke-width="2"/></svg>'
+      };
+      const lockIcons = {
+        unlocked: '<svg viewBox="0 0 24 24"><path d="M7 10V8a5 5 0 0110 0v2" stroke-width="2"/><rect x="5" y="10" width="14" height="10" rx="2" stroke-width="2"/></svg>',
+        locked: '<svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 018 0v2" stroke-width="2"/><rect x="5" y="10" width="14" height="10" rx="2" stroke-width="2"/></svg>'
+      };
+      function setVisibilityButtonState(btn, on) {
+        if (!btn) return;
+        btn.innerHTML = on ? eyeIcons.on : eyeIcons.off;
+        btn.setAttribute('aria-pressed', String(!on));
+      }
+      function syncDescriptionInputValue() {
+        if (!els.descriptionInput) return;
+        const value = descriptions[current.lang] || '';
+        if (els.descriptionInput.value !== value) {
+          els.descriptionInput.value = value;
+        }
+      }
+      syncDescriptionInputValue();
+      function updateCopyLabel() {
+        if (!els.copyLabel) return;
+        let key = 'copy';
+        if (els.copyPrompt?.classList.contains('copy-error')) {
+          key = 'copyError';
+        } else if (els.copyPrompt?.classList.contains('copied')) {
+          key = 'copySuccess';
+        }
+        els.copyLabel.textContent = uiText[key][current.lang];
+      }
+      const groupWraps = {
+        hairStyle: els.groupHairStyle,
+        hairColor: els.groupHairColor,
+        clothing: els.groupClothing,
+        makeup: els.groupMakeup,
+        pose: els.groupPose,
+        composition: els.groupComposition,
+        background: els.groupBackground,
+        style: els.groupStyle,
+        detail: els.groupDetail,
+        camera: els.groupCamera
+      };
+      const groupOptionMap = {
+        hairStyle: ['hairStyle'],
+        hairColor: ['hairColor'],
+        clothing: ['top', 'earrings', 'rings', 'nails'],
+        makeup: ['makeupStyle', 'eyebrows', 'eyeliner', 'eyelashes', 'blush', 'lips'],
+        pose: ['hands', 'expression', 'cameraAngle'],
+        composition: ['aspectRatio'],
+        background: ['bgColor', 'bgEffect', 'lighting'],
+        style: ['mood'],
+        detail: ['quality', 'skinTexture', 'ageShift'],
+        camera: ['cameraType']
+      };
+      const subToGroupMap = Object.entries(groupOptionMap).reduce((acc, [groupKey, subKeys]) => {
+        subKeys.forEach(subKey => { acc[subKey] = groupKey; });
+        return acc;
+      }, {});
+      function setGroupStateByKey(groupKey, on) {
+        const wrap = groupWraps[groupKey];
+        if (wrap) wrap.classList.toggle('group-disabled', !on);
+      }
+      if (current.lang === 'en') {
+        els.langEn.classList.add('active');
+        els.langZh.classList.remove('active');
+      }
+
+      function renderOptions(el, list, currentIdx, key) {
+        if (!el) return;
+        const items = Array.isArray(list) ? list : [];
+        el.innerHTML = '';
+        if (!items.length) return;
+        const numericIdx = Number(currentIdx);
+        const safeIdx = Math.max(0, Math.min(items.length - 1, Number.isFinite(numericIdx) ? numericIdx : 0));
+        const currentOption = items[safeIdx] || items[0];
+        const currentLabel = currentOption ? (currentOption[current.lang] || currentOption.en || currentOption.value || '') : '';
+        const isLocked = !!lockedSub[key];
+        const isEnabled = enabledSub[key] !== false;
+        const shouldShowAll = uiMode === 'expanded' && !isLocked;
+        if (shouldShowAll) {
+          items.forEach((v, i) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'option' + (i === safeIdx ? ' active' : '');
+            b.dataset.idx = i;
+            b.textContent = v[current.lang] || v.en || v.value || '';
+            if (!isEnabled) b.classList.add('disabled');
+            el.appendChild(b);
+          });
+        } else {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'option active single-option' + (isLocked ? ' locked-view' : '');
+          b.dataset.idx = safeIdx;
+          if (!isLocked && uiMode !== 'expanded') {
+            b.innerHTML = `${currentLabel} <span class="caret"><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" stroke-width="2"/></svg></span>`;
+          } else {
+            b.textContent = currentLabel;
+          }
+          if (!isEnabled || isLocked) b.classList.add('disabled');
+          if (!isLocked && uiMode !== 'expanded' && isEnabled) {
+            b.addEventListener('click', (e) => { if (isEnabled) openChipPopover(e.currentTarget, key); });
+          }
+          if (!isLocked) {
+            el.appendChild(b);
+          } else {
+            const lockedWrap = document.createElement('div');
+            lockedWrap.className = 'locked-chip';
+            lockedWrap.appendChild(b);
+            const inlineLock = document.createElement('button');
+            inlineLock.type = 'button';
+            inlineLock.className = 'option-lock-btn';
+            inlineLock.innerHTML = lockIcons.unlocked;
+            inlineLock.title = current.lang === 'zh' ? '解锁' : 'Unlock';
+            inlineLock.setAttribute('aria-label', inlineLock.title);
+            inlineLock.addEventListener('click', (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              const hasSubBtn = !!document.querySelector(`.lock-btn[data-sub="${key}"]`);
+              if (hasSubBtn) {
+                applySubLockState(key, false);
+              } else {
+                const parentGroup = subToGroupMap[key] || key;
+                applyGroupLockState(parentGroup, false);
+              }
+            });
+            lockedWrap.appendChild(inlineLock);
+            el.appendChild(lockedWrap);
+          }
+        }
+      }
+
+      function renderCustomDimensions() {
+        const container = els.customDimensionsContainer;
+        if (!container) return;
+        container.innerHTML = '';
+        Object.keys(els).forEach(key => {
+          if (key.startsWith('custom_')) delete els[key];
+        });
+        if (!customDimensions.length) return;
+        customDimensions.forEach(dim => {
+          const card = document.createElement('div');
+          card.className = 'custom-dimension-card';
+          const header = document.createElement('div');
+          header.className = 'custom-dimension-header';
+          const nameEl = document.createElement('div');
+          nameEl.className = 'custom-dimension-name';
+          nameEl.textContent = dim.name[current.lang] || dim.name.zh || dim.name.en;
+          header.appendChild(nameEl);
+          const actions = document.createElement('div');
+          actions.className = 'custom-actions';
+          const editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'custom-text-btn';
+          editBtn.textContent = uiText.customEdit[current.lang];
+          editBtn.addEventListener('click', () => startEditingCustomDimension(dim.id));
+          const deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'custom-text-btn';
+          deleteBtn.textContent = uiText.customDelete[current.lang];
+          deleteBtn.addEventListener('click', () => deleteCustomDimension(dim.id));
+          actions.appendChild(editBtn);
+          actions.appendChild(deleteBtn);
+          header.appendChild(actions);
+          card.appendChild(header);
+          const optWrap = document.createElement('div');
+          optWrap.className = 'options options-block';
+          optWrap.id = dim.key;
+          card.appendChild(optWrap);
+          container.appendChild(card);
+          els[dim.key] = optWrap;
+          renderOptions(optWrap, options[dim.key] || [], state[dim.key] || 0, dim.key);
+          bindOptionContainer(optWrap, dim.key);
+        });
+      }
+
+      function renderSavedConfigsList() {
+        const container = els.savedStripList;
+        if (!container) return;
+        container.innerHTML = '';
+        const hasPresets = savedConfigs.length > 0;
+        if (els.savedStrip) els.savedStrip.classList.toggle('hidden', !hasPresets);
+        if (!hasPresets) return;
+        savedConfigs.forEach(cfg => {
+          const item = document.createElement('div');
+          item.className = 'saved-strip-item' + (cfg.id === activeSavedConfigId ? ' active' : '');
+          item.tabIndex = 0;
+          item.setAttribute('role', 'button');
+          const nameEl = document.createElement('span');
+          nameEl.className = 'saved-strip-item-name';
+          nameEl.textContent = cfg.name;
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.textContent = '×';
+          const label = uiText.savedDelete[current.lang];
+          delBtn.setAttribute('aria-label', label);
+          delBtn.title = label;
+          delBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteSavedConfig(cfg.id);
+          });
+          item.addEventListener('click', () => loadSavedConfig(cfg.id));
+          item.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              loadSavedConfig(cfg.id);
+            }
+          });
+          item.appendChild(nameEl);
+          item.appendChild(delBtn);
+          container.appendChild(item);
+        });
+      }
+      function openSaveModal() {
+        if (els.presetModalOverlay) els.presetModalOverlay.classList.remove('hidden');
+        if (els.presetModalInput) {
+          els.presetModalInput.value = '';
+          setTimeout(() => els.presetModalInput?.focus(), 0);
+        }
+      }
+      function closeSaveModal() {
+        if (els.presetModalOverlay) els.presetModalOverlay.classList.add('hidden');
+      }
+
+      function replaceMap(target, fallback, incoming) {
+        Object.keys(target).forEach(key => { delete target[key]; });
+        if (fallback && typeof fallback === 'object') Object.assign(target, fallback);
+        if (incoming && typeof incoming === 'object') Object.assign(target, incoming);
+      }
+      function applyPresetSnapshot(snapshot) {
+        if (!snapshot) return;
+        replaceMap(state, defaultState, snapshot.state);
+        replaceMap(enabled, defaultEnabled, snapshot.enabled);
+        replaceMap(enabledSub, defaultEnabledSub, snapshot.enabledSub);
+        replaceMap(locked, defaultLocked, snapshot.locked);
+        replaceMap(lockedSub, defaultLockedSub, snapshot.lockedSub);
+        if (snapshot.descriptions) {
+          if (typeof snapshot.descriptions.en === 'string') descriptions.en = snapshot.descriptions.en;
+          if (typeof snapshot.descriptions.zh === 'string') descriptions.zh = snapshot.descriptions.zh;
+        }
+        syncCustomData();
+        syncDescriptionInputValue();
+      }
+      function captureCurrentSnapshot() {
+        return {
+          state: { ...state },
+          enabled: { ...enabled },
+          enabledSub: { ...enabledSub },
+          locked: { ...locked },
+          lockedSub: { ...lockedSub },
+          descriptions: { ...descriptions }
+        };
+      }
+      function shallowEqualMap(a = {}, b = {}) {
+        const keys = new Set([...(Object.keys(a || {})), ...(Object.keys(b || {}))]);
+        for (const key of keys) {
+          if ((a || {})[key] !== (b || {})[key]) return false;
+        }
+        return true;
+      }
+      function snapshotsEqual(a, b) {
+        if (!a || !b) return false;
+        return shallowEqualMap(a.state, b.state)
+          && shallowEqualMap(a.enabled, b.enabled)
+          && shallowEqualMap(a.enabledSub, b.enabledSub)
+          && shallowEqualMap(a.locked, b.locked)
+          && shallowEqualMap(a.lockedSub, b.lockedSub)
+          && shallowEqualMap(a.descriptions, b.descriptions);
+      }
+      function maybeResetActivePreset() {
+        if (!activeSavedConfigId) return;
+        const preset = savedConfigs.find(cfg => cfg.id === activeSavedConfigId);
+        if (!preset) {
+          activeSavedConfigId = null;
+          renderSavedConfigsList();
+          return;
+        }
+        const currentSnapshot = captureCurrentSnapshot();
+        if (!snapshotsEqual(currentSnapshot, preset.snapshot)) {
+          activeSavedConfigId = null;
+          renderSavedConfigsList();
+        }
+      }
+      function handleSavePreset() {
+        if (!els.presetModalInput) return;
+        const rawName = els.presetModalInput.value.trim();
+        if (!rawName) {
+          window.alert(uiText.savedErrorName[current.lang]);
+          els.presetModalInput.focus();
+          return;
+        }
+        const existingIdx = savedConfigs.findIndex(cfg => cfg.name === rawName);
+        const payload = {
+          id: existingIdx >= 0 ? savedConfigs[existingIdx].id : createPresetId(),
+          name: rawName,
+          snapshot: captureCurrentSnapshot(),
+          updatedAt: Date.now()
+        };
+        if (existingIdx >= 0) {
+          savedConfigs.splice(existingIdx, 1);
+          savedConfigs.unshift(payload);
+        } else {
+          savedConfigs.unshift(payload);
+        }
+        activeSavedConfigId = payload.id;
+        closeSaveModal();
+        renderSavedConfigsList();
+        persistCurrentState();
+      }
+      function deleteSavedConfig(id) {
+        const idx = savedConfigs.findIndex(cfg => cfg.id === id);
+        if (idx < 0) return;
+        const confirmMsg = uiText.savedDeleteConfirm[current.lang];
+        if (confirmMsg && !window.confirm(confirmMsg)) return;
+        const [removed] = savedConfigs.splice(idx, 1);
+        if (removed && removed.id === activeSavedConfigId) activeSavedConfigId = null;
+        renderSavedConfigsList();
+        persistCurrentState();
+      }
+      function loadSavedConfig(id) {
+        const preset = savedConfigs.find(cfg => cfg.id === id);
+        if (!preset) return;
+        applyPresetSnapshot(preset.snapshot);
+        activeSavedConfigId = id;
+        init();
+      }
+
+      function updateModeToggleLabel() {
+        if (!els.modeToggle) return;
+        els.modeToggle.textContent = uiMode === 'dropdown' ? uiText.modeDropdown[current.lang] : uiText.modeExpanded[current.lang];
+      }
+
+      function updateCustomFormLabels() {
+        if (els.customAddTrigger) els.customAddTrigger.textContent = uiText.customAddTrigger[current.lang];
+        if (els.customNameZh) els.customNameZh.placeholder = uiText.customNameZhPlaceholder[current.lang];
+        if (els.customNameEn) els.customNameEn.placeholder = uiText.customNameEnPlaceholder[current.lang];
+        if (els.customOptionsInput) els.customOptionsInput.placeholder = uiText.customOptionsPlaceholder[current.lang];
+        if (els.customOptionsHint) els.customOptionsHint.textContent = uiText.customHint[current.lang];
+        if (els.customSaveBtn) els.customSaveBtn.textContent = editingCustomId ? uiText.customSaveEdit[current.lang] : uiText.customSave[current.lang];
+        if (els.customModalTitle) {
+          const titleKey = editingCustomId ? 'customModalEditTitle' : 'customModalAddTitle';
+          els.customModalTitle.textContent = uiText[titleKey][current.lang];
+        }
+        if (els.customModalClose) {
+          const label = uiText.customModalClose[current.lang];
+          els.customModalClose.setAttribute('aria-label', label);
+          els.customModalClose.title = label;
+        }
+        if (els.customCancelBtn) els.customCancelBtn.textContent = uiText.customCancel[current.lang];
+      }
+
+      function applyLabels() {
+        document.querySelectorAll('.group-title').forEach(el => {
+          const key = el.dataset.group;
+          if (!key) return;
+          const label = uiLabels.groups[key]?.[current.lang];
+          if (label) el.textContent = label;
+        });
+        document.querySelectorAll('.sub-title').forEach(el => {
+          const key = el.dataset.sub;
+          if (!key) return;
+          const label = uiLabels.subs[key]?.[current.lang];
+          if (label) el.textContent = label;
+        });
+        if (els.appTitle) els.appTitle.textContent = uiText.title[current.lang];
+        if (els.dimensionHeading) els.dimensionHeading.textContent = uiText.dimensionHeading[current.lang];
+        if (els.descriptionLabel) els.descriptionLabel.textContent = uiText.descriptionLabel[current.lang];
+        if (els.descriptionHint) els.descriptionHint.textContent = uiText.descriptionHint[current.lang];
+        if (els.descriptionInput) els.descriptionInput.placeholder = uiText.descriptionPlaceholder[current.lang];
+        if (els.outputHeading) els.outputHeading.textContent = uiText.outputHeading[current.lang];
+        if (els.randomLabel) els.randomLabel.textContent = uiText.random[current.lang];
+        if (els.copyLabel) {
+          updateCopyLabel();
+        }
+        if (els.saveLabel) els.saveLabel.textContent = uiText.savedPanelToggle[current.lang];
+        if (els.savedConfigsTitle) els.savedConfigsTitle.textContent = uiText.savedTitle[current.lang];
+        if (els.presetModalTitle) els.presetModalTitle.textContent = uiText.savedModalTitle[current.lang];
+        if (els.presetModalInput) els.presetModalInput.placeholder = uiText.savedModalPlaceholder[current.lang];
+        if (els.presetModalSave) els.presetModalSave.textContent = uiText.savedModalSave[current.lang];
+        if (els.presetModalCancel) els.presetModalCancel.textContent = uiText.savedModalCancel[current.lang];
+        updateModeToggleLabel();
+        updateCustomFormLabels();
+        syncDescriptionInputValue();
+      }
+
+      function findIdx(list, matchValue) {
+        if (!Array.isArray(list) || list.length === 0) return 0;
+        if (!matchValue) return 0;
+        const byValue = list.findIndex(v => v.value === matchValue);
+        if (byValue >= 0) return byValue;
+        return Math.max(0, list.findIndex(v => v.en === matchValue));
+      }
+      const state = {
+        hairStyle: findIdx(options.hairStyle, defaults.hair.style),
+        hairColor: findIdx(options.hairColor, defaults.hair.color),
+        top: findIdx(options.top, defaults.clothing.top),
+        nails: findIdx(options.nails, defaults.clothing.nails),
+        earrings: findIdx(options.earrings, defaults.clothing.accessories.earrings),
+        rings: findIdx(options.rings, defaults.clothing.accessories.rings),
+        makeupStyle: findIdx(options.makeupStyle, defaults.makeup.style),
+        blush: findIdx(options.blush, defaults.makeup.details.blush),
+        eyeliner: findIdx(options.eyeliner, defaults.makeup.details.eyeliner),
+        eyelashes: findIdx(options.eyelashes, defaults.makeup.details.eyelashes),
+        eyebrows: findIdx(options.eyebrows, defaults.makeup.details.eyebrows),
+        lips: findIdx(options.lips, defaults.makeup.details.lips),
+        hands: findIdx(options.hands, defaults.pose.hands),
+        expression: findIdx(options.expression, defaults.pose.expression),
+        cameraAngle: findIdx(options.cameraAngle, defaults.pose.camera_angle),
+        cameraType: findIdx(options.cameraType, defaults.camera.type),
+        aspectRatio: findIdx(options.aspectRatio, defaults.composition.aspect_ratio),
+        bgColor: findIdx(options.bgColor, defaults.background.color),
+        bgEffect: findIdx(options.bgEffect, defaults.background.effect),
+        lighting: findIdx(options.lighting, defaults.background.lighting),
+        mood: findIdx(options.mood, defaults.style.mood),
+        quality: findIdx(options.quality, defaults.detail.quality),
+        skinTexture: findIdx(options.skinTexture, defaults.detail.skin),
+        ageShift: findIdx(options.ageShift, defaults.detail.age)
+      };
+      const defaultState = { ...state };
+      if (savedData?.state) Object.assign(state, savedData.state);
+      const enabled = {
+        hairStyle: true,
+        hairColor: true,
+        clothing: true,
+        makeup: true,
+        pose: true,
+        composition: true,
+        background: true,
+        style: true,
+        detail: true,
+        camera: true
+      };
+      const defaultEnabled = { ...enabled };
+      if (savedData?.enabled) Object.assign(enabled, savedData.enabled);
+      Object.keys(groupWraps).forEach(key => setGroupStateByKey(key, enabled[key]));
+      const locked = {
+        hairStyle: false,
+        hairColor: false,
+        clothing: false,
+        makeup: false,
+        pose: false,
+        composition: false,
+        background: false,
+        style: false,
+        detail: false,
+        camera: false
+      };
+      const defaultLocked = { ...locked };
+      if (savedData?.locked) Object.assign(locked, savedData.locked);
+      Object.keys(locked).forEach(key => {
+        const wrap = groupWraps[key];
+        if (wrap) wrap.classList.toggle('group-locked', !!locked[key]);
+      });
+      const enabledSub = {
+        top: true, earrings: true, rings: true, nails: true,
+        makeupStyle: true, eyebrows: true, eyeliner: true, eyelashes: true, blush: true, lips: true,
+        hands: true, expression: true, cameraAngle: true,
+        aspectRatio: true,
+        bgColor: true, bgEffect: true, lighting: true,
+        mood: true, cameraType: true,
+        quality: true, skinTexture: true, ageShift: true,
+        hairStyle: true, hairColor: true
+      };
+      const defaultEnabledSub = { ...enabledSub };
+      if (savedData?.enabledSub) Object.assign(enabledSub, savedData.enabledSub);
+      const lockedSub = {
+        top: false, earrings: false, rings: false, nails: false,
+        makeupStyle: false, eyebrows: false, eyeliner: false, eyelashes: false, blush: false, lips: false,
+        hands: false, expression: false, cameraAngle: false,
+        aspectRatio: false,
+        bgColor: false, bgEffect: false, lighting: false,
+        mood: false, cameraType: false,
+        quality: false, skinTexture: false, ageShift: false,
+        hairStyle: false, hairColor: false
+      };
+      const defaultLockedSub = { ...lockedSub };
+      if (savedData?.lockedSub) Object.assign(lockedSub, savedData.lockedSub);
+      function setLockButtonState(btn, isLocked) {
+        if (!btn) return;
+        btn.classList.toggle('locked', !!isLocked);
+        btn.innerHTML = isLocked ? lockIcons.locked : lockIcons.unlocked;
+        btn.setAttribute('aria-pressed', String(!!isLocked));
+      }
+      function createPresetSnapshotFromOverrides(overrides = {}) {
+        const snapshotState = { ...defaultState };
+        const stateOverrides = overrides.state || {};
+        Object.entries(stateOverrides).forEach(([key, label]) => {
+          if (!(key in snapshotState)) return;
+          const list = options[key];
+          if (!list) return;
+          const idx = findIdx(list, label);
+          if (idx >= 0) snapshotState[key] = idx;
+        });
+        const snapshotDescriptions = { ...descriptions };
+        if (overrides.description) {
+          const desc = overrides.description;
+          if (typeof desc.en === 'string') snapshotDescriptions.en = desc.en;
+          if (typeof desc.zh === 'string') snapshotDescriptions.zh = desc.zh;
+        }
+        return {
+          state: snapshotState,
+          enabled: { ...defaultEnabled },
+          enabledSub: { ...defaultEnabledSub },
+          locked: { ...defaultLocked },
+          lockedSub: { ...defaultLockedSub },
+          descriptions: snapshotDescriptions
+        };
+      }
+      const builtinPresetDefinitions = [
+        {
+          id: 'preset_glassGlow',
+          name: '官方示例 · 清透水光',
+          state: {
+            hairStyle: "Long sleek center-part hair with face-framing baby braids braided tight near the roots",
+            top: "Oatmeal ribbed knit cardigan with large tortoise shell buttons layered over a white crewneck tee",
+            makeupStyle: "No-makeup Korean glass skin with innocent pure vibe",
+            blush: "Sakura pink blush diffused broadly across center cheeks for youthful radiance",
+            lips: "Peach jelly lips with mirror gloss, soft pink and plump",
+            mood: "Cozy innocent pure vibe with soft autumn casual energy",
+            quality: "Ultra high-definition 4K clarity, crisp lens detail, zero noise",
+            skinTexture: "Water-plump glass skin, poreless glow, silky sheen",
+            ageShift: "Appears about 5 years younger while matching the reference identity"
+          },
+          description: {
+            zh: "请仔细分析我提供的照片，完整保留人物的面部特征与五官，确保看起来是同一个人，再打造清透伪素颜的水光自拍，突出居家温柔氛围与 4K 级画质。",
+            en: "Carefully analyze the reference photo and keep the exact facial features so she remains the same person, then craft a glass-skin selfie with innocent vibes and ultra-clean 4K softness."
+          }
+        },
+        {
+          id: 'preset_flashNight',
+          name: '官方示例 · 夜幕闪光',
+          state: {
+            hairStyle: "Loose messy bun with face-framing tendrils",
+            top: "Charcoal oversized hoodie",
+            makeupStyle: "Soft glam evening makeup",
+            blush: "Sun-kissed draping blush",
+            lips: "Glazed peach gloss",
+            bgColor: "Dark wall with shallow depth, contrasting with flash lighting",
+            lighting: "Split lighting with flash on one side",
+            mood: "High-fashion editorial",
+            quality: "6K cinema-grade sharpness with immaculate texture rendering",
+            skinTexture: "Airbrushed yet realistic complexion, blurred imperfections",
+            ageShift: "Appears 8 years younger with youthful vitality"
+          },
+          description: {
+            zh: "请仔细分析我提供的照片，完整保留人物面部结构与五官，随后在夜幕室内用强对比闪光营造高级杂志感，同时呈现更年轻的肌肤状态。",
+            en: "Carefully analyze the provided face, keep every defining feature, and then shoot a fashion night-flash portrait that subtly rejuvenates the skin while preserving identity."
+          }
+        },
+        {
+          id: 'preset_softCoquette',
+          name: '官方示例 · 软萌纯欲',
+          state: {
+            hairStyle: "Shoulder-length blunt cut with airy micro bangs",
+            hairColor: "Soft caramel brown",
+            top: "Pastel pink mohair sweater",
+            earrings: "Tiny pearl studs",
+            rings: "Stacked rose gold rings with tiny gems",
+            makeupStyle: "Clean girl makeup",
+            blush: "Soft pink across cheeks and nose",
+            lips: "Juicy cherry stain",
+            bgColor: "Dusty pink backdrop",
+            bgEffect: "Subtle gradient wash",
+            lighting: "Softbox-style diffused flash",
+            mood: "Whimsical coquette energy",
+            quality: "6K cinema-grade sharpness with immaculate texture rendering",
+            skinTexture: "Bouncy baby-skin texture with translucent dew",
+            ageShift: "Subtle age rewind (3-5 years) keeping every defining trait"
+          },
+          description: {
+            zh: "请仔细分析我提供的照片，完整保留人物面貌与五官，再以空气刘海与粉彩毛衣营造软萌纯欲感，搭配柔光与渐层背景凸显幼态肤质。",
+            en: "Carefully analyze the source portrait and keep the same facial identity, then style airy bangs + pastel knit for soft coquette vibes with dewy youthful skin."
+          }
+        },
+        {
+          id: 'preset_modernMinimal',
+          name: '官方示例 · 都市极简',
+          state: {
+            hairStyle: "Straight long hair, center part, silky texture",
+            hairColor: "Natural black",
+            top: "Beige trench coat layered over a white tee",
+            earrings: "Minimal silver studs",
+            rings: "Minimal open-ended ring",
+            makeupStyle: "Soft natural makeup",
+            blush: "Muted mauve across cheeks",
+            lips: "Soft rose tint",
+            hands: "One hand touching cheek",
+            expression: "Calm and gentle",
+            bgColor: "Industrial concrete wall",
+            lighting: "Warm desk lamp mixed with cool flash",
+            mood: "Modern simplicity",
+            quality: "High-resolution RAW-style capture, deep dynamic range",
+            skinTexture: "Hydrated, luminous skin with subtle reflections",
+            ageShift: "Appears about 5 years younger while matching the reference identity"
+          },
+          description: {
+            zh: "请仔细分析我提供的照片，完整保留人物的面部特征，配合米色风衣与自然光打造都市极简自拍，在保留原脸的同时呈现更清透年轻的状态。",
+            en: "Carefully study the reference face, keep it identical, and pair a beige trench with natural light for a minimal city portrait that feels fresher and younger."
+          }
+        },
+        {
+          id: 'preset_vintageFilm',
+          name: '官方示例 · 复古影像',
+          state: {
+            hairStyle: "Loose messy bun with face-framing tendrils",
+            hairColor: "Warm chestnut brown",
+            top: "Cream knit cardigan with wooden buttons",
+            earrings: "Small gold huggie hoops",
+            rings: "Vintage-style signet ring",
+            makeupStyle: "Retro 90s supermodel makeup",
+            blush: "Peachy ombre blush",
+            lips: "Matte brick red",
+            cameraAngle: "Mirror selfie with slight tilt",
+            bgColor: "Soft beige wall with warm undertone",
+            lighting: "Backlit hair light with fill flash",
+            mood: "Vintage film nostalgia",
+            quality: "8K hyper-real photo realism, tack-sharp focus",
+            skinTexture: "Airbrushed yet realistic complexion, blurred imperfections",
+            ageShift: "Appears 8 years younger with youthful vitality"
+          },
+          description: {
+            zh: "请仔细分析我提供的照片，完整保留人物面孔，再用复古妆容与暖色背景打造怀旧胶片氛围，在高精度画质中呈现更年轻但仍是同一人的效果。",
+            en: "Carefully analyze the reference and keep every facial trait, then apply retro makeup + warm backdrop for a vintage film vibe that stays unmistakably the same person."
+          }
+        }
+      ];
+      function ensureBuiltinPresets() {
+        if (!Array.isArray(savedConfigs)) savedConfigs = [];
+        const existing = new Set(savedConfigs.map(cfg => cfg.id));
+        const nameSet = new Set(savedConfigs.map(cfg => cfg.name));
+        const inserts = [];
+        builtinPresetDefinitions.forEach(def => {
+          if (existing.has(def.id) || nameSet.has(def.name)) return;
+          inserts.push({
+            id: def.id,
+            name: def.name,
+            snapshot: createPresetSnapshotFromOverrides({ state: def.state, description: def.description }),
+            updatedAt: Date.now()
+          });
+        });
+        if (inserts.length) {
+          savedConfigs = [...inserts, ...savedConfigs];
+        }
+      }
+      ensureBuiltinPresets();
+      function refreshOptionsForKey(key) {
+        const container = els[key] || document.getElementById(key);
+        if (!container || !options[key]) return;
+        renderOptions(container, options[key], state[key], key);
+      }
+      function syncGroupLockFromSubs(groupKey) {
+        if (!(groupKey in locked)) return;
+        const subKeys = groupOptionMap[groupKey] || [];
+        if (!subKeys.length) return;
+        const allLocked = subKeys.every(subKey => lockedSub[subKey]);
+        if (locked[groupKey] !== allLocked) {
+          locked[groupKey] = allLocked;
+          const groupBtn = document.querySelector(`.lock-btn[data-group="${groupKey}"]`);
+          setLockButtonState(groupBtn, allLocked);
+          const wrap = groupWraps[groupKey];
+          if (wrap) wrap.classList.toggle('group-locked', allLocked);
+        }
+      }
+      function applySubLockState(subKey, isLocked, opts = {}) {
+        if (!(subKey in lockedSub)) return;
+        lockedSub[subKey] = !!isLocked;
+        const subBtn = document.querySelector(`.lock-btn[data-sub="${subKey}"]`);
+        setLockButtonState(subBtn, lockedSub[subKey]);
+        refreshOptionsForKey(subKey);
+        setSubStateByKey(subKey);
+        const parentGroup = subToGroupMap[subKey];
+        if (!opts.skipSync && parentGroup) syncGroupLockFromSubs(parentGroup);
+        if (!opts.skipPersist) persistCurrentState();
+      }
+      function applyGroupLockState(groupKey, isLocked, opts = {}) {
+        if (!(groupKey in locked)) return;
+        locked[groupKey] = !!isLocked;
+        const groupBtn = document.querySelector(`.lock-btn[data-group="${groupKey}"]`);
+        setLockButtonState(groupBtn, locked[groupKey]);
+        const wrap = groupWraps[groupKey];
+        if (wrap) wrap.classList.toggle('group-locked', locked[groupKey]);
+        const subKeys = groupOptionMap[groupKey] || [];
+        subKeys.forEach(subKey => {
+          applySubLockState(subKey, locked[groupKey], { skipPersist: true, skipSync: true });
+        });
+        syncGroupLockFromSubs(groupKey);
+        if (!opts.skipPersist) persistCurrentState();
+      }
+      function setSubStateByKey(subKey) {
+        if (!subKey) return;
+        const isEnabled = enabledSub[subKey] !== false;
+        const isLocked = !!lockedSub[subKey];
+        const titleEl = document.querySelector(`.sub-title[data-sub="${subKey}"]`);
+        const row = titleEl ? titleEl.closest('.sub-title-row') : null;
+        if (row) {
+          row.classList.toggle('sub-disabled', !isEnabled);
+          row.classList.toggle('sub-locked', isLocked);
+        }
+        const wrap = document.getElementById(subKey);
+        if (wrap) {
+          wrap.classList.toggle('sub-disabled', !isEnabled);
+          wrap.classList.toggle('sub-locked', isLocked);
+          wrap.querySelectorAll('.option').forEach(btn => btn.classList.toggle('disabled', !isEnabled || isLocked));
+        }
+        const visBtn = document.querySelector(`.visibility-btn[data-sub="${subKey}"]`);
+        setVisibilityButtonState(visBtn, isEnabled);
+      }
+      const collapsedGroups = {};
+      const collapsedSub = {};
+      const optionListenerElements = new WeakSet();
+      function bindOptionContainer(el, key) {
+        if (!el || optionListenerElements.has(el)) return;
+        el.addEventListener('click', e => {
+          const t = e.target;
+          if (!t.classList.contains('option')) return;
+          if (uiMode !== 'expanded') return;
+          if (!enabledSub[key] || lockedSub[key]) return;
+          const v = Number(t.dataset.idx);
+          state[key] = v;
+          el.querySelectorAll('.option').forEach(btn => btn.classList.remove('active'));
+          t.classList.add('active');
+          composeAndRender();
+        });
+        optionListenerElements.add(el);
+      }
+      function parseCustomOptionsText(text) {
+        return (text || '').split('\n').map(line => line.trim()).filter(Boolean).map(line => {
+          const parts = line.split('|').map(v => v.trim()).filter(Boolean);
+          const zh = parts[0] || '';
+          const en = parts[1] || zh;
+          return { zh, en };
+        });
+      }
+      function createPresetId() {
+        return `preset_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+      }
+      function cloneSnapshotSection(value) {
+        return value && typeof value === 'object' ? { ...value } : {};
+      }
+      function normalizeSavedConfigs(list) {
+        if (!Array.isArray(list)) return [];
+        return list.map(entry => {
+          if (!entry || typeof entry !== 'object') return null;
+          const name = (entry.name || '').trim();
+          if (!name) return null;
+          const snapshot = entry.snapshot && typeof entry.snapshot === 'object' ? entry.snapshot : {};
+          return {
+            id: entry.id || createPresetId(),
+            name,
+            snapshot: {
+              state: cloneSnapshotSection(snapshot.state),
+              enabled: cloneSnapshotSection(snapshot.enabled),
+              enabledSub: cloneSnapshotSection(snapshot.enabledSub),
+              locked: cloneSnapshotSection(snapshot.locked),
+              lockedSub: cloneSnapshotSection(snapshot.lockedSub),
+              descriptions: cloneSnapshotSection(snapshot.descriptions)
+            },
+            updatedAt: typeof entry.updatedAt === 'number' ? entry.updatedAt : Date.now()
+          };
+        }).filter(Boolean);
+      }
+      function syncCustomData() {
+        customDimensions = (customDimensions || []).map(dim => {
+          const id = dim.id || String(Date.now() + Math.random());
+          const key = dim.key || `custom_${id}`;
+          const name = dim.name || {};
+          const zhName = name.zh || dim.labelZh || '';
+          const enName = name.en || dim.labelEn || zhName;
+          const optionArray = Array.isArray(dim.options) ? dim.options : [];
+          const rawTextFallback = optionArray.map(opt => {
+            if (!opt) return '';
+            const zh = opt.zh || '';
+            const en = opt.en && opt.en !== zh ? ` | ${opt.en}` : '';
+            return `${zh}${en}`;
+          }).filter(Boolean).join('\n');
+          const rawText = dim.rawText ?? dim.optionsText ?? rawTextFallback;
+          const optionsList = parseCustomOptionsText(rawText);
+          return { id, key, name: { zh: zhName, en: enName }, rawText, options: optionsList };
+        });
+        customDimensions.forEach(dim => {
+          options[dim.key] = dim.options;
+          if (!(dim.key in state)) state[dim.key] = 0;
+          if (!(dim.key in enabledSub)) enabledSub[dim.key] = true;
+          if (!(dim.key in lockedSub)) lockedSub[dim.key] = false;
+        });
+        Object.keys(state).forEach(key => {
+          if (key.startsWith('custom_') && !customDimensions.some(dim => dim.key === key)) {
+            delete state[key];
+          }
+        });
+        Object.keys(enabledSub).forEach(key => {
+          if (key.startsWith('custom_') && !customDimensions.some(dim => dim.key === key)) delete enabledSub[key];
+        });
+        Object.keys(lockedSub).forEach(key => {
+          if (key.startsWith('custom_') && !customDimensions.some(dim => dim.key === key)) delete lockedSub[key];
+        });
+        Object.keys(options).forEach(key => {
+          if (key.startsWith('custom_') && !customDimensions.some(dim => dim.key === key)) {
+            delete options[key];
+          }
+        });
+      }
+      syncCustomData();
+      function init() {
+        renderOptions(els.hairStyle, options.hairStyle, state.hairStyle, 'hairStyle');
+        renderOptions(els.hairColor, options.hairColor, state.hairColor, 'hairColor');
+        renderOptions(els.top, options.top, state.top, 'top');
+        renderOptions(els.nails, options.nails, state.nails, 'nails');
+        renderOptions(els.earrings, options.earrings, state.earrings, 'earrings');
+        renderOptions(els.rings, options.rings, state.rings, 'rings');
+        renderOptions(els.makeupStyle, options.makeupStyle, state.makeupStyle, 'makeupStyle');
+        renderOptions(els.blush, options.blush, state.blush, 'blush');
+        renderOptions(els.eyeliner, options.eyeliner, state.eyeliner, 'eyeliner');
+        renderOptions(els.eyelashes, options.eyelashes, state.eyelashes, 'eyelashes');
+        renderOptions(els.eyebrows, options.eyebrows, state.eyebrows, 'eyebrows');
+        renderOptions(els.lips, options.lips, state.lips, 'lips');
+        renderOptions(els.hands, options.hands, state.hands, 'hands');
+        renderOptions(els.expression, options.expression, state.expression, 'expression');
+        renderOptions(els.cameraAngle, options.cameraAngle, state.cameraAngle, 'cameraAngle');
+        renderOptions(els.cameraType, options.cameraType, state.cameraType, 'cameraType');
+        renderOptions(els.aspectRatio, options.aspectRatio, state.aspectRatio, 'aspectRatio');
+        renderOptions(els.bgColor, options.bgColor, state.bgColor, 'bgColor');
+        renderOptions(els.bgEffect, options.bgEffect, state.bgEffect, 'bgEffect');
+        renderOptions(els.lighting, options.lighting, state.lighting, 'lighting');
+        renderOptions(els.mood, options.mood, state.mood, 'mood');
+        renderOptions(els.quality, options.quality, state.quality, 'quality');
+        renderOptions(els.skinTexture, options.skinTexture, state.skinTexture, 'skinTexture');
+        renderOptions(els.ageShift, options.ageShift, state.ageShift, 'ageShift');
+        renderCustomDimensions();
+        Object.keys(enabledSub).forEach(key => setSubStateByKey(key));
+        renderSavedConfigsList();
+        applyLabels();
+        composeAndRender();
+      }
+
+      function pick(list, idx) {
+        if (!Array.isArray(list) || list.length === 0) return '';
+        const opt = list[idx] ?? list[0];
+        if (!opt) return '';
+        return opt.value || opt[current.lang];
+      }
+      function getState() {
+        return {
+          hairStyle: pick(options.hairStyle, state.hairStyle),
+          hairColor: pick(options.hairColor, state.hairColor),
+          top: pick(options.top, state.top),
+          nails: pick(options.nails, state.nails),
+          earrings: pick(options.earrings, state.earrings),
+          rings: pick(options.rings, state.rings),
+          makeupStyle: pick(options.makeupStyle, state.makeupStyle),
+          blush: pick(options.blush, state.blush),
+          eyeliner: pick(options.eyeliner, state.eyeliner),
+          eyelashes: pick(options.eyelashes, state.eyelashes),
+          eyebrows: pick(options.eyebrows, state.eyebrows),
+          lips: pick(options.lips, state.lips),
+          hands: pick(options.hands, state.hands),
+          expression: pick(options.expression, state.expression),
+          cameraAngle: pick(options.cameraAngle, state.cameraAngle),
+          cameraType: pick(options.cameraType, state.cameraType),
+          aspectRatio: pick(options.aspectRatio, state.aspectRatio),
+          bgColor: pick(options.bgColor, state.bgColor),
+          bgEffect: pick(options.bgEffect, state.bgEffect),
+          lighting: pick(options.lighting, state.lighting),
+          mood: pick(options.mood, state.mood),
+          quality: pick(options.quality, state.quality),
+          skinTexture: pick(options.skinTexture, state.skinTexture),
+          ageShift: pick(options.ageShift, state.ageShift),
+          description: descriptions[current.lang],
+          lightingCondition: defaults.camera.lighting_condition
+        };
+      }
+
+      function composeJsonObject(s) {
+        const obj = {
+          description: s.description,
+          style: { mood: s.mood }
+        };
+        if (enabled.hairStyle || enabled.hairColor) {
+          obj.hair = {};
+          if (enabled.hairStyle && enabledSub.hairStyle) obj.hair.style = s.hairStyle;
+          if (enabled.hairColor && enabledSub.hairColor) obj.hair.color = s.hairColor;
+        }
+        if (enabled.clothing) {
+          obj.clothing = {};
+          if (enabledSub.top) obj.clothing.top = s.top;
+          obj.clothing.accessories = {};
+          if (enabledSub.earrings) obj.clothing.accessories.earrings = s.earrings;
+          if (enabledSub.rings) obj.clothing.accessories.rings = s.rings;
+          if (enabledSub.nails) obj.clothing.nails = s.nails;
+        }
+        if (enabled.makeup) {
+          obj.makeup = { style: enabledSub.makeupStyle ? s.makeupStyle : undefined, details: {} };
+          if (enabledSub.eyebrows) obj.makeup.details.eyebrows = s.eyebrows;
+          if (enabledSub.eyeliner) obj.makeup.details.eyeliner = s.eyeliner;
+          if (enabledSub.eyelashes) obj.makeup.details.eyelashes = s.eyelashes;
+          if (enabledSub.blush) obj.makeup.details.blush = s.blush;
+          if (enabledSub.lips) obj.makeup.details.lips = s.lips;
+          if (Object.keys(obj.makeup.details).length === 0) delete obj.makeup.details;
+          if (!obj.makeup.style) delete obj.makeup.style;
+        }
+        if (enabled.pose) {
+          obj.pose = {};
+          if (enabledSub.hands) obj.pose.hands = s.hands;
+          if (enabledSub.expression) obj.pose.expression = s.expression;
+          if (enabledSub.cameraAngle) obj.pose.camera_angle = s.cameraAngle;
+        }
+        if (enabled.composition) {
+          obj.composition = {};
+          if (enabledSub.aspectRatio) obj.composition.aspect_ratio = s.aspectRatio;
+          if (!Object.keys(obj.composition).length) delete obj.composition;
+        }
+        if (enabled.background) {
+          obj.background = {};
+          if (enabledSub.bgColor) obj.background.color = s.bgColor;
+          if (enabledSub.lighting) obj.background.lighting = s.lighting;
+          if (enabledSub.bgEffect) obj.background.effect = s.bgEffect;
+        }
+        if (enabled.style) {
+          obj.style = {};
+          if (enabledSub.mood) obj.style.mood = s.mood;
+        }
+        if (enabled.detail) {
+          obj.detail = {};
+          if (enabledSub.quality) obj.detail.quality = s.quality;
+          if (enabledSub.skinTexture) obj.detail.skin_texture = s.skinTexture;
+          if (enabledSub.ageShift) obj.detail.age_adjustment = s.ageShift;
+          if (!Object.keys(obj.detail).length) delete obj.detail;
+        }
+        if (enabled.camera) {
+          obj.camera = {};
+          if (enabledSub.cameraType) obj.camera.type = s.cameraType;
+        }
+        if (customDimensions.length) {
+          obj.custom_dimensions = customDimensions.map(dim => {
+            const entries = options[dim.key] || [];
+            const sel = entries[state[dim.key]] || entries[0] || {};
+            const valueZh = sel.zh || '';
+            const valueEn = sel.en || sel.zh || '';
+            return {
+              key: dim.key,
+              name_zh: dim.name.zh,
+              name_en: dim.name.en || dim.name.zh,
+              value_zh: valueZh,
+              value_en: valueEn
+            };
+          });
+        }
+        return obj;
+      }
+
+      function composeAndRender() {
+        const s = getState();
+        const obj = composeJsonObject(s);
+        els.promptOutput.textContent = JSON.stringify(obj, null, 2);
+        maybeResetActivePreset();
+        persistCurrentState();
+      }
+
+      function persistCurrentState() {
+        const snapshot = {
+          state,
+          enabled,
+          enabledSub,
+          locked,
+          lockedSub,
+          customDimensions,
+          savedConfigs,
+          activeSavedConfigId,
+          uiMode,
+          currentLang: current.lang,
+          descriptions: { ...descriptions }
+        };
+        saveToStorage(snapshot);
+      }
+
+      let chipPopover = null;
+      let chipPopoverOutsideHandler = null;
+      function openChipPopover(target, key) {
+        closeChipPopover();
+        const menu = document.createElement('div');
+        menu.className = 'popover';
+        const ul = document.createElement('ul');
+        const list = options[key] || [];
+        list.forEach((opt, idx) => {
+          const li = document.createElement('li');
+          li.textContent = opt[current.lang];
+          li.addEventListener('click', () => {
+            state[key] = idx;
+            composeAndRender();
+            init();
+            closeChipPopover();
+          });
+          ul.appendChild(li);
+        });
+        menu.appendChild(ul);
+        document.body.appendChild(menu);
+        const rect = target.getBoundingClientRect();
+        menu.style.top = `${rect.bottom + window.scrollY + 8}px`;
+        menu.style.left = `${rect.left + window.scrollX}px`;
+        chipPopover = menu;
+        chipPopoverOutsideHandler = (e) => {
+          const isClickInsidePopover = chipPopover && chipPopover.contains(e.target);
+          const isTrigger = target.contains(e.target);
+          if (!isClickInsidePopover && !isTrigger) {
+            closeChipPopover();
+          }
+        };
+        setTimeout(() => { document.addEventListener('click', chipPopoverOutsideHandler); }, 0);
+      }
+      function closeChipPopover() {
+        if (chipPopover) {
+          chipPopover.remove();
+          chipPopover = null;
+        }
+        if (chipPopoverOutsideHandler) {
+          document.removeEventListener('click', chipPopoverOutsideHandler);
+          chipPopoverOutsideHandler = null;
+        }
+      }
+
+      function randomAllVisible() {
+        Object.entries(groupOptionMap).forEach(([group, keys]) => {
+          if (!enabled[group] || locked[group]) return;
+          keys.forEach(k => {
+            if (!enabledSub[k] || lockedSub[k]) return;
+            const list = options[k];
+            const idx = Math.floor(Math.random()*list.length);
+            state[k] = idx;
+            const el = els[k];
+            if (el) {
+              const chipOptions = el.querySelectorAll('.option');
+              if (chipOptions.length && uiMode === 'expanded') {
+                chipOptions.forEach(btn => {
+                  btn.classList.toggle('active', Number(btn.dataset.idx) === idx);
+                });
+              } else {
+                const sel = el.querySelector('select');
+                if (sel) sel.value = String(idx);
+              }
+            }
+          });
+        });
+        customDimensions.forEach(dim => {
+          const key = dim.key;
+          if (!enabledSub[key] || lockedSub[key]) return;
+          const list = options[key];
+          if (!list || !list.length) return;
+          state[key] = Math.floor(Math.random()*list.length);
+        });
+        if (uiMode === 'dropdown') {
+          closeChipPopover();
+          init();
+        } else {
+          composeAndRender();
+        }
+      }
+
+      async function copyTextToClipboard(text) {
+        if (!text) return false;
+        if (navigator?.clipboard?.writeText) {
+          try {
+            await navigator.clipboard.writeText(text);
+            return true;
+          } catch (e) {}
+        }
+        try {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.top = '-1000px';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          textarea.setSelectionRange(0, textarea.value.length);
+          const success = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          return success;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function showCopyFeedback() {
+        if (!els.copyPrompt) return;
+        els.copyPrompt.classList.remove('copy-error');
+        els.copyPrompt.classList.add('copied');
+        updateCopyLabel();
+        if (copyFeedbackTimer) clearTimeout(copyFeedbackTimer);
+        copyFeedbackTimer = setTimeout(() => {
+          els.copyPrompt?.classList.remove('copied');
+          updateCopyLabel();
+        }, 1600);
+      }
+
+      function showCopyError() {
+        if (!els.copyPrompt) return;
+        els.copyPrompt.classList.remove('copied');
+        els.copyPrompt.classList.add('copy-error');
+        updateCopyLabel();
+        if (copyFeedbackTimer) clearTimeout(copyFeedbackTimer);
+        copyFeedbackTimer = setTimeout(() => {
+          els.copyPrompt?.classList.remove('copy-error');
+          updateCopyLabel();
+        }, 1600);
+      }
+
+      function getCustomFormValues() {
+        return {
+          zh: (els.customNameZh?.value || '').trim(),
+          en: (els.customNameEn?.value || '').trim(),
+          rawText: (els.customOptionsInput?.value || '').trim()
+        };
+      }
+      function showCustomStatus(msg) {
+        if (els.customFormStatus) els.customFormStatus.textContent = msg || '';
+      }
+      function resetCustomForm() {
+        editingCustomId = null;
+        if (els.customNameZh) els.customNameZh.value = '';
+        if (els.customNameEn) els.customNameEn.value = '';
+        if (els.customOptionsInput) els.customOptionsInput.value = '';
+        showCustomStatus('');
+        updateCustomFormLabels();
+      }
+      function openCustomModal() {
+        if (els.customModalOverlay) {
+          els.customModalOverlay.classList.remove('hidden');
+          document.body.classList.add('modal-open');
+        }
+        setTimeout(() => { els.customNameZh?.focus(); }, 20);
+      }
+      function closeCustomModal() {
+        if (els.customModalOverlay) {
+          els.customModalOverlay.classList.add('hidden');
+        }
+        document.body.classList.remove('modal-open');
+        resetCustomForm();
+      }
+      function startEditingCustomDimension(id) {
+        const dim = customDimensions.find(d => d.id === id);
+        if (!dim) return;
+        editingCustomId = id;
+        if (els.customNameZh) els.customNameZh.value = dim.name.zh || '';
+        if (els.customNameEn) els.customNameEn.value = dim.name.en || '';
+        if (els.customOptionsInput) els.customOptionsInput.value = dim.rawText || '';
+        showCustomStatus('');
+        updateCustomFormLabels();
+        openCustomModal();
+      }
+      function deleteCustomDimension(id) {
+        if (!customDimensions.some(dim => dim.id === id)) return;
+        const confirmText = uiText.customDeleteConfirm[current.lang];
+        if (confirmText && !window.confirm(confirmText)) return;
+        customDimensions = customDimensions.filter(dim => dim.id !== id);
+        syncCustomData();
+        closeCustomModal();
+        init();
+        persistCurrentState();
+      }
+      function handleCustomSave() {
+        const { zh, en, rawText } = getCustomFormValues();
+        const lang = current.lang;
+        if (!zh) { showCustomStatus(uiText.customErrorName[lang]); return; }
+        const optionsList = parseCustomOptionsText(rawText);
+        if (!optionsList.length) { showCustomStatus(uiText.customErrorOptions[lang]); return; }
+        const payload = {
+          id: editingCustomId || String(Date.now()),
+          name: { zh, en: en || zh },
+          rawText
+        };
+        if (editingCustomId) {
+          customDimensions = customDimensions.map(dim => dim.id === editingCustomId ? payload : dim);
+        } else {
+          customDimensions.push(payload);
+        }
+        syncCustomData();
+        closeCustomModal();
+        init();
+        persistCurrentState();
+      }
+
+      function bindClicks() {
+        Object.entries(els).forEach(([k, el]) => {
+          if (!options[k]) return;
+          bindOptionContainer(el, k);
+        });
+        els.descriptionInput?.addEventListener('input', () => {
+          descriptions[current.lang] = els.descriptionInput.value;
+          composeAndRender();
+        });
+        els.langZh.addEventListener('click', () => { current.lang = 'zh'; updateLangClass(); els.langZh.classList.add('active'); els.langEn.classList.remove('active'); init(); composeAndRender(); });
+        els.langEn.addEventListener('click', () => { current.lang = 'en'; updateLangClass(); els.langEn.classList.add('active'); els.langZh.classList.remove('active'); init(); composeAndRender(); });
+        document.querySelectorAll('.visibility-btn').forEach(btn => {
+          const g = btn.dataset.group;
+          const subKey = btn.dataset.sub;
+          if (g) setVisibilityButtonState(btn, enabled[g]);
+          if (subKey) setVisibilityButtonState(btn, enabledSub[subKey]);
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (g) {
+              enabled[g] = !enabled[g];
+              setGroupStateByKey(g, enabled[g]);
+              setVisibilityButtonState(btn, enabled[g]);
+            } else if (subKey) {
+              enabledSub[subKey] = !enabledSub[subKey];
+              setSubStateByKey(subKey);
+            }
+            composeAndRender();
+          });
+        });
+        document.querySelectorAll('.collapse-btn').forEach(btn => {
+          const g = btn.dataset.group;
+          if (!g) return;
+          if (!(g in collapsedGroups)) collapsedGroups[g] = false;
+          const applyState = (collapsed) => {
+            collapsedGroups[g] = collapsed;
+            const wrap = groupWraps[g];
+            if (wrap) wrap.classList.toggle('collapsed', collapsed);
+            btn.classList.toggle('collapsed', collapsed);
+            btn.setAttribute('aria-expanded', String(!collapsed));
+          };
+          applyState(collapsedGroups[g]);
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyState(!collapsedGroups[g]);
+          });
+        });
+        document.querySelectorAll('.sub-collapse').forEach(btn => {
+          const key = btn.dataset.subTarget;
+          if (!key) return;
+          if (!(key in collapsedSub)) collapsedSub[key] = false;
+          const wrap = document.getElementById(key);
+          const applySubState = (collapsed) => {
+            collapsedSub[key] = collapsed;
+            if (wrap) wrap.classList.toggle('collapsed', collapsed);
+            btn.classList.toggle('collapsed', collapsed);
+            btn.setAttribute('aria-expanded', String(!collapsed));
+          };
+          applySubState(collapsedSub[key]);
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applySubState(!collapsedSub[key]);
+          });
+        });
+        document.querySelectorAll('.lock-btn').forEach(btn => {
+          const g = btn.dataset.group;
+          const sKey = btn.dataset.sub;
+          const initialState = g ? locked[g] : lockedSub[sKey];
+          setLockButtonState(btn, initialState);
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const g = btn.dataset.group;
+            const sKey = btn.dataset.sub;
+            if (g) {
+              applyGroupLockState(g, !locked[g]);
+            } else if (sKey) {
+              applySubLockState(sKey, !lockedSub[sKey]);
+            }
+          });
+        });
+        els.savedPanelToggle?.addEventListener('click', (e) => {
+          e.preventDefault();
+          openSaveModal();
+        });
+        els.modeToggle.addEventListener('click', () => {
+          uiMode = uiMode === 'dropdown' ? 'expanded' : 'dropdown';
+          updateModeToggleLabel();
+          init();
+          composeAndRender();
+        });
+      }
+      els.randomAll.addEventListener('click', randomAllVisible);
+      els.copyPrompt.addEventListener('click', async () => {
+        const t = (els.promptOutput.textContent || '').trim();
+        if (!t) return;
+        const success = await copyTextToClipboard(t);
+        if (success) {
+          showCopyFeedback();
+        } else {
+          showCopyError();
+        }
+      });
+      els.presetModalSave?.addEventListener('click', e => { e.preventDefault(); handleSavePreset(); });
+      els.presetModalCancel?.addEventListener('click', e => { e.preventDefault(); closeSaveModal(); });
+      els.presetModalOverlay?.addEventListener('click', e => {
+        if (e.target === els.presetModalOverlay) closeSaveModal();
+      });
+      els.presetModalInput?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleSavePreset();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeSaveModal();
+        }
+      });
+      els.customSaveBtn?.addEventListener('click', e => { e.preventDefault(); handleCustomSave(); });
+      els.customCancelBtn?.addEventListener('click', e => { e.preventDefault(); closeCustomModal(); });
+      els.customAddTrigger?.addEventListener('click', e => { e.preventDefault(); resetCustomForm(); openCustomModal(); });
+      els.customModalClose?.addEventListener('click', e => { e.preventDefault(); closeCustomModal(); });
+      els.customModalOverlay?.addEventListener('click', e => {
+        if (e.target === els.customModalOverlay) closeCustomModal();
+      });
+      
+
+      init();
+      bindClicks();
+</script>
+  </body>
+</html>
