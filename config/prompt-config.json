@@ -1,0 +1,2030 @@
+{
+  "meta": {
+    "version": "2024-11-21",
+    "defaultDimensionSet": "full",
+    "generatedAt": "2025-11-27T20:41:55.860Z"
+  },
+  "defaults": {
+    "subject": "Modern Neo-Wa Portrait",
+    "description": "Analyze the provided base photo, preserve the subject's exact identity, and refine complexion, makeup detailing, wardrobe textures, and studio lighting to craft a fresh, translucent, rosy modern Wa-inspired portrait.",
+    "style": {
+      "genre": "Modern Wa-inspired studio portrait",
+      "mood": "Fresh, luminous, elegant, regal",
+      "aesthetic": "High-end studio polish emphasizing translucent luminous skin"
+    },
+    "hair": {
+      "style": "Refined half-up bun with sleek trailing straight pieces and mirror-like shine",
+      "accessory": "Gold metallic hair ornament with sculpted white petals and pearls",
+      "color": "Glossy deep black-brown"
+    },
+    "clothing": {
+      "top": "Modern Wa-inspired kimono with luminous gold sheen and sculpted off-shoulder sleeves",
+      "material": "High-fashion silk with fluid iridescent gold sheen",
+      "pattern": "Vivid raised red and blue floral embroidery with classic Japanese motifs",
+      "details": "Wide off-shoulder sleeves showcasing graceful neck and collarbones",
+      "obi": "Deep navy structured obi belt with crisp woven texture",
+      "accessories": {
+        "earrings": "High-shine gold pearl drop earrings",
+        "rings": "Minimalist polished gold ring"
+      },
+      "nails": "Sheer pink jelly nails with a plump glossy finish"
+    },
+    "makeup": {
+      "style": "Sheer water-glow makeup that amplifies healthy color",
+      "details": {
+        "eyebrows": "Delicate curved brows with visible hair texture",
+        "eyeliner": "Defined inner tightline with translucent wash",
+        "eyelashes": "Individually separated natural lashes with gentle curl",
+        "blush": "Soft peach or coral blush buffed broadly across the cheeks",
+        "lips": "Juicy peach jelly lips with mirror-like shine",
+        "eye": "Clear almond eyes with a subtle smile, translucent eyeshadow, and steady gaze",
+        "contour": "Light sculpting to enhance natural facial structure"
+      }
+    },
+    "skin": {
+      "tone": "Fair, rosy, and luminous with healthy translucency",
+      "texture": "Fine, poreless, hydrated glass skin with resilience",
+      "highlight": "T-zone, cheekbones, and chin brushed with delicate highlights"
+    },
+    "pose": {
+      "hands": "Hands gracefully crossed at the waist, fingers long and relaxed",
+      "shoulder": "Open bare shoulders with pronounced collarbones and luminous skin",
+      "expression": "Warm, confident micro-smile gazing softly into the lens",
+      "posture": "Elegant front-facing seated posture",
+      "camera_angle": "Eye-level studio angle focused on the subject's face"
+    },
+    "background": {
+      "type": "High-end studio backdrop",
+      "color": "Immaculate pale gray-to-white gradient",
+      "elements": "Graceful cherry blossom branches with delicate petals",
+      "effect": "Soft layered gradient wash",
+      "lighting": "Layered soft studio lights with key, rim, and fill for luminous transparency"
+    },
+    "detail": {
+      "quality": "Ultra high-resolution capture revealing strands, pores, and silk textures",
+      "render": "Photorealistic rendering that emphasizes true material sheen",
+      "skinTexture": "Fine, poreless, hydrated glass skin with resilience",
+      "skinTone": "Fair rosy luminosity that looks healthy",
+      "skinHighlight": "Delicate highlights along the T-zone, cheekbones, and chin",
+      "age": "Maintains the subject's true age while enhancing healthy radiance"
+    },
+    "camera": {
+      "type": "Soft-light digital portrait setup",
+      "lighting_condition": "Studio"
+    },
+    "composition": {
+      "frame": "Half-length portrait with disciplined studio framing",
+      "aspect_ratio": "3:4"
+    }
+  },
+  "descriptions": {
+    "en": "Analyze the provided base photo, preserve the subject's exact identity, and refine complexion, makeup detailing, wardrobe textures, and studio lighting to craft a fresh, translucent, rosy modern Wa-inspired portrait.",
+    "zh": "基于原始图像，对人物气色、妆容细节、服饰质感及环境光影进行全方位优化，打造清新透亮、气色红润的现代和风影棚写真。"
+  },
+  "uiLabels": {
+    "groups": {
+      "hairStyle": {
+        "zh": "头发与发饰",
+        "en": "Hair Styling"
+      },
+      "hairColor": {
+        "zh": "发色",
+        "en": "Hair Color"
+      },
+      "clothing": {
+        "zh": "服饰与饰品",
+        "en": "Clothing & Accessories"
+      },
+      "makeup": {
+        "zh": "妆容",
+        "en": "Makeup"
+      },
+      "pose": {
+        "zh": "姿态与机位",
+        "en": "Pose & Camera"
+      },
+      "composition": {
+        "zh": "构图比例",
+        "en": "Composition"
+      },
+      "background": {
+        "zh": "背景与光线",
+        "en": "Background & Lighting"
+      },
+      "style": {
+        "zh": "风格",
+        "en": "Style"
+      },
+      "detail": {
+        "zh": "画质与细节",
+        "en": "Quality & Detail"
+      },
+      "camera": {
+        "zh": "相机",
+        "en": "Camera"
+      }
+    },
+    "subs": {
+      "hairStyle": {
+        "zh": "头发造型",
+        "en": "Hair Style"
+      },
+      "hairAccessory": {
+        "zh": "发饰",
+        "en": "Hair Accessory"
+      },
+      "top": {
+        "zh": "上衣",
+        "en": "Top"
+      },
+      "earrings": {
+        "zh": "耳饰",
+        "en": "Earrings"
+      },
+      "rings": {
+        "zh": "戒指",
+        "en": "Rings"
+      },
+      "nails": {
+        "zh": "指甲",
+        "en": "Nails"
+      },
+      "garmentMaterial": {
+        "zh": "布料材质",
+        "en": "Fabric"
+      },
+      "garmentPattern": {
+        "zh": "图案纹样",
+        "en": "Pattern"
+      },
+      "garmentDetail": {
+        "zh": "剪裁细节",
+        "en": "Styling Details"
+      },
+      "obi": {
+        "zh": "腰封",
+        "en": "Obi / Belt"
+      },
+      "makeupStyle": {
+        "zh": "妆容风格",
+        "en": "Makeup Style"
+      },
+      "eyebrows": {
+        "zh": "眉毛",
+        "en": "Eyebrows"
+      },
+      "eyeliner": {
+        "zh": "眼线",
+        "en": "Eyeliner"
+      },
+      "eyelashes": {
+        "zh": "睫毛",
+        "en": "Eyelashes"
+      },
+      "eyeDetail": {
+        "zh": "眼部细节",
+        "en": "Eye Detail"
+      },
+      "blush": {
+        "zh": "腮红",
+        "en": "Blush"
+      },
+      "contour": {
+        "zh": "修容",
+        "en": "Contour"
+      },
+      "lips": {
+        "zh": "唇妆",
+        "en": "Lips"
+      },
+      "hands": {
+        "zh": "手部动作",
+        "en": "Hand Pose"
+      },
+      "shoulderPose": {
+        "zh": "肩颈姿态",
+        "en": "Shoulder Pose"
+      },
+      "expression": {
+        "zh": "表情",
+        "en": "Expression"
+      },
+      "posture": {
+        "zh": "整体姿势",
+        "en": "Posture"
+      },
+      "cameraAngle": {
+        "zh": "机位角度",
+        "en": "Camera Angle"
+      },
+      "frame": {
+        "zh": "构图范围",
+        "en": "Framing"
+      },
+      "aspectRatio": {
+        "zh": "画面比例",
+        "en": "Aspect Ratio"
+      },
+      "backgroundType": {
+        "zh": "背景类型",
+        "en": "Background Type"
+      },
+      "bgColor": {
+        "zh": "背景色/墙体",
+        "en": "Background / Wall"
+      },
+      "backgroundElements": {
+        "zh": "背景元素",
+        "en": "Background Elements"
+      },
+      "bgEffect": {
+        "zh": "背景效果",
+        "en": "Background Effect"
+      },
+      "lighting": {
+        "zh": "光线条件",
+        "en": "Lighting Conditions"
+      },
+      "mood": {
+        "zh": "风格氛围",
+        "en": "Mood"
+      },
+      "genre": {
+        "zh": "题材类型",
+        "en": "Genre"
+      },
+      "aesthetic": {
+        "zh": "审美基调",
+        "en": "Aesthetic"
+      },
+      "cameraType": {
+        "zh": "相机类型",
+        "en": "Camera Type"
+      },
+      "quality": {
+        "zh": "画质",
+        "en": "Quality"
+      },
+      "skinTexture": {
+        "zh": "皮肤质感",
+        "en": "Skin Texture"
+      },
+      "skinTone": {
+        "zh": "肤色状态",
+        "en": "Skin Tone"
+      },
+      "skinHighlight": {
+        "zh": "高光区域",
+        "en": "Highlights"
+      },
+      "renderStyle": {
+        "zh": "渲染表现",
+        "en": "Render Style"
+      },
+      "ageShift": {
+        "zh": "年龄细化",
+        "en": "Age Adjustment"
+      }
+    }
+  },
+  "uiText": {
+    "title": {
+      "zh": "PromptPhoto 提示词生成器",
+      "en": "PromptPhoto Prompt Builder"
+    },
+    "dimensionHeading": {
+      "zh": "维度选择",
+      "en": "Dimension Picker"
+    },
+    "descriptionLabel": {
+      "zh": "整体描述",
+      "en": "Description"
+    },
+    "descriptionPlaceholder": {
+      "zh": "在此编辑整体描述…",
+      "en": "Edit the overall description…"
+    },
+    "descriptionHint": {
+      "zh": "内容会实时同步到 JSON description 字段。",
+      "en": "Text syncs to the JSON description field."
+    },
+    "modeDropdown": {
+      "zh": "下拉模式",
+      "en": "Dropdown Mode"
+    },
+    "modeExpanded": {
+      "zh": "展开模式",
+      "en": "Expanded Mode"
+    },
+    "random": {
+      "zh": "随机",
+      "en": "Random"
+    },
+    "copy": {
+      "zh": "复制",
+      "en": "Copy"
+    },
+    "copySuccess": {
+      "zh": "已复制",
+      "en": "Copied"
+    },
+    "copyError": {
+      "zh": "复制失败",
+      "en": "Copy failed"
+    },
+    "outputHeading": {
+      "zh": "JSON 输出",
+      "en": "JSON Output"
+    },
+    "customAddTrigger": {
+      "zh": "添加维度",
+      "en": "Add Dimension"
+    },
+    "customNameZhPlaceholder": {
+      "zh": "维度名称（中文）",
+      "en": "Dimension name (ZH)"
+    },
+    "customNameEnPlaceholder": {
+      "zh": "维度名称（英文）",
+      "en": "Dimension name (EN)"
+    },
+    "customOptionsPlaceholder": {
+      "zh": "每行：柔和光线 | Soft lighting",
+      "en": "Each line: Soft lighting | Translation"
+    },
+    "customHint": {
+      "zh": "每行使用“中文 | English”格式。",
+      "en": "Use “Chinese | English” per line."
+    },
+    "customSave": {
+      "zh": "添加维度",
+      "en": "Add Dimension"
+    },
+    "customSaveEdit": {
+      "zh": "保存更改",
+      "en": "Save Changes"
+    },
+    "customCancel": {
+      "zh": "取消",
+      "en": "Cancel"
+    },
+    "customModalAddTitle": {
+      "zh": "添加维度",
+      "en": "Add Dimension"
+    },
+    "customModalEditTitle": {
+      "zh": "编辑维度",
+      "en": "Edit Dimension"
+    },
+    "customModalClose": {
+      "zh": "关闭",
+      "en": "Close"
+    },
+    "customEdit": {
+      "zh": "编辑",
+      "en": "Edit"
+    },
+    "customDelete": {
+      "zh": "删除",
+      "en": "Delete"
+    },
+    "customDeleteConfirm": {
+      "zh": "确定要删除这个自定义维度吗？",
+      "en": "Delete this custom dimension?"
+    },
+    "customErrorName": {
+      "zh": "请输入维度名称。",
+      "en": "Please enter a dimension name."
+    },
+    "customErrorOptions": {
+      "zh": "请至少输入一个选项。",
+      "en": "Please provide at least one option."
+    },
+    "savedTitle": {
+      "zh": "配置缓存",
+      "en": "Saved Presets"
+    },
+    "savedDelete": {
+      "zh": "删除",
+      "en": "Delete"
+    },
+    "savedDeleteConfirm": {
+      "zh": "确定删除这个配置吗？",
+      "en": "Delete this preset?"
+    },
+    "savedErrorName": {
+      "zh": "请输入配置名称。",
+      "en": "Please enter a name."
+    },
+    "savedPanelToggle": {
+      "zh": "保存",
+      "en": "Save"
+    },
+    "savedModalTitle": {
+      "zh": "保存当前配置",
+      "en": "Save Current Preset"
+    },
+    "savedModalPlaceholder": {
+      "zh": "输入名称",
+      "en": "Preset name"
+    },
+    "savedModalSave": {
+      "zh": "保存",
+      "en": "Save"
+    },
+    "savedModalCancel": {
+      "zh": "取消",
+      "en": "Cancel"
+    },
+    "presetSidebarTitle": {
+      "zh": "预设库",
+      "en": "Preset Library"
+    },
+    "presetSearchPlaceholder": {
+      "zh": "搜索名称、描述或标签…",
+      "en": "Search name, description, or tags…"
+    },
+    "presetTagEmpty": {
+      "zh": "暂无标签",
+      "en": "No tags yet"
+    },
+    "presetNoPresets": {
+      "zh": "当前还没有保存的预设。",
+      "en": "No presets saved yet."
+    },
+    "presetNoResults": {
+      "zh": "没有匹配的预设。",
+      "en": "No results."
+    },
+    "presetApply": {
+      "zh": "应用",
+      "en": "Apply"
+    },
+    "presetEdit": {
+      "zh": "编辑",
+      "en": "Edit"
+    },
+    "presetDelete": {
+      "zh": "删除",
+      "en": "Delete"
+    },
+    "presetTagsPlaceholder": {
+      "zh": "标签（逗号分隔）",
+      "en": "Tags (comma separated)"
+    },
+    "presetThumbnailPlaceholder": {
+      "zh": "缩略图 URL（可选）",
+      "en": "Thumbnail URL (optional)"
+    },
+    "presetThumbnailDropHint": {
+      "zh": "粘贴图片链接，或拖入图片自动生成 Data URL。",
+      "en": "Paste an image URL or drop a file to auto-generate a data URL."
+    },
+    "presetThumbnailDropSuccess": {
+      "zh": "已载入图片并填充 Data URL。",
+      "en": "Image loaded and data URL applied."
+    },
+    "presetThumbnailDropError": {
+      "zh": "只能拖入图片文件。",
+      "en": "Only image files can be dropped here."
+    }
+  },
+  "options": {
+    "hairStyle": [
+      {
+        "en": "Long dark brown hair, side part on the left, Korean-style loose curls at the ends, small front strands, hair blowing slightly across the face",
+        "zh": "深棕色长发，左侧偏分，韩系尾部自然大卷，碎发轻拂脸颊"
+      },
+      {
+        "en": "Medium-length hair, soft waves, curtain bangs",
+        "zh": "中长发，柔和波浪卷，窗帘刘海"
+      },
+      {
+        "en": "Straight long hair, center part, silky texture",
+        "zh": "直发长发，中分，顺滑质感"
+      },
+      {
+        "en": "Short bob, subtle waves, side-swept bangs",
+        "zh": "短波波头，微卷，侧分刘海"
+      },
+      {
+        "en": "Loose messy bun with face-framing tendrils",
+        "zh": "慵懒松散丸子头，碎发勾勒脸部"
+      },
+      {
+        "en": "Low ribbon ponytail with gentle outward curls",
+        "zh": "低马尾配缎带，尾端柔和外卷"
+      },
+      {
+        "en": "Shoulder-length blunt cut with airy micro bangs",
+        "zh": "及肩平直发，空气刘海"
+      },
+      {
+        "en": "Long braided pigtails with playful texture",
+        "zh": "长双麻花辫，俏皮质感"
+      },
+      {
+        "en": "Long sleek center-part hair with face-framing baby braids braided tight near the roots",
+        "zh": "中分长直发，脸颊两侧贴头皮细麻花小辫"
+      },
+      {
+        "en": "Refined half-up bun with sleek trailing straight pieces and mirror-like shine",
+        "zh": "精致半高盘发，两侧垂顺直发，发丝光泽感强"
+      }
+    ],
+    "hairColor": [
+      {
+        "en": "Dark brown",
+        "zh": "深棕色"
+      },
+      {
+        "en": "Natural black",
+        "zh": "自然黑"
+      },
+      {
+        "en": "Warm chestnut brown",
+        "zh": "温暖栗棕"
+      },
+      {
+        "en": "Ash brown",
+        "zh": "亚麻棕"
+      },
+      {
+        "en": "Soft caramel brown",
+        "zh": "焦糖棕"
+      },
+      {
+        "en": "Cool ash blonde",
+        "zh": "冷亚麻金"
+      },
+      {
+        "en": "Rose gold",
+        "zh": "玫瑰金"
+      },
+      {
+        "en": "Deep burgundy",
+        "zh": "深勃艮第红"
+      },
+      {
+        "en": "Glossy deep black-brown",
+        "zh": "富有光泽的深黑棕色"
+      }
+    ],
+    "hairAccessory": [
+      {
+        "en": "Minimal silk ribbon accent",
+        "zh": "简约丝绸发带点缀"
+      },
+      {
+        "en": "Gold metallic hair ornament with sculpted white petals and pearls",
+        "zh": "金色金属发饰，点缀立体白色花瓣与珍珠"
+      }
+    ],
+    "top": [
+      {
+        "en": "Oversized blue striped knit sweater with white stripes",
+        "zh": "宽松蓝白条纹针织毛衣"
+      },
+      {
+        "en": "Cozy navy knit sweater",
+        "zh": "舒适海军蓝针织毛衣"
+      },
+      {
+        "en": "Light blue cable-knit sweater",
+        "zh": "浅蓝色麻花针织毛衣"
+      },
+      {
+        "en": "Blue-gray ribbed knit pullover",
+        "zh": "蓝灰色罗纹套头衫"
+      },
+      {
+        "en": "Cream knit cardigan with wooden buttons",
+        "zh": "奶油色木扣针织开衫"
+      },
+      {
+        "en": "Charcoal oversized hoodie",
+        "zh": "木炭灰宽松连帽衫"
+      },
+      {
+        "en": "Pastel pink mohair sweater",
+        "zh": "粉彩粉色马海毛毛衣"
+      },
+      {
+        "en": "Beige trench coat layered over a white tee",
+        "zh": "米色风衣叠穿白 T"
+      },
+      {
+        "en": "Oatmeal ribbed knit cardigan with large tortoise shell buttons layered over a white crewneck tee",
+        "zh": "燕麦色罗纹针织开衫配玳瑁大纽扣，内搭白色圆领 T 恤"
+      },
+      {
+        "en": "Modern Wa-inspired kimono with luminous gold sheen and sculpted off-shoulder sleeves",
+        "zh": "改良和风和服，金色光泽，雕刻感露肩宽袖"
+      }
+    ],
+    "garmentMaterial": [
+      {
+        "en": "Soft matte knit",
+        "zh": "柔软雾面针织"
+      },
+      {
+        "en": "High-fashion silk with fluid iridescent gold sheen",
+        "zh": "高定丝绸，流光溢彩的金色光泽"
+      }
+    ],
+    "garmentPattern": [
+      {
+        "en": "Minimal solid tone",
+        "zh": "极简纯色"
+      },
+      {
+        "en": "Vivid raised red and blue floral embroidery with classic Japanese motifs",
+        "zh": "鲜艳立体的红蓝花卉刺绣与传统日式纹样"
+      }
+    ],
+    "garmentDetail": [
+      {
+        "en": "Clean straight neckline",
+        "zh": "利落直线领口"
+      },
+      {
+        "en": "Wide off-shoulder sleeves showcasing graceful neck and collarbones",
+        "zh": "宽大露肩袖口，凸显优雅肩颈"
+      }
+    ],
+    "obi": [
+      {
+        "en": "Soft fabric belt",
+        "zh": "柔软布腰带"
+      },
+      {
+        "en": "Deep navy structured obi belt with crisp woven texture",
+        "zh": "质感深蓝色宽腰封，织纹清晰"
+      }
+    ],
+    "nails": [
+      {
+        "en": "Almond-shaped, blue with subtle sparkling crystals",
+        "zh": "杏仁形，蓝色搭配细微晶钻闪光"
+      },
+      {
+        "en": "Short natural nude nails",
+        "zh": "短款自然裸色"
+      },
+      {
+        "en": "Almond-shaped, navy gradient with shimmer",
+        "zh": "杏仁形，海军蓝渐变带微光"
+      },
+      {
+        "en": "Square blue nails, glossy finish",
+        "zh": "方形蓝色甲，亮面"
+      },
+      {
+        "en": "Glossy black almond nails with chrome tips",
+        "zh": "亮黑杏仁甲配铬色指尖"
+      },
+      {
+        "en": "Milky white squoval nails",
+        "zh": "奶白色方圆甲"
+      },
+      {
+        "en": "Sheer pink jelly nails with glitter flakes",
+        "zh": "半透粉色果冻甲点缀细闪"
+      },
+      {
+        "en": "Almond-shaped, semi-transparent creamy pink with subtle pearlescent glow",
+        "zh": "杏仁形，半透明奶油粉色带微珠光"
+      }
+    ],
+    "earrings": [
+      {
+        "en": "Small simple silver hoops",
+        "zh": "小号简约银色圈耳环"
+      },
+      {
+        "en": "Minimal silver studs",
+        "zh": "极简银色耳钉"
+      },
+      {
+        "en": "Tiny pearl studs",
+        "zh": "小巧珍珠耳钉"
+      },
+      {
+        "en": "Thin oval silver hoops",
+        "zh": "纤细椭圆银圈耳环"
+      },
+      {
+        "en": "Small gold huggie hoops",
+        "zh": "小巧金色贴耳圈"
+      },
+      {
+        "en": "Asymmetric geometric earrings",
+        "zh": "不对称几何耳饰"
+      },
+      {
+        "en": "Delicate chain drop earrings",
+        "zh": "纤细链条垂坠耳环"
+      },
+      {
+        "en": "High-shine gold pearl drop earrings",
+        "zh": "高光泽度金色珍珠垂坠耳饰"
+      }
+    ],
+    "rings": [
+      {
+        "en": "Delicate silver rings",
+        "zh": "细致银色戒指"
+      },
+      {
+        "en": "Stacked minimalist silver bands",
+        "zh": "叠戴极简银戒"
+      },
+      {
+        "en": "Single thin silver band",
+        "zh": "单只细银戒"
+      },
+      {
+        "en": "Geometric silver ring",
+        "zh": "几何银戒"
+      },
+      {
+        "en": "Stacked rose gold rings with tiny gems",
+        "zh": "叠戴玫瑰金戒指镶小钻"
+      },
+      {
+        "en": "Minimal open-ended ring",
+        "zh": "极简开口戒"
+      },
+      {
+        "en": "Vintage-style signet ring",
+        "zh": "复古印章戒"
+      },
+      {
+        "en": "Minimalist polished gold ring",
+        "zh": "精致简约金色戒指"
+      }
+    ],
+    "makeupStyle": [
+      {
+        "en": "Korean-style makeup",
+        "zh": "韩系妆容"
+      },
+      {
+        "en": "Soft natural makeup",
+        "zh": "柔和自然妆"
+      },
+      {
+        "en": "Clean girl makeup",
+        "zh": "清爽 clean girl 妆"
+      },
+      {
+        "en": "Soft glam evening makeup",
+        "zh": "柔雾晚宴妆"
+      },
+      {
+        "en": "Dewy glass-skin makeup",
+        "zh": "水光玻璃肌妆"
+      },
+      {
+        "en": "Retro 90s supermodel makeup",
+        "zh": "复古 90 年代超模妆"
+      },
+      {
+        "en": "No-makeup Korean glass skin with innocent pure vibe",
+        "zh": "清透伪素颜韩系水光肌，纯欲风"
+      },
+      {
+        "en": "Soft natural pink-tinted dewy makeup",
+        "zh": "柔和自然的粉嫩光泽妆"
+      },
+      {
+        "en": "Sheer water-glow makeup that enhances natural rosy complexion",
+        "zh": "清透水光妆，强调自然红润好气色"
+      }
+    ],
+    "blush": [
+      {
+        "en": "Light nude on cheeks, soft red on nose",
+        "zh": "面颊浅裸色，鼻尖柔红"
+      },
+      {
+        "en": "Subtle peach on cheeks",
+        "zh": "面颊淡蜜桃色"
+      },
+      {
+        "en": "Soft pink across cheeks and nose",
+        "zh": "面颊与鼻梁柔粉"
+      },
+      {
+        "en": "Sun-kissed draping blush",
+        "zh": "仿晒晕染腮红"
+      },
+      {
+        "en": "Muted mauve across cheeks",
+        "zh": "低饱和豆沙腮红"
+      },
+      {
+        "en": "Peachy ombre blush",
+        "zh": "蜜桃渐层腮红"
+      },
+      {
+        "en": "Sakura pink blush diffused broadly across center cheeks for youthful radiance",
+        "zh": "樱花粉腮红大面积晕染面中，提升气色"
+      },
+      {
+        "en": "Natural peach or coral blush softly buffed across wide cheek area",
+        "zh": "自然蜜桃或珊瑚腮红，大面积柔和晕染双颊"
+      }
+    ],
+    "contour": [
+      {
+        "en": "Barely-there contour for gentle softness",
+        "zh": "若有似无的轻薄修容，保持柔和"
+      },
+      {
+        "en": "Light sculpting to enhance natural facial structure",
+        "zh": "轻微自然的修容，强调面部立体轮廓"
+      }
+    ],
+    "eyeliner": [
+      {
+        "en": "Soft, blurred Korean-style",
+        "zh": "柔和晕染韩系眼线"
+      },
+      {
+        "en": "Thin natural eyeliner",
+        "zh": "细自然眼线"
+      },
+      {
+        "en": "Soft winged liner",
+        "zh": "柔和上扬眼线"
+      },
+      {
+        "en": "Graphic inner-corner liner",
+        "zh": "内眼角线条感眼线"
+      },
+      {
+        "en": "Smoky brown liner",
+        "zh": "烟熏棕色眼线"
+      },
+      {
+        "en": "Subtle kitten liner",
+        "zh": "细致小猫眼线"
+      },
+      {
+        "en": "Invisible tightline with minimal eye makeup and no visible eyeshadow",
+        "zh": "极简眼妆，贴近内眼线，无明显眼影"
+      },
+      {
+        "en": "Soft blurred Korean-style brown eyeliner",
+        "zh": "细致柔化的韩系棕色眼线"
+      },
+      {
+        "en": "Defined inner tightline with translucent wash for luminous eyes",
+        "zh": "内眼线清晰有神，搭配清透眼影"
+      }
+    ],
+    "eyelashes": [
+      {
+        "en": "Thin false eyelashes",
+        "zh": "轻薄假睫毛"
+      },
+      {
+        "en": "Natural mascara",
+        "zh": "自然睫毛膏"
+      },
+      {
+        "en": "Feathery lashes",
+        "zh": "羽感睫毛"
+      },
+      {
+        "en": "Wispy doll lashes",
+        "zh": "根根分明洋娃娃睫毛"
+      },
+      {
+        "en": "Brown mascara with soft curl",
+        "zh": "棕色睫毛膏柔和卷翘"
+      },
+      {
+        "en": "Lifted lash extensions effect",
+        "zh": "根部上提睫毛嫁接效果"
+      },
+      {
+        "en": "Clean separated natural lashes with defined roots, zero clumps",
+        "zh": "根根分明的自然睫毛，根部清晰不结块"
+      },
+      {
+        "en": "Root-separated natural lashes with gentle curl and extra brightness",
+        "zh": "根根分明的自然卷翘睫毛，增添神采"
+      }
+    ],
+    "eyeDetail": [
+      {
+        "en": "Soft luminous gaze with subtle shimmer",
+        "zh": "柔和发光的双眼，点缀轻微闪片"
+      },
+      {
+        "en": "Clear almond eyes with a gentle smile, translucent eyeshadow, and steady gaze",
+        "zh": "清澈杏眼，含蓄微笑，清透眼影直视镜头"
+      }
+    ],
+    "eyebrows": [
+      {
+        "en": "Light natural and tidy",
+        "zh": "轻柔自然、清晰"
+      },
+      {
+        "en": "Soft arched brows",
+        "zh": "柔和弧形眉"
+      },
+      {
+        "en": "Straight natural brows",
+        "zh": "直线自然眉"
+      },
+      {
+        "en": "Feathered straight brows",
+        "zh": "自然羽感平眉"
+      },
+      {
+        "en": "Defined microbladed look",
+        "zh": "仿雾眉精致效果"
+      },
+      {
+        "en": "Soft angled brows with gradient",
+        "zh": "柔和渐变斜眉"
+      },
+      {
+        "en": "Delicate curved brows with visible hair texture",
+        "zh": "精致自然弯眉，毛流感清晰"
+      }
+    ],
+    "lips": [
+      {
+        "en": "Nude with a hint of red",
+        "zh": "裸色带一丝红润"
+      },
+      {
+        "en": "Soft rose tint",
+        "zh": "轻柔玫瑰色"
+      },
+      {
+        "en": "Blurred coral tint",
+        "zh": "朦胧珊瑚色"
+      },
+      {
+        "en": "Juicy cherry stain",
+        "zh": "樱桃水染唇"
+      },
+      {
+        "en": "Matte brick red",
+        "zh": "雾面砖红"
+      },
+      {
+        "en": "Glazed peach gloss",
+        "zh": "蜜桃玻璃唇"
+      },
+      {
+        "en": "Peach jelly lips with mirror gloss, soft pink and plump",
+        "zh": "蜜桃果冻镜面唇，嫩粉水嘟嘟"
+      },
+      {
+        "en": "Hydrated cherry stain with sheer gloss",
+        "zh": "水润樱桃染唇，轻透光泽"
+      },
+      {
+        "en": "Water-rich jelly lips in juicy peach pink with mirror shine",
+        "zh": "水润果冻唇，饱满蜜桃粉色，镜面光泽"
+      }
+    ],
+    "hands": [
+      {
+        "en": "Both hands gently touching cheeks",
+        "zh": "双手轻触脸颊"
+      },
+      {
+        "en": "One hand touching cheek",
+        "zh": "单手触脸"
+      },
+      {
+        "en": "Hands holding phone",
+        "zh": "手持手机"
+      },
+      {
+        "en": "Hands resting on chin",
+        "zh": "双手托下巴"
+      },
+      {
+        "en": "One hand playing with hair",
+        "zh": "单手撩发"
+      },
+      {
+        "en": "Hands tucked into sleeves",
+        "zh": "双手缩进袖口"
+      },
+      {
+        "en": "Hands gracefully crossed at the waist, fingers long and relaxed",
+        "zh": "双手优雅交叠于腰前，手指修长"
+      }
+    ],
+    "shoulderPose": [
+      {
+        "en": "Relaxed shoulders angled slightly",
+        "zh": "肩颈微微倾斜，状态放松"
+      },
+      {
+        "en": "Open bare shoulders with pronounced collarbones and luminous skin",
+        "zh": "舒展裸肩，锁骨分明且肌肤泛着光泽"
+      }
+    ],
+    "expression": [
+      {
+        "en": "Dreamy and slightly cheerful",
+        "zh": "迷离且微微愉悦"
+      },
+      {
+        "en": "Soft smile",
+        "zh": "轻柔微笑"
+      },
+      {
+        "en": "Calm and gentle",
+        "zh": "平静温柔"
+      },
+      {
+        "en": "Playful wink",
+        "zh": "俏皮眨眼"
+      },
+      {
+        "en": "Thoughtful gaze away from camera",
+        "zh": "若有所思偏视镜头"
+      },
+      {
+        "en": "Soft laughter mid-smile",
+        "zh": "柔和笑出声的瞬间"
+      },
+      {
+        "en": "Warm confident micro-smile with soft gaze into the lens",
+        "zh": "温柔自信的微笑，目光柔和直视镜头"
+      }
+    ],
+    "posture": [
+      {
+        "en": "Relaxed standing posture",
+        "zh": "自然放松的站姿"
+      },
+      {
+        "en": "Elegant front-facing seated posture",
+        "zh": "端庄典雅的正面坐姿"
+      }
+    ],
+    "cameraAngle": [
+      {
+        "en": "High-angle selfie, approx 30 degrees above the face",
+        "zh": "高位自拍，约 30° 俯拍"
+      },
+      {
+        "en": "Eye-level selfie",
+        "zh": "视线平视自拍"
+      },
+      {
+        "en": "Low-angle subtle tilt",
+        "zh": "低角度轻微倾斜"
+      },
+      {
+        "en": "Mirror selfie with slight tilt",
+        "zh": "镜前自拍轻微倾斜"
+      },
+      {
+        "en": "Overhead shot capturing shoulders",
+        "zh": "俯视拍肩颈"
+      },
+      {
+        "en": "Close crop from chin to forehead",
+        "zh": "从下巴到额头的近景裁切"
+      },
+      {
+        "en": "Eye-level studio angle focused on the subject's face",
+        "zh": "平视机位，聚焦人物面部"
+      }
+    ],
+    "cameraType": [
+      {
+        "en": "Analog 35mm camera flash",
+        "zh": "胶片 35mm 闪光"
+      },
+      {
+        "en": "Digital compact camera flash",
+        "zh": "数码卡片机闪光"
+      },
+      {
+        "en": "Smartphone flash",
+        "zh": "手机闪光"
+      },
+      {
+        "en": "DSLR with 50mm lens",
+        "zh": "搭配 50mm 镜头的单反"
+      },
+      {
+        "en": "Instant film camera",
+        "zh": "拍立得相机"
+      },
+      {
+        "en": "Vintage camcorder still frame",
+        "zh": "复古摄像机定格"
+      },
+      {
+        "en": "Soft-light digital portrait setup",
+        "zh": "柔光风格数字摄影"
+      }
+    ],
+    "frame": [
+      {
+        "en": "Tight close-up framing",
+        "zh": "紧凑特写构图"
+      },
+      {
+        "en": "Half-length portrait with disciplined studio framing",
+        "zh": "半身肖像，构图严谨"
+      }
+    ],
+    "aspectRatio": [
+      {
+        "value": "1:1",
+        "en": "1:1 Square",
+        "zh": "1:1 正方形"
+      },
+      {
+        "value": "3:4",
+        "en": "3:4 Portrait",
+        "zh": "3:4 竖幅"
+      },
+      {
+        "value": "2:3",
+        "en": "2:3 Classic portrait",
+        "zh": "2:3 经典竖幅"
+      },
+      {
+        "value": "4:5",
+        "en": "4:5 Portrait",
+        "zh": "4:5 竖幅"
+      },
+      {
+        "value": "9:16",
+        "en": "9:16 Vertical",
+        "zh": "9:16 竖屏"
+      },
+      {
+        "value": "6:19",
+        "en": "6:19 Vertical",
+        "zh": "6:19 竖幅"
+      },
+      {
+        "value": "5:4",
+        "en": "5:4 Classic print",
+        "zh": "5:4 经典尺寸"
+      },
+      {
+        "value": "16:9",
+        "en": "16:9 Wide",
+        "zh": "16:9 横幅"
+      },
+      {
+        "value": "21:9",
+        "en": "21:9 Cinematic",
+        "zh": "21:9 电影横幅"
+      }
+    ],
+    "backgroundType": [
+      {
+        "en": "Cozy indoor corner",
+        "zh": "舒适居家角落"
+      },
+      {
+        "en": "High-end studio backdrop",
+        "zh": "高级影棚背景"
+      }
+    ],
+    "bgColor": [
+      {
+        "en": "Dark wall with shallow depth, contrasting with flash lighting",
+        "zh": "深色墙面浅景深，与闪光形成对比"
+      },
+      {
+        "en": "Plain dark background with subtle texture",
+        "zh": "纯深色背景，轻微纹理"
+      },
+      {
+        "en": "Matte charcoal wall, shallow depth",
+        "zh": "哑光木炭灰墙面，浅景深"
+      },
+      {
+        "en": "Soft beige wall with warm undertone",
+        "zh": "暖调柔米色墙面"
+      },
+      {
+        "en": "Dusty pink backdrop",
+        "zh": "灰粉色背景"
+      },
+      {
+        "en": "Industrial concrete wall",
+        "zh": "工业感混凝土墙"
+      },
+      {
+        "en": "Deep forest green background",
+        "zh": "深森林绿背景"
+      },
+      {
+        "en": "Pristine pale gray-to-white gradient",
+        "zh": "干净无瑕的浅灰白渐变"
+      }
+    ],
+    "backgroundElements": [
+      {
+        "en": "Soft blurred props",
+        "zh": "柔焦道具点缀"
+      },
+      {
+        "en": "Graceful cherry blossom branches with delicate petals",
+        "zh": "上方点缀形态优美、细节真实的樱花枝"
+      }
+    ],
+    "bgEffect": [
+      {
+        "en": "Minimalist, modern, friendly, with slight reflective highlights",
+        "zh": "极简现代，友好氛围，略带反光高光"
+      },
+      {
+        "en": "Minimalist background, soft texture",
+        "zh": "极简背景，柔软质感"
+      },
+      {
+        "en": "Clean modern backdrop, slight sheen",
+        "zh": "干净现代背景，微微光泽"
+      },
+      {
+        "en": "Bokeh fairy lights behind the subject",
+        "zh": "背景虚化小灯串"
+      },
+      {
+        "en": "Subtle gradient wash",
+        "zh": "轻柔渐变晕染"
+      },
+      {
+        "en": "Textured plaster wall",
+        "zh": "带纹理的石膏墙面"
+      },
+      {
+        "en": "Neon rim-light haze",
+        "zh": "霓虹轮廓光雾感"
+      },
+      {
+        "en": "Soft layered gradient wash",
+        "zh": "柔和且具层次的渐变光影"
+      }
+    ],
+    "lighting": [
+      {
+        "en": "Cool dim light with flash highlighting the face, hair, skin, and clothing texture",
+        "zh": "冷色微暗环境，闪光强调脸部、头发、肌肤与针织质感"
+      },
+      {
+        "en": "Low ambient light with strong flash contrast",
+        "zh": "低环境光，闪光强对比"
+      },
+      {
+        "en": "Dim cool light, crisp flash",
+        "zh": "微暗冷色光，清晰闪光"
+      },
+      {
+        "en": "Split lighting with flash on one side",
+        "zh": "闪光单侧分割光"
+      },
+      {
+        "en": "Warm desk lamp mixed with cool flash",
+        "zh": "暖色台灯与冷闪混合"
+      },
+      {
+        "en": "Backlit hair light with fill flash",
+        "zh": "背光发光结合补光闪光"
+      },
+      {
+        "en": "Softbox-style diffused flash",
+        "zh": "柔光箱感扩散闪光"
+      },
+      {
+        "en": "Diffused soft light with gentle haze glow effect",
+        "zh": "漫射柔光，伴随轻微 haze glow 效果"
+      },
+      {
+        "en": "Layered soft studio lights with key, rim, and fill for luminous transparency",
+        "zh": "柔和多层的影棚布光，主光勾勒轮廓，辅光填补暗部"
+      }
+    ],
+    "genre": [
+      {
+        "en": "Modern portrait",
+        "zh": "现代人像"
+      },
+      {
+        "en": "Modern Wa-inspired studio portrait",
+        "zh": "现代和风写真"
+      }
+    ],
+    "mood": [
+      {
+        "en": "Film noir elegance",
+        "zh": "黑色电影式优雅"
+      },
+      {
+        "en": "Cozy minimalism",
+        "zh": "温暖极简"
+      },
+      {
+        "en": "Modern simplicity",
+        "zh": "现代简约"
+      },
+      {
+        "en": "Dreamy cyberpunk glow",
+        "zh": "梦幻赛博荧光"
+      },
+      {
+        "en": "Vintage film nostalgia",
+        "zh": "复古胶片怀旧"
+      },
+      {
+        "en": "High-fashion editorial",
+        "zh": "高定杂志感"
+      },
+      {
+        "en": "Whimsical coquette energy",
+        "zh": "俏皮 coquette 氛围"
+      },
+      {
+        "en": "Cozy innocent pure vibe with soft autumn casual energy",
+        "zh": "舒适纯欲氛围，温暖秋冬感"
+      },
+      {
+        "en": "Soft, pink, subtly sweet soft-girl vibe",
+        "zh": "柔软粉嫩、轻甜的 soft girl 气质"
+      },
+      {
+        "en": "Fresh, luminous, elegant, regal mood",
+        "zh": "清新、透亮、典雅、高贵"
+      }
+    ],
+    "aesthetic": [
+      {
+        "en": "Minimal cozy aesthetic",
+        "zh": "极简温暖质感"
+      },
+      {
+        "en": "High-end studio polish emphasizing translucent luminous skin",
+        "zh": "高级影棚质感，强调通透光泽肌"
+      }
+    ],
+    "quality": [
+      {
+        "en": "Ultra high-definition 4K clarity, crisp lens detail, zero noise",
+        "zh": "超高清 4K 画质，镜头清晰无噪点"
+      },
+      {
+        "en": "6K cinema-grade sharpness with immaculate texture rendering",
+        "zh": "6K 电影级锐度，质感完美呈现"
+      },
+      {
+        "en": "8K hyper-real photo realism, tack-sharp focus",
+        "zh": "8K 超写实效果，焦点极致锐利"
+      },
+      {
+        "en": "High-resolution RAW-style capture, deep dynamic range",
+        "zh": "高分辨率 RAW 风格捕捉，宽容度高"
+      },
+      {
+        "en": "High-resolution capture with gentle soft focus and luminous sheen",
+        "zh": "高解析但带轻柔焦，呈现细腻光泽感"
+      },
+      {
+        "en": "Ultra high-resolution capture revealing strands, pores, and silk texture",
+        "zh": "超高解析度呈现发丝、毛孔与丝缎纹理"
+      }
+    ],
+    "skinTexture": [
+      {
+        "en": "Water-plump glass skin, poreless glow, silky sheen",
+        "zh": "水嫩玻璃肌，毛孔隐形，丝滑高光"
+      },
+      {
+        "en": "Bouncy baby-skin texture with translucent dew",
+        "zh": "弹嫩婴儿肌质感，透亮水润"
+      },
+      {
+        "en": "Airbrushed yet realistic complexion, blurred imperfections",
+        "zh": "真实又磨皮的底妆，瑕疵柔化"
+      },
+      {
+        "en": "Hydrated, luminous skin with subtle reflections",
+        "zh": "高保湿亮泽肤感，带柔和反光"
+      },
+      {
+        "en": "Silky smooth, translucent skin with natural soft glow",
+        "zh": "细滑透亮、自然柔光肌"
+      },
+      {
+        "en": "Fine, poreless, hydrated glass skin with resilience",
+        "zh": "细腻无瑕的水光肌，富有弹性与透明感"
+      }
+    ],
+    "skinTone": [
+      {
+        "en": "Warm beige complexion",
+        "zh": "暖米色肤色"
+      },
+      {
+        "en": "Fair, rosy, and luminous with healthy translucency",
+        "zh": "白皙红润、透亮健康"
+      }
+    ],
+    "skinHighlight": [
+      {
+        "en": "Subtle highlights on cheekbones",
+        "zh": "颧骨轻柔高光"
+      },
+      {
+        "en": "T-zone, cheekbones, and chin brushed with delicate highlights",
+        "zh": "T 区、颧骨与下巴布置细腻自然高光"
+      }
+    ],
+    "renderStyle": [
+      {
+        "en": "Soft painterly finish",
+        "zh": "柔和绘画感"
+      },
+      {
+        "en": "Photorealistic rendering that emphasizes true material sheen",
+        "zh": "写实级渲染，强调材质真实光泽"
+      }
+    ],
+    "ageShift": [
+      {
+        "en": "Appears about 5 years younger while matching the reference identity",
+        "zh": "保持人物特征基础上，看起来年轻约 5 岁"
+      },
+      {
+        "en": "Appears 8 years younger with youthful vitality",
+        "zh": "整体年轻约 8 岁，状态青春"
+      },
+      {
+        "en": "Appears 10 years younger but unmistakably the same person",
+        "zh": "看起来年轻约 10 岁，但仍是同一人"
+      },
+      {
+        "en": "Subtle age rewind (3-5 years) keeping every defining trait",
+        "zh": "轻度逆龄 3-5 岁，保留所有特征"
+      },
+      {
+        "en": "Maintains the subject's true age while enhancing healthy radiance",
+        "zh": "维持真实年龄，仅放大全面健康红润感"
+      }
+    ]
+  },
+  "groupOptionMap": {
+    "hairStyle": [
+      "hairStyle",
+      "hairAccessory"
+    ],
+    "hairColor": [
+      "hairColor"
+    ],
+    "clothing": [
+      "top",
+      "garmentMaterial",
+      "garmentPattern",
+      "garmentDetail",
+      "obi",
+      "earrings",
+      "rings",
+      "nails"
+    ],
+    "makeup": [
+      "makeupStyle",
+      "eyebrows",
+      "eyeliner",
+      "eyelashes",
+      "eyeDetail",
+      "blush",
+      "contour",
+      "lips"
+    ],
+    "pose": [
+      "hands",
+      "shoulderPose",
+      "expression",
+      "posture",
+      "cameraAngle"
+    ],
+    "composition": [
+      "frame",
+      "aspectRatio"
+    ],
+    "background": [
+      "backgroundType",
+      "bgColor",
+      "backgroundElements",
+      "bgEffect",
+      "lighting"
+    ],
+    "style": [
+      "genre",
+      "mood",
+      "aesthetic"
+    ],
+    "detail": [
+      "quality",
+      "skinTexture",
+      "skinTone",
+      "skinHighlight",
+      "renderStyle",
+      "ageShift"
+    ],
+    "camera": [
+      "cameraType"
+    ]
+  },
+  "dimensionLayouts": {
+    "hairStyle": "block",
+    "hairColor": "inline",
+    "hairAccessory": "block",
+    "top": "block",
+    "garmentMaterial": "block",
+    "garmentPattern": "block",
+    "garmentDetail": "block",
+    "obi": "block",
+    "nails": "block",
+    "earrings": "block",
+    "rings": "block",
+    "makeupStyle": "block",
+    "blush": "block",
+    "contour": "block",
+    "eyeliner": "block",
+    "eyelashes": "block",
+    "eyeDetail": "block",
+    "eyebrows": "block",
+    "lips": "block",
+    "hands": "block",
+    "shoulderPose": "block",
+    "expression": "block",
+    "posture": "block",
+    "cameraAngle": "block",
+    "cameraType": "block",
+    "frame": "block",
+    "aspectRatio": "block",
+    "backgroundType": "block",
+    "bgColor": "block",
+    "backgroundElements": "block",
+    "bgEffect": "block",
+    "lighting": "block",
+    "genre": "block",
+    "mood": "block",
+    "aesthetic": "block",
+    "quality": "block",
+    "skinTexture": "block",
+    "skinTone": "block",
+    "skinHighlight": "block",
+    "renderStyle": "block",
+    "ageShift": "block"
+  },
+  "dimensionDefaults": {
+    "hairStyle": 9,
+    "hairAccessory": 1,
+    "hairColor": 8,
+    "top": 9,
+    "garmentMaterial": 1,
+    "garmentPattern": 1,
+    "garmentDetail": 1,
+    "obi": 1,
+    "nails": 0,
+    "earrings": 7,
+    "rings": 7,
+    "makeupStyle": 0,
+    "blush": 0,
+    "eyeliner": 0,
+    "eyelashes": 0,
+    "eyeDetail": 0,
+    "eyebrows": 6,
+    "contour": 1,
+    "lips": 0,
+    "hands": 6,
+    "shoulderPose": 1,
+    "expression": 0,
+    "posture": 1,
+    "cameraAngle": 6,
+    "cameraType": 6,
+    "frame": 1,
+    "aspectRatio": 1,
+    "backgroundType": 1,
+    "bgColor": 0,
+    "backgroundElements": 1,
+    "bgEffect": 7,
+    "lighting": 8,
+    "genre": 1,
+    "mood": 0,
+    "aesthetic": 1,
+    "quality": 0,
+    "skinTexture": 5,
+    "skinTone": 1,
+    "skinHighlight": 1,
+    "renderStyle": 1,
+    "ageShift": 4
+  },
+  "groups": [
+    {
+      "key": "hairStyle",
+      "order": 1,
+      "defaultEnabled": true,
+      "defaultLocked": false
+    },
+    {
+      "key": "hairColor",
+      "order": 2,
+      "defaultEnabled": true,
+      "defaultLocked": false
+    },
+    {
+      "key": "clothing",
+      "order": 3,
+      "defaultEnabled": true,
+      "defaultLocked": false
+    },
+    {
+      "key": "makeup",
+      "order": 4,
+      "defaultEnabled": true,
+      "defaultLocked": false
+    },
+    {
+      "key": "pose",
+      "order": 5,
+      "defaultEnabled": true,
+      "defaultLocked": false
+    },
+    {
+      "key": "composition",
+      "order": 6,
+      "defaultEnabled": true,
+      "defaultLocked": false
+    },
+    {
+      "key": "background",
+      "order": 7,
+      "defaultEnabled": true,
+      "defaultLocked": false
+    },
+    {
+      "key": "style",
+      "order": 8,
+      "defaultEnabled": true,
+      "defaultLocked": false
+    },
+    {
+      "key": "detail",
+      "order": 9,
+      "defaultEnabled": true,
+      "defaultLocked": false
+    },
+    {
+      "key": "camera",
+      "order": 10,
+      "defaultEnabled": true,
+      "defaultLocked": false
+    }
+  ],
+  "dimensionSets": [
+    {
+      "key": "full",
+      "label": {
+        "zh": "当前 · 全部维度",
+        "en": "Current · Full set"
+      },
+      "default": true,
+      "groupOrder": [
+        "hairStyle",
+        "hairColor",
+        "clothing",
+        "makeup",
+        "pose",
+        "composition",
+        "background",
+        "style",
+        "detail",
+        "camera"
+      ],
+      "dimensionsByGroup": {
+        "hairStyle": [
+          "hairStyle",
+          "hairAccessory"
+        ],
+        "hairColor": [
+          "hairColor"
+        ],
+        "clothing": [
+          "top",
+          "garmentMaterial",
+          "garmentPattern",
+          "garmentDetail",
+          "obi",
+          "earrings",
+          "rings",
+          "nails"
+        ],
+        "makeup": [
+          "makeupStyle",
+          "eyebrows",
+          "eyeliner",
+          "eyelashes",
+          "eyeDetail",
+          "blush",
+          "contour",
+          "lips"
+        ],
+        "pose": [
+          "hands",
+          "shoulderPose",
+          "expression",
+          "posture",
+          "cameraAngle"
+        ],
+        "composition": [
+          "frame",
+          "aspectRatio"
+        ],
+        "background": [
+          "backgroundType",
+          "bgColor",
+          "backgroundElements",
+          "bgEffect",
+          "lighting"
+        ],
+        "style": [
+          "genre",
+          "mood",
+          "aesthetic"
+        ],
+        "detail": [
+          "quality",
+          "skinTexture",
+          "skinTone",
+          "skinHighlight",
+          "renderStyle",
+          "ageShift"
+        ],
+        "camera": [
+          "cameraType"
+        ]
+      }
+    }
+  ],
+  "presets": [
+    {
+      "id": "preset_glassGlow",
+      "name": "官方示例 · 清透水光",
+      "tags": [
+        "自拍",
+        "水光肌",
+        "居家"
+      ],
+      "state": {
+        "hairStyle": "Long sleek center-part hair with face-framing baby braids braided tight near the roots",
+        "top": "Oatmeal ribbed knit cardigan with large tortoise shell buttons layered over a white crewneck tee",
+        "makeupStyle": "No-makeup Korean glass skin with innocent pure vibe",
+        "blush": "Sakura pink blush diffused broadly across center cheeks for youthful radiance",
+        "lips": "Peach jelly lips with mirror gloss, soft pink and plump",
+        "mood": "Cozy innocent pure vibe with soft autumn casual energy",
+        "quality": "Ultra high-definition 4K clarity, crisp lens detail, zero noise",
+        "skinTexture": "Water-plump glass skin, poreless glow, silky sheen",
+        "ageShift": "Appears about 5 years younger while matching the reference identity"
+      },
+      "description": {
+        "zh": "请仔细分析我提供的照片，完整保留人物的面部特征与五官，确保看起来是同一个人，再打造清透伪素颜的水光自拍，突出居家温柔氛围与 4K 级画质。",
+        "en": "Carefully analyze the reference photo and keep the exact facial features so she remains the same person, then craft a glass-skin selfie with innocent vibes and ultra-clean 4K softness."
+      },
+      "dimensionSetKey": "full"
+    },
+    {
+      "id": "preset_flashNight",
+      "name": "官方示例 · 夜幕闪光",
+      "tags": [
+        "闪光",
+        "夜景",
+        "时尚大片"
+      ],
+      "state": {
+        "hairStyle": "Loose messy bun with face-framing tendrils",
+        "top": "Charcoal oversized hoodie",
+        "makeupStyle": "Soft glam evening makeup",
+        "blush": "Sun-kissed draping blush",
+        "lips": "Glazed peach gloss",
+        "bgColor": "Dark wall with shallow depth, contrasting with flash lighting",
+        "lighting": "Split lighting with flash on one side",
+        "mood": "High-fashion editorial",
+        "quality": "6K cinema-grade sharpness with immaculate texture rendering",
+        "skinTexture": "Airbrushed yet realistic complexion, blurred imperfections",
+        "ageShift": "Appears 8 years younger with youthful vitality"
+      },
+      "description": {
+        "zh": "请仔细分析我提供的照片，完整保留人物面部结构与五官，随后在夜幕室内用强对比闪光营造高级杂志感，同时呈现更年轻的肌肤状态。",
+        "en": "Carefully analyze the provided face, keep every defining feature, and then shoot a fashion night-flash portrait that subtly rejuvenates the skin while preserving identity."
+      },
+      "dimensionSetKey": "full"
+    },
+    {
+      "id": "preset_softCoquette",
+      "name": "官方示例 · 软萌纯欲",
+      "tags": [
+        "自拍",
+        "粉色",
+        "纯欲"
+      ],
+      "state": {
+        "hairStyle": "Shoulder-length blunt cut with airy micro bangs",
+        "hairColor": "Soft caramel brown",
+        "top": "Pastel pink mohair sweater",
+        "earrings": "Tiny pearl studs",
+        "rings": "Stacked rose gold rings with tiny gems",
+        "makeupStyle": "Clean girl makeup",
+        "blush": "Soft pink across cheeks and nose",
+        "lips": "Juicy cherry stain",
+        "bgColor": "Dusty pink backdrop",
+        "bgEffect": "Subtle gradient wash",
+        "lighting": "Softbox-style diffused flash",
+        "mood": "Whimsical coquette energy",
+        "quality": "6K cinema-grade sharpness with immaculate texture rendering",
+        "skinTexture": "Bouncy baby-skin texture with translucent dew",
+        "ageShift": "Subtle age rewind (3-5 years) keeping every defining trait"
+      },
+      "description": {
+        "zh": "请仔细分析我提供的照片，完整保留人物面貌与五官，再以空气刘海与粉彩毛衣营造软萌纯欲感，搭配柔光与渐层背景凸显幼态肤质。",
+        "en": "Carefully analyze the source portrait and keep the same facial identity, then style airy bangs + pastel knit for soft coquette vibes with dewy youthful skin."
+      },
+      "dimensionSetKey": "full"
+    },
+    {
+      "id": "preset_softGirlBlush",
+      "name": "官方示例 · 柔粉软萌",
+      "tags": [
+        "自拍",
+        "粉色",
+        "软萌"
+      ],
+      "state": {
+        "hairStyle": "Shoulder-length blunt cut with airy micro bangs",
+        "hairColor": "Soft caramel brown",
+        "top": "Pastel pink mohair sweater",
+        "earrings": "Tiny pearl studs",
+        "rings": "Stacked rose gold rings with tiny gems",
+        "nails": "Almond-shaped, semi-transparent creamy pink with subtle pearlescent glow",
+        "makeupStyle": "Soft natural pink-tinted dewy makeup",
+        "eyebrows": "Light natural and tidy",
+        "eyeliner": "Soft blurred Korean-style brown eyeliner",
+        "eyelashes": "Thin false eyelashes",
+        "blush": "Soft pink across cheeks and nose",
+        "lips": "Hydrated cherry stain with sheer gloss",
+        "hands": "Both hands gently touching cheeks",
+        "expression": "Soft smile",
+        "cameraAngle": "High-angle selfie, approx 30 degrees above the face",
+        "aspectRatio": "3:4",
+        "bgColor": "Dusty pink backdrop",
+        "bgEffect": "Subtle gradient wash",
+        "lighting": "Diffused soft light with gentle haze glow effect",
+        "mood": "Soft, pink, subtly sweet soft-girl vibe",
+        "quality": "High-resolution capture with gentle soft focus and luminous sheen",
+        "skinTexture": "Silky smooth, translucent skin with natural soft glow",
+        "ageShift": "Subtle age rewind (3-5 years) keeping every defining trait",
+        "cameraType": "Soft-light digital portrait setup"
+      },
+      "description": {
+        "zh": "请仔细分析我提供的照片，完整保留人物面貌与五官，以空气刘海与粉彩毛衣呈现柔和粉调的软萌纯欲气质，搭配柔光与轻雾化背景强化肌肤的细腻光泽感。",
+        "en": "Carefully analyze the provided portrait, keep the exact facial identity, then pair airy bangs and a pastel mohair sweater for a soft pink soft-girl vibe, using diffused glow + gentle haze to highlight luminous skin."
+      },
+      "dimensionSetKey": "full"
+    },
+    {
+      "id": "preset_modernMinimal",
+      "name": "官方示例 · 都市极简",
+      "tags": [
+        "都市",
+        "极简",
+        "自然光"
+      ],
+      "state": {
+        "hairStyle": "Straight long hair, center part, silky texture",
+        "hairColor": "Natural black",
+        "top": "Beige trench coat layered over a white tee",
+        "earrings": "Minimal silver studs",
+        "rings": "Minimal open-ended ring",
+        "makeupStyle": "Soft natural makeup",
+        "blush": "Muted mauve across cheeks",
+        "lips": "Soft rose tint",
+        "hands": "One hand touching cheek",
+        "expression": "Calm and gentle",
+        "bgColor": "Industrial concrete wall",
+        "lighting": "Warm desk lamp mixed with cool flash",
+        "mood": "Modern simplicity",
+        "quality": "High-resolution RAW-style capture, deep dynamic range",
+        "skinTexture": "Hydrated, luminous skin with subtle reflections",
+        "ageShift": "Appears about 5 years younger while matching the reference identity"
+      },
+      "description": {
+        "zh": "请仔细分析我提供的照片，完整保留人物的面部特征，配合米色风衣与自然光打造都市极简自拍，在保留原脸的同时呈现更清透年轻的状态。",
+        "en": "Carefully study the reference face, keep it identical, and pair a beige trench with natural light for a minimal city portrait that feels fresher and younger."
+      },
+      "dimensionSetKey": "full"
+    },
+    {
+      "id": "preset_vintageFilm",
+      "name": "官方示例 · 复古影像",
+      "tags": [
+        "胶片",
+        "复古",
+        "棚拍"
+      ],
+      "state": {
+        "hairStyle": "Loose messy bun with face-framing tendrils",
+        "hairColor": "Warm chestnut brown",
+        "top": "Cream knit cardigan with wooden buttons",
+        "earrings": "Small gold huggie hoops",
+        "rings": "Vintage-style signet ring",
+        "makeupStyle": "Retro 90s supermodel makeup",
+        "blush": "Peachy ombre blush",
+        "lips": "Matte brick red",
+        "cameraAngle": "Mirror selfie with slight tilt",
+        "bgColor": "Soft beige wall with warm undertone",
+        "lighting": "Backlit hair light with fill flash",
+        "mood": "Vintage film nostalgia",
+        "quality": "8K hyper-real photo realism, tack-sharp focus",
+        "skinTexture": "Airbrushed yet realistic complexion, blurred imperfections",
+        "ageShift": "Appears 8 years younger with youthful vitality"
+      },
+      "description": {
+        "zh": "请仔细分析我提供的照片，完整保留人物面孔，再用复古妆容与暖色背景打造怀旧胶片氛围，在高精度画质中呈现更年轻但仍是同一人的效果。",
+        "en": "Carefully analyze the reference and keep every facial trait, then apply retro makeup + warm backdrop for a vintage film vibe that stays unmistakably the same person."
+      },
+      "dimensionSetKey": "full"
+    },
+    {
+      "id": "preset_modernWaStudio",
+      "name": "官方示例 · 现代和风影棚",
+      "tags": [
+        "和风",
+        "影棚",
+        "高定"
+      ],
+      "state": {
+        "hairStyle": "Refined half-up bun with sleek trailing straight pieces and mirror-like shine",
+        "hairAccessory": "Gold metallic hair ornament with sculpted white petals and pearls",
+        "hairColor": "Glossy deep black-brown",
+        "top": "Modern Wa-inspired kimono with luminous gold sheen and sculpted off-shoulder sleeves",
+        "garmentMaterial": "High-fashion silk with fluid iridescent gold sheen",
+        "garmentPattern": "Vivid raised red and blue floral embroidery with classic Japanese motifs",
+        "garmentDetail": "Wide off-shoulder sleeves showcasing graceful neck and collarbones",
+        "obi": "Deep navy structured obi belt with crisp woven texture",
+        "nails": "Sheer pink jelly nails with a plump glossy finish",
+        "earrings": "High-shine gold pearl drop earrings",
+        "rings": "Minimalist polished gold ring",
+        "makeupStyle": "Sheer water-glow makeup that enhances natural rosy complexion",
+        "eyebrows": "Delicate curved brows with visible hair texture",
+        "eyeliner": "Defined inner tightline with translucent wash for luminous eyes",
+        "eyelashes": "Root-separated natural lashes with gentle curl and extra brightness",
+        "eyeDetail": "Clear almond eyes with a gentle smile, translucent eyeshadow, and steady gaze",
+        "blush": "Natural peach or coral blush softly buffed across wide cheek area",
+        "contour": "Light sculpting to enhance natural facial structure",
+        "lips": "Water-rich jelly lips in juicy peach pink with mirror shine",
+        "hands": "Hands gracefully crossed at the waist, fingers long and relaxed",
+        "shoulderPose": "Open bare shoulders with pronounced collarbones and luminous skin",
+        "expression": "Warm confident micro-smile with soft gaze into the lens",
+        "posture": "Elegant front-facing seated posture",
+        "cameraAngle": "Eye-level studio angle focused on the subject's face",
+        "cameraType": "Soft-light digital portrait setup",
+        "frame": "Half-length portrait with disciplined studio framing",
+        "aspectRatio": "3:4",
+        "backgroundType": "High-end studio backdrop",
+        "bgColor": "Pristine pale gray-to-white gradient",
+        "backgroundElements": "Graceful cherry blossom branches with delicate petals",
+        "bgEffect": "Soft layered gradient wash",
+        "lighting": "Layered soft studio lights with key, rim, and fill for luminous transparency",
+        "genre": "Modern Wa-inspired studio portrait",
+        "mood": "Fresh, luminous, elegant, regal mood",
+        "aesthetic": "High-end studio polish emphasizing translucent luminous skin",
+        "quality": "Ultra high-resolution capture revealing strands, pores, and silk texture",
+        "skinTexture": "Fine, poreless, hydrated glass skin with resilience",
+        "skinTone": "Fair, rosy, and luminous with healthy translucency",
+        "skinHighlight": "T-zone, cheekbones, and chin brushed with delicate highlights",
+        "renderStyle": "Photorealistic rendering that emphasizes true material sheen",
+        "ageShift": "Maintains the subject's true age while enhancing healthy radiance"
+      },
+      "description": {
+        "zh": "基于原始图像，对人物气色、妆容细节、服饰质感及环境光影进行全方位优化，打造清新透亮、气色红润的现代和风影棚写真。",
+        "en": "Analyze the provided base photo, preserve the subject's exact identity, and refine complexion, makeup detailing, wardrobe textures, and studio lighting to craft a fresh, translucent, rosy modern Wa-inspired portrait."
+      },
+      "dimensionSetKey": "full"
+    }
+  ]
+}
